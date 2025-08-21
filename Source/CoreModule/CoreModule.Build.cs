@@ -21,7 +21,8 @@ public class CoreModule : ModuleRules
                 "Engine",
                 "Slate",
                 "SlateCore",
-                "EnhancedInput"
+                "EnhancedInput",
+                "GameplayAbilities"
             }
         );
     }
