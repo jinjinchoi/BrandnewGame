@@ -7,6 +7,7 @@
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
+	
 }
 
 void UBrandNewAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

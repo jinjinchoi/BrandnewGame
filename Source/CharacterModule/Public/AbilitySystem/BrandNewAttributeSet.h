@@ -25,7 +25,7 @@ public:
 	UBrandNewAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-#pragma region  Vital // begin Vital Attribute
+#pragma region  Vital // 체력 및 마력
 	
 	UPROPERTY(ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
@@ -43,9 +43,9 @@ public:
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxMana);
 	
-#pragma endregion // end Vital Attribute
+#pragma endregion
 
-#pragma region PrimaryAttribute // begin PrimaryAttribute
+#pragma region PrimaryAttribute  // 주속성
 	
 	UPROPERTY(ReplicatedUsing = OnRep_Strength)
 	FGameplayAttributeData Strength;
@@ -63,8 +63,11 @@ public:
 	FGameplayAttributeData Vitality;
 	ATTRIBUTE_ACCESSORS(ThisClass, Vitality);
 	
-#pragma endregion  // end PrimaryAttribute
+#pragma endregion 
 
+
+#pragma region SecondaryAttribute
+	
 	UPROPERTY(ReplicatedUsing = OnRep_PhysicalAttackPower)
 	FGameplayAttributeData PhysicalAttackPower;
 	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalAttackPower);
@@ -88,6 +91,8 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_MagicDefensePower)
 	FGameplayAttributeData MagicDefensePower;
 	ATTRIBUTE_ACCESSORS(ThisClass, MagicDefensePower);
+
+#pragma endregion 
 
 private:
 	UFUNCTION()

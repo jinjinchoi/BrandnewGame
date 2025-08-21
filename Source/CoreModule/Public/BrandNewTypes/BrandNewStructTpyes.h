@@ -40,7 +40,48 @@ struct FGateSettings
 
 /* 캐릭터 Attribute를 설정하기 위한 데이터 테이블용 구조체 */
 USTRUCT(BlueprintType)
-struct FAttributeDataTableInfo
+struct FPrimaryAttributeDataRow : public FTableRowBase
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	FName ID = NAME_None;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Vital Attribute")
+	float MaxHealth = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vital Attribute")
+	float MaxMana = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
+	float Strength = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
+	float Intelligence = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
+	float Dexterity = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
+	float Vitality = 0.f;
+	
+};
+
+/* 캐릭터 Attribute를 설정하기 위한 데이터 테이블용 구조체 */
+USTRUCT(BlueprintType)
+struct FBaseAttributePrams
+{
+	GENERATED_BODY()
+
+
+	float MaxHealth = 0.f;
+	float CurrentHealth = 0.f;
+	float MaxMana = 0.f;
+	float CurrentMana = 0.f;
+	
+	float Strength = 0.f;
+	float Intelligence = 0.f;
+	float Dexterity = 0.f;
+	float Vitality = 0.f;
+	
 };

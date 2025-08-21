@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
+class UGameplayEffect;
 class UAbilitySystemComponent;
 class UAttributeSet;
 
@@ -17,6 +18,7 @@ class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAb
 
 public:
 	ABrandNewBaseCharacter();
+	virtual void OnRep_PlayerState() override;
 
 	/* begin IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -31,6 +33,22 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	TObjectPtr<UDataTable> AttributeDataTable;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	FName AttributeTableKeyName;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
+
+private:
+	void InitAbilityActorInfo();
+	void ApplyPrimaryAttribute() const;
 
 public:
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
