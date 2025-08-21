@@ -1,0 +1,31 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
+#include "UObject/Interface.h"
+#include "BrandNewPlayerInterface.generated.h"
+
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class UBrandNewPlayerInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+/**
+ * 
+ */
+class COREMODULE_API IBrandNewPlayerInterface
+{
+	GENERATED_BODY()
+
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+public:
+	/* 현재 장착 중인 무기의 타입을 반환하는 함수 */
+	virtual EEquippedWeapon GetCurrentEquippedWeaponType () const = 0;
+
+	// Turn In Place 애니메이션 커브에서 값 가져와서 캐릭터 회전시키는 함수
+	virtual void AddYawRotation(const float DeltaYaw) = 0;
+};
