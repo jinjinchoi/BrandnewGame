@@ -20,6 +20,7 @@ class CHARACTERMODULE_API ABrandNewPlayerCharacter : public ABrandNewBaseCharact
 public:
 	ABrandNewPlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/* begin Player Interface */
 	virtual EEquippedWeapon GetCurrentEquippedWeaponType() const override;
@@ -27,6 +28,7 @@ public:
 	/* end Player Interface */
 
 	/* 캐릭터의 무브먼트 모드를 변경하는 함수 */
+	UFUNCTION(Server, Reliable)
 	void SetMovementMode(const EGate NewGate);
 
 	/** 현재 장착중인 무기가 변경되면 호출하는 함수. **/
@@ -44,13 +46,22 @@ protected:
 private:
 
 #pragma region Movement
-	
+
+	UPROPERTY(Replicated)
 	EEquippedWeapon CurrentEquippedWeaponType = EEquippedWeapon::Unequipped;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentGate)
 	EGate CurrentGate = EGate::Jogging;
+
+	UFUNCTION()
+	void OnRep_CurrentGate();
 
 	/* 이동 타입에 따른 최대 속도, 브레이크 속도들을 설정하는 Map */
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Movement Properties")
 	TMap<EGate, FGateSettings> GateSettings;
+
+	void UpdateMovementComponentPrams();
+	
 
 #pragma endregion Movement
 

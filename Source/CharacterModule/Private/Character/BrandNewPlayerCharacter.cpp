@@ -9,7 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
@@ -77,13 +77,26 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 	
 }
 
+void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, CurrentEquippedWeaponType);
+	DOREPLIFETIME(ThisClass, CurrentGate);
+	
+}
+
 void ABrandNewPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
+
+
 	SetMovementMode(CurrentGate);
+
 }
+
 
 EEquippedWeapon ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
 {
@@ -97,10 +110,34 @@ void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 	SetActorRotation(NewRot);
 }
 
-void ABrandNewPlayerCharacter::SetMovementMode(const EGate NewGate)
+
+void ABrandNewPlayerCharacter::SetMovementMode_Implementation(const EGate NewGate)
 {
+	if (!HasAuthority()) return;
+	
 	CurrentGate = (CurrentGate == NewGate) ? EGate::Jogging : NewGate;
 	
+	UpdateMovementComponentPrams();
+
+	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInterface->UpdateCurrentGate(CurrentGate);
+	}
+	
+}
+
+void ABrandNewPlayerCharacter::OnRep_CurrentGate()
+{
+	UpdateMovementComponentPrams();
+	
+	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInterface->UpdateCurrentGate(CurrentGate);
+	}
+}
+
+void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
+{
 	if (GateSettings.Contains(CurrentGate))
 	{
 		const FGateSettings GateSettingsToApply = GateSettings[CurrentGate];
@@ -112,13 +149,8 @@ void ABrandNewPlayerCharacter::SetMovementMode(const EGate NewGate)
 		GetCharacterMovement()->BrakingFriction = GateSettingsToApply.BrakingFriction;
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
-
-	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
-	{
-		AnimInterface->UpdateCurrentGate(CurrentGate);
-	}
-	
 }
+
 
 void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 {
