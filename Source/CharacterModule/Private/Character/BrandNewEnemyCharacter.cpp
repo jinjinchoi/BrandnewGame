@@ -2,10 +2,17 @@
 
 
 #include "Character/BrandNewEnemyCharacter.h"
-
-#include "AbilitySystemComponent.h"
+#include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 {
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+}
+
+void ABrandNewEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitAbilityActorInfo();
+	
 }

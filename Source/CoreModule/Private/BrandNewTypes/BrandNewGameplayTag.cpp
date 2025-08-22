@@ -17,4 +17,12 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Intelligence, "Attribute.Intelligence")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Dexterity, "Attribute.Dexterity")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vitality, "Attribute.Vitality")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Equip, "Input.Ability.Equip")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Unequip, "Input.Ability.Unequip")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_EquipWeapon, "Ability.Player.EquipWeapon")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_UnequipWeapon, "Ability.Player.UnequipWeapon")
+	
+	
 }

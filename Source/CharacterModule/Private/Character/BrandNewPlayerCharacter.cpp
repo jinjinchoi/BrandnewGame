@@ -2,10 +2,11 @@
 
 
 #include "Character/BrandNewPlayerCharacter.h"
-
-#include "AbilitySystemComponent.h"
+#include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
+#include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
@@ -77,6 +78,32 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 	
 }
 
+
+void ABrandNewPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnEquippedWeaponChanged();
+	Server_SetMovementMode(CurrentGate);
+
+}
+
+
+void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	InitAbilityActorInfo();
+	AddCharacterAbilities();
+}
+
+void ABrandNewPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	InitAbilityActorInfo();
+}
+
 void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -86,22 +113,53 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 	
 }
 
-void ABrandNewPlayerCharacter::BeginPlay()
+void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 {
-	Super::BeginPlay();
+	if (!HasAuthority() || DefaultAbilitiesDataAsset.IsNull() || !AbilitySystemComponent) return;
 
-	OnEquippedWeaponChanged();
-
-
-	SetMovementMode(CurrentGate);
-
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+	Streamable.RequestAsyncLoad(
+		DefaultAbilitiesDataAsset.ToSoftObjectPath(),
+		FStreamableDelegate::CreateLambda([this]()
+		{
+			const UDataAsset_DefaultPlayerAbilities* LoadedData = DefaultAbilitiesDataAsset.Get();
+			if (IsValid(LoadedData) && IsValid(AbilitySystemComponent))
+			{
+				AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
+				AbilitySystemComponent->GrantPlayerInputAbilities(LoadedData->InputAbilities);
+			}
+			
+		})
+	);
 }
-
 
 EEquippedWeapon ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
 {
 	return CurrentEquippedWeaponType;
 }
+
+void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
+{
+	// 무기 타입별 애님 레이어를 변경 
+	if (WeaponAnimLayerMap.Contains(CurrentEquippedWeaponType))
+	{
+		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[CurrentEquippedWeaponType]);
+	}
+}
+
+void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInputTag) const
+{
+	if (!AbilitySystemComponent) return;
+
+	AbilitySystemComponent->OnAbilityInputPressed(InInputTag);
+	
+}
+
+void ABrandNewPlayerCharacter::OnAbilityInputReleased(const FGameplayTag& InInputTag) const
+{
+	
+}
+
 
 void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 {
@@ -111,7 +169,8 @@ void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 }
 
 
-void ABrandNewPlayerCharacter::SetMovementMode_Implementation(const EGate NewGate)
+#pragma region Movement
+void ABrandNewPlayerCharacter::Server_SetMovementMode_Implementation(const EGate NewGate)
 {
 	if (!HasAuthority()) return;
 	
@@ -150,13 +209,4 @@ void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
 }
-
-
-void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
-{
-	// 무기 타입별 애님 레이어를 변경 
-	if (WeaponAnimLayerMap.Contains(CurrentEquippedWeaponType))
-	{
-		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[CurrentEquippedWeaponType]);
-	}
-}
+#pragma endregion 

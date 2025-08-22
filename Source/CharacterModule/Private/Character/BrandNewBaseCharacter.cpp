@@ -8,6 +8,7 @@
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
+#include "Item/Equipment/BrandNewWeapon.h"
 
 ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 {
@@ -29,20 +30,6 @@ void ABrandNewBaseCharacter::BeginPlay()
 	
 }
 
-void ABrandNewBaseCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	InitAbilityActorInfo();
-}
-
-void ABrandNewBaseCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	InitAbilityActorInfo();
-	
-}
 
 void ABrandNewBaseCharacter::InitAbilityActorInfo()
 {
@@ -78,10 +65,18 @@ void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
 		
 		UBrandNewFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
 	}
+	
+}
 
-	// const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
-	// const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DefaultPrimaryAttributes, 1.f, ContextHandle);
-	// GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
+void ABrandNewBaseCharacter::SetupWeapon()
+{
+	if (!CombatWeaponClass) return;
+
+	CombatWeapon = NewObject<ABrandNewWeapon>(this, CombatWeaponClass);
+	if (CombatWeapon)
+	{
+		CombatWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, CombatSocketName);
+	}
 	
 	
 }

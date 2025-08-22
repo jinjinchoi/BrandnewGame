@@ -17,4 +17,8 @@ class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacte
 
 public:
 	ABrandNewEnemyCharacter();
+
+protected:
+	virtual void BeginPlay() override;
+	
 };

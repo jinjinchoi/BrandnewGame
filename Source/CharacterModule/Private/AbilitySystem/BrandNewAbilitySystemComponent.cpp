@@ -3,3 +3,51 @@
 
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
+
+void UBrandNewAbilitySystemComponent::GrantAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AbilitiesToGrant,
+                                                     const bool bIsPassiveAbility)
+{
+	if (AbilitiesToGrant.Num() == 0) return;
+
+	for (const TSubclassOf<UGameplayAbility>& AbilityToGrant : AbilitiesToGrant)
+	{
+		if (!AbilityToGrant) continue;
+
+		FGameplayAbilitySpec AbilitySpec(AbilityToGrant);
+		AbilitySpec.SourceObject = GetAvatarActor();
+
+		bIsPassiveAbility ? GiveAbilityAndActivateOnce(AbilitySpec) : GiveAbility(AbilitySpec);
+		
+	}
+	
+}
+
+void UBrandNewAbilitySystemComponent::GrantPlayerInputAbilities(const TArray<FPlayerAbilitySet>& AbilitySet)
+{
+	if (AbilitySet.Num() == 0) return;
+
+	for (const FPlayerAbilitySet& AbilityParams : AbilitySet)
+	{
+		if (!AbilityParams.IsValid()) continue;
+
+		FGameplayAbilitySpec AbilitySpec(AbilityParams.AbilityToGrand);
+		AbilitySpec.SourceObject = GetAvatarActor();
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityParams.InputTag);
+
+		GiveAbility(AbilitySpec);
+	}
+	
+}
+
+void UBrandNewAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
+{
+	if (!InInputTag.IsValid()) return;
+	
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
+		TryActivateAbility(AbilitySpec.Handle);
+	}
+}

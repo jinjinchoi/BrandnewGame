@@ -7,8 +7,9 @@
 #include "AbilitySystemInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
+class UBrandNewAbilitySystemComponent;
+class ABrandNewWeapon;
 class UGameplayEffect;
-class UAbilitySystemComponent;
 class UAttributeSet;
 
 UCLASS()
@@ -18,18 +19,20 @@ class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAb
 
 public:
 	ABrandNewBaseCharacter();
-	virtual void OnRep_PlayerState() override;
 
 	/* begin IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	/* end IAbilitySystemInterface */
 
 protected:
+	/* begin Actor Class */
 	virtual void BeginPlay() override;
-	virtual void PossessedBy(AController* NewController) override;
+	/* end Actor Class */
+	
+	virtual void InitAbilityActorInfo();
 
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
@@ -43,12 +46,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
 	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
 
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
+
+	UPROPERTY()
+	TObjectPtr<ABrandNewWeapon> CombatWeapon;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	FName CombatSocketName = FName("CombatSocket");
 
 private:
-	void InitAbilityActorInfo();
 	void ApplyPrimaryAttribute() const;
+	void SetupWeapon();
 
 public:
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }

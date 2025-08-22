@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewBaseCharacter.h"
+#include "GameplayTagContainer.h"
 #include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Interfaces/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class UDataAsset_DefaultPlayerAbilities;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -19,32 +21,47 @@ class CHARACTERMODULE_API ABrandNewPlayerCharacter : public ABrandNewBaseCharact
 
 public:
 	ABrandNewPlayerCharacter();
+	/* begin Actor Interface */
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+	/* end Actor Interface */
 
 	/* begin Player Interface */
 	virtual EEquippedWeapon GetCurrentEquippedWeaponType() const override;
 	virtual void AddYawRotation(const float DeltaYaw) override;
 	/* end Player Interface */
 
-	/* 캐릭터의 무브먼트 모드를 변경하는 함수 */
+	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
 	UFUNCTION(Server, Reliable)
-	void SetMovementMode(const EGate NewGate);
+	void Server_SetMovementMode(const EGate NewGate);
 
 	/** 현재 장착중인 무기가 변경되면 호출하는 함수. **/
 	void OnEquippedWeaponChanged();
+
+	void OnAbilityInputPressed(const FGameplayTag& InInputTag) const;
+	void OnAbilityInputReleased(const FGameplayTag& InInputTag) const;
 
 protected:
 	/* begin Actor Interface */
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
 
-	/* 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map */
+	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
 	TMap<EEquippedWeapon, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
 
-private:
+	/** 모든 캐릭터에게 공통으로 부여할 어빌리티를 저장하는 데이터 에셋 **/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
+	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
 
+private:
+	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
+	void AddCharacterAbilities() const;
+
+
+	
 #pragma region Movement
 
 	UPROPERTY(Replicated)
@@ -61,10 +78,8 @@ private:
 	TMap<EGate, FGateSettings> GateSettings;
 
 	void UpdateMovementComponentPrams();
-	
 
 #pragma endregion Movement
-
 
 #pragma region CameraComponent
 	UPROPERTY(EditDefaultsOnly)

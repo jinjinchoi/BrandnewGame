@@ -15,6 +15,9 @@ namespace BrandNewGamePlayTag
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Look);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Run);
 
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Equip);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Input_Ability_Unequip);
+
 	/**
 	 * Attribute Tags
 	 */
@@ -26,7 +29,12 @@ namespace BrandNewGamePlayTag
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Intelligence);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Dexterity);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Vitality);
-	
+
+	/**
+	 * Ability Tags
+	 */
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_EquipWeapon);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_UnequipWeapon);
 	
 	
 }

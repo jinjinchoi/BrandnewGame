@@ -39,9 +39,27 @@ void ABrandNewPlayerController::SetupInputComponent()
 			InputConfig, this, BrandNewGamePlayTag::Input_Walk, ETriggerEvent::Started, &ThisClass::Input_Walk);
 		BrandNewInputComponent->BindLocomotionInputAction(
 			InputConfig, this, BrandNewGamePlayTag::Input_Jump, ETriggerEvent::Triggered, &ThisClass::Input_Jump);
-			
+
+		BrandNewInputComponent->BindAbilityInputAction(InputConfig, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
+		
 	}
 	
+}
+
+void ABrandNewPlayerController::Input_AbilityInputPressed(FGameplayTag InInputTag)
+{
+	const ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
+	if (!ControlledCharacter) return;
+
+	ControlledCharacter->OnAbilityInputPressed(InInputTag);
+}
+
+void ABrandNewPlayerController::Input_AbilityInputReleased(FGameplayTag InInputTag)
+{
+	const ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
+	if (!ControlledCharacter) return;
+
+	ControlledCharacter->OnAbilityInputReleased(InInputTag);
 }
 
 void ABrandNewPlayerController::Input_Move(const FInputActionValue& InputActionValue)
@@ -94,7 +112,7 @@ void ABrandNewPlayerController::Input_Walk()
 {
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
-		ControlledCharacter->SetMovementMode(EGate::Walking);
+		ControlledCharacter->Server_SetMovementMode(EGate::Walking);
 	}
 }
 
@@ -103,6 +121,6 @@ void ABrandNewPlayerController::Input_Run()
 {
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
-		ControlledCharacter->SetMovementMode(EGate::Running);
+		ControlledCharacter->Server_SetMovementMode(EGate::Running);
 	}
 }
