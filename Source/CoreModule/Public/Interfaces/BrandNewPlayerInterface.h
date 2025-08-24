@@ -36,5 +36,9 @@ public:
 	/* 무기를 장착하면 플레이어의 장착중인 무기 타입 enum을 변경하기 위해 호출하는 함수 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnWeaponEquipped();
+
+	/* 무장 해제시 무기 타입 enum을 Unequip으로 변경하기 위해 별도의 함수로 분리 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnWeaponUnequipped();
 	
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
+#include "Interfaces/BnPlayerControllerInterface.h"
 #include "BrandNewPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -13,7 +14,7 @@ class UDataAsset_InputConfig;
  * 
  */
 UCLASS()
-class CHARACTERMODULE_API ABrandNewPlayerController : public APlayerController
+class CHARACTERMODULE_API ABrandNewPlayerController : public APlayerController, public IBnPlayerControllerInterface
 {
 	GENERATED_BODY()
 
@@ -21,12 +22,16 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
+	/* begin IBnPlayerControllerInterface */
+	virtual void AddInputMappingForWeapon(const ECombatWeaponType InWeaponType) override;
+	virtual void RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove) override;
+	/* end IBnPlayerControllerInterface */
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input Properties")
 	TObjectPtr<UDataAsset_InputConfig> InputConfig;
 
 	/* Input */
-
 	void Input_AbilityInputPressed(FGameplayTag InInputTag);
 	void Input_AbilityInputReleased(FGameplayTag InInputTag);
 	

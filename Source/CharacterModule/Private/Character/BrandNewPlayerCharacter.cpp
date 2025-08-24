@@ -9,6 +9,7 @@
 #include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Interfaces/BnPlayerControllerInterface.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
@@ -159,14 +160,6 @@ ECombatWeaponType ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
 	return EquippedWeaponType;
 }
 
-void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
-{
-	// 무기 타입별 애님 레이어를 변경 
-	if (WeaponAnimLayerMap.Contains(EquippedWeaponType))
-	{
-		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
-	}
-}
 
 void ABrandNewPlayerCharacter::OnWeaponEquipped_Implementation()
 {
@@ -176,10 +169,50 @@ void ABrandNewPlayerCharacter::OnWeaponEquipped_Implementation()
 	OnEquippedWeaponChanged();
 }
 
+void ABrandNewPlayerCharacter::OnWeaponUnequipped_Implementation()
+{
+	if (!HasAuthority()) return;
+	
+	EquippedWeaponType = ECombatWeaponType::Unequipped;
+	OnEquippedWeaponChanged();
+}
+
 void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
 {
 	OnEquippedWeaponChanged();
 }
+
+void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
+{
+	// 무기 타입별 애님 레이어를 변경 
+	if (WeaponAnimLayerMap.Contains(EquippedWeaponType))
+	{
+		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
+	}
+
+	// 인풋 매핑 컨텍스트를 변경. 매핑 컨텍스트는 로컬 컨트롤러에서만 바꾸는 것이 의미 있기 때문에 확인해야함. (이 함수는 서버 클라이언트 모두에게 실행됨)
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC && PC->IsLocalController())
+	{
+		IBnPlayerControllerInterface* PlayerControllerInterface = Cast<IBnPlayerControllerInterface>(PC);
+		if (!PlayerControllerInterface) return;
+
+		if (LastEquippedWeaponType > ECombatWeaponType::Unequipped)
+		{
+			PlayerControllerInterface->RemoveInputMappingForWeapon(LastEquippedWeaponType);	
+		}
+
+		if (EquippedWeaponType > ECombatWeaponType::Unequipped)
+		{
+			PlayerControllerInterface->AddInputMappingForWeapon(EquippedWeaponType);
+		}
+		
+	}
+
+	LastEquippedWeaponType = EquippedWeaponType;
+	
+}
+
 
 
 #pragma region Movement

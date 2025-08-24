@@ -33,6 +33,7 @@ public:
 	virtual void AddYawRotation(const float DeltaYaw) override;
 	virtual AActor*GetCombatWeaponActor_Implementation() const override;
 	virtual void OnWeaponEquipped_Implementation() override;
+	virtual void OnWeaponUnequipped_Implementation() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -65,6 +66,8 @@ private:
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)
 	ECombatWeaponType EquippedWeaponType = ECombatWeaponType::Unequipped;
+
+	ECombatWeaponType LastEquippedWeaponType = ECombatWeaponType::Unequipped;
 
 	UFUNCTION()
 	void OnRep_CurrentEquippedWeaponType();

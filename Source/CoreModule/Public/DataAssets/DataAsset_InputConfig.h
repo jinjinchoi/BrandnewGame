@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "Engine/DataAsset.h"
 #include "DataAsset_InputConfig.generated.h"
 
@@ -38,7 +39,7 @@ class COREMODULE_API UDataAsset_InputConfig : public UDataAsset
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+	TMap<ECombatWeaponType, UInputMappingContext*> MappingContextMap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="InputTag"))
 	TArray<FInputActionConfig> NativeInputActions;

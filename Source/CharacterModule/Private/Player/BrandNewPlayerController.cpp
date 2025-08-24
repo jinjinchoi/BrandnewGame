@@ -18,7 +18,13 @@ void ABrandNewPlayerController::BeginPlay()
 
 	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		SubSystem->AddMappingContext(InputConfig->DefaultMappingContext, 0);
+		const ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
+		if (!ControlledCharacter) return;
+		
+		if (UInputMappingContext** FoundMappingContext = InputConfig->MappingContextMap.Find(ControlledCharacter->GetCurrentEquippedWeaponType()))
+		{
+			SubSystem->AddMappingContext(*FoundMappingContext, 0);
+		}
 	}
 	
 }
@@ -42,6 +48,33 @@ void ABrandNewPlayerController::SetupInputComponent()
 
 		BrandNewInputComponent->BindAbilityInputAction(InputConfig, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
 		
+	}
+	
+}
+
+void ABrandNewPlayerController::AddInputMappingForWeapon(const ECombatWeaponType InWeaponType)
+{
+	if (InWeaponType <= ECombatWeaponType::Unequipped) return;
+	
+	UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (!SubSystem) return;
+	
+	if (UInputMappingContext** FoundMappingContext = InputConfig->MappingContextMap.Find(InWeaponType))
+	{
+		SubSystem->AddMappingContext(*FoundMappingContext, 0);
+	}
+}
+
+void ABrandNewPlayerController::RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove)
+{
+	if (WeaponTypeToRemove <= ECombatWeaponType::Unequipped) return;
+
+	UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (!SubSystem) return;
+	
+	if (UInputMappingContext** FoundMappingContext = InputConfig->MappingContextMap.Find(WeaponTypeToRemove))
+	{
+		SubSystem->RemoveMappingContext(*FoundMappingContext);
 	}
 	
 }

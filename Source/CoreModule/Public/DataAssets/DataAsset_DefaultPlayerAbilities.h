@@ -13,7 +13,7 @@ struct FPlayerAbilitySet
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, meta = (Categories = "Input_Ability"))
+	UPROPERTY(EditDefaultsOnly, meta = (Categories = "Input.Ability"))
 	FGameplayTag InputTag = FGameplayTag();
 
 	UPROPERTY(EditDefaultsOnly)
