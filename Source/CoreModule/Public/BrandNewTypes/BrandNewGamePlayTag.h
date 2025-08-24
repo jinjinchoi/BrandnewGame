@@ -35,6 +35,12 @@ namespace BrandNewGamePlayTag
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_EquipWeapon);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_UnequipWeapon);
+
+	/**
+	 * Event Tags
+	 */
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EquipWeapon);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_UnequipWeapon);
 	
 	
 }

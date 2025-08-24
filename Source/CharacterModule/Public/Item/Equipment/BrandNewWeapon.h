@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "GameFramework/Actor.h"
 #include "BrandNewWeapon.generated.h"
 
@@ -26,6 +27,10 @@ protected:
 	TObjectPtr<UBoxComponent> WeaponCollisionBox;
 
 private:
-	
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Weapon Properties")
+	ECombatWeaponType WeaponType;
+
+public:
+	FORCEINLINE ECombatWeaponType GetCombatWeaponType () const { return WeaponType; }
 
 };

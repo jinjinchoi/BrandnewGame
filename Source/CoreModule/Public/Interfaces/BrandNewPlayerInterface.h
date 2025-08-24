@@ -24,8 +24,17 @@ class COREMODULE_API IBrandNewPlayerInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	/* 현재 장착 중인 무기의 타입을 반환하는 함수 */
-	virtual EEquippedWeapon GetCurrentEquippedWeaponType () const = 0;
-
-	// Turn In Place 애니메이션 커브에서 값 가져와서 캐릭터 회전시키는 함수
+	virtual ECombatWeaponType GetCurrentEquippedWeaponType () const = 0;
+	
+	/* Turn In Place 애니메이션 커브에서 값 가져와서 캐릭터 회전시키는 함수 */
 	virtual void AddYawRotation(const float DeltaYaw) = 0;
+	
+	/* 캐릭터 클래스에 있는 Combat Weapon Actor를 가져오는 함수. 해당 무기의 멤버변수에 접근하려면 Cast<ABrandNewWeapon> 해야함 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AActor* GetCombatWeaponActor() const;
+
+	/* 무기를 장착하면 플레이어의 장착중인 무기 타입 enum을 변경하기 위해 호출하는 함수 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnWeaponEquipped();
+	
 };

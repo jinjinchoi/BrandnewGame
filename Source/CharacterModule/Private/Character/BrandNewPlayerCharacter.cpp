@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
+#include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -108,8 +109,8 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ThisClass, CurrentEquippedWeaponType);
 	DOREPLIFETIME(ThisClass, CurrentGate);
+	DOREPLIFETIME(ThisClass, EquippedWeaponType);
 	
 }
 
@@ -133,20 +134,6 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 	);
 }
 
-EEquippedWeapon ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
-{
-	return CurrentEquippedWeaponType;
-}
-
-void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
-{
-	// 무기 타입별 애님 레이어를 변경 
-	if (WeaponAnimLayerMap.Contains(CurrentEquippedWeaponType))
-	{
-		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[CurrentEquippedWeaponType]);
-	}
-}
-
 void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInputTag) const
 {
 	if (!AbilitySystemComponent) return;
@@ -161,11 +148,37 @@ void ABrandNewPlayerCharacter::OnAbilityInputReleased(const FGameplayTag& InInpu
 }
 
 
-void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
+AActor* ABrandNewPlayerCharacter::GetCombatWeaponActor_Implementation() const
 {
-	FRotator NewRot = GetActorRotation();
-	NewRot.Yaw += DeltaYaw;
-	SetActorRotation(NewRot);
+	return CombatWeapon;
+}
+
+
+ECombatWeaponType ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
+{
+	return EquippedWeaponType;
+}
+
+void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
+{
+	// 무기 타입별 애님 레이어를 변경 
+	if (WeaponAnimLayerMap.Contains(EquippedWeaponType))
+	{
+		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
+	}
+}
+
+void ABrandNewPlayerCharacter::OnWeaponEquipped_Implementation()
+{
+	if (!HasAuthority()) return;
+	
+	EquippedWeaponType = CombatWeapon->GetCombatWeaponType();
+	OnEquippedWeaponChanged();
+}
+
+void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
+{
+	OnEquippedWeaponChanged();
 }
 
 
@@ -209,4 +222,11 @@ void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
 }
-#pragma endregion 
+#pragma endregion
+
+void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
+{
+	FRotator NewRot = GetActorRotation();
+	NewRot.Yaw += DeltaYaw;
+	SetActorRotation(NewRot);
+}

@@ -29,8 +29,10 @@ public:
 	/* end Actor Interface */
 
 	/* begin Player Interface */
-	virtual EEquippedWeapon GetCurrentEquippedWeaponType() const override;
+	virtual ECombatWeaponType GetCurrentEquippedWeaponType() const override;
 	virtual void AddYawRotation(const float DeltaYaw) override;
+	virtual AActor*GetCombatWeaponActor_Implementation() const override;
+	virtual void OnWeaponEquipped_Implementation() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -50,7 +52,7 @@ protected:
 
 	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
-	TMap<EEquippedWeapon, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
+	TMap<ECombatWeaponType, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
 
 	/** 모든 캐릭터에게 공통으로 부여할 어빌리티를 저장하는 데이터 에셋 **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
@@ -60,13 +62,15 @@ private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
 	void AddCharacterAbilities() const;
 
+	/* 현재 장착중인 무기의 종류를 나타내는 enum */
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)
+	ECombatWeaponType EquippedWeaponType = ECombatWeaponType::Unequipped;
 
+	UFUNCTION()
+	void OnRep_CurrentEquippedWeaponType();
 	
 #pragma region Movement
-
-	UPROPERTY(Replicated)
-	EEquippedWeapon CurrentEquippedWeaponType = EEquippedWeapon::Unequipped;
-
+	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentGate)
 	EGate CurrentGate = EGate::Jogging;
 

@@ -9,6 +9,7 @@
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Item/Equipment/BrandNewWeapon.h"
+#include "Net/UnrealNetwork.h"
 
 ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 {
@@ -23,10 +24,20 @@ ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 
 }
 
+void ABrandNewBaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, CombatWeapon);
+	
+}
+
 
 void ABrandNewBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetupWeapon();
 	
 }
 
@@ -70,9 +81,16 @@ void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
 
 void ABrandNewBaseCharacter::SetupWeapon()
 {
-	if (!CombatWeaponClass) return;
+	if (!CombatWeaponClass || !HasAuthority()) return;
 
-	CombatWeapon = NewObject<ABrandNewWeapon>(this, CombatWeaponClass);
+	const FVector SocketLocation = GetMesh()->GetSocketLocation(CombatSocketName);
+	const FRotator SocketRotation = GetMesh()->GetSocketRotation(CombatSocketName);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+
+	CombatWeapon =  GetWorld()->SpawnActor<ABrandNewWeapon>(CombatWeaponClass, SocketLocation, SocketRotation, SpawnParams);
 	if (CombatWeapon)
 	{
 		CombatWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, CombatSocketName);

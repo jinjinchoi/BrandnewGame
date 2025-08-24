@@ -19,6 +19,7 @@ class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAb
 
 public:
 	ABrandNewBaseCharacter();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/* begin IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -49,7 +50,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<ABrandNewWeapon> CombatWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
