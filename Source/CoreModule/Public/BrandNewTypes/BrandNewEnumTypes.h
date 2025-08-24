@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 UENUM(BlueprintType)
-enum class  EEquippedWeapon : uint8 
+enum class  ECombatWeaponType : uint8 
 {
+	None,
 	Unequipped,
 	Sword
 	

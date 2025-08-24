@@ -28,7 +28,7 @@ public:
 protected:
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|WeaponData")
-	EEquippedWeapon CurrentWeaponType = EEquippedWeapon::Unequipped;
+	ECombatWeaponType CurrentWeaponType = ECombatWeaponType::Unequipped;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|Gate")
 	EGate InComingGate = EGate::Jogging;
