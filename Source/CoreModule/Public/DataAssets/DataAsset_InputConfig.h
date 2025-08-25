@@ -44,7 +44,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="InputTag"))
 	TArray<FInputActionConfig> NativeInputActions;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="InputTag"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="InputTag.Ability"))
 	TArray<FInputActionConfig> AbilityInputActions;
 
 	UInputAction* FindNativeInputActionByTag(const FGameplayTag& InInputTag) const;

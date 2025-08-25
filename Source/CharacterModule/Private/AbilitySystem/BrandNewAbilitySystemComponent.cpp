@@ -44,10 +44,38 @@ void UBrandNewAbilitySystemComponent::GrantPlayerInputAbilities(const TArray<FPl
 void UBrandNewAbilitySystemComponent::OnAbilityInputPressed(const FGameplayTag& InInputTag)
 {
 	if (!InInputTag.IsValid()) return;
-	
-	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+
+	ABILITYLIST_SCOPE_LOCK();
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		if (!AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
-		TryActivateAbility(AbilitySpec.Handle);
+
+		AbilitySpecInputPressed(AbilitySpec);
+		if (AbilitySpec.IsActive())
+		{
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.GetAbilityInstances().Last()->GetCurrentActivationInfo().GetActivationPredictionKey());
+		}
+		else
+		{
+			TryActivateAbility(AbilitySpec.Handle);
+		}
 	}
 }
+
+void UBrandNewAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag& InInputTag)
+{
+	if (!InInputTag.IsValid()) return;
+
+	ABILITYLIST_SCOPE_LOCK();
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InInputTag)) continue;
+
+		if (AbilitySpec.IsActive())
+		{
+			AbilitySpecInputReleased(AbilitySpec);
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+		}
+	}
+}
+

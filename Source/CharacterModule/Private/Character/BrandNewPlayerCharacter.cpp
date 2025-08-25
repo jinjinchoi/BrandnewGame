@@ -145,7 +145,9 @@ void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInput
 
 void ABrandNewPlayerCharacter::OnAbilityInputReleased(const FGameplayTag& InInputTag) const
 {
-	
+	if (!AbilitySystemComponent) return;
+
+	AbilitySystemComponent->OnAbilityInputReleased(InInputTag);
 }
 
 

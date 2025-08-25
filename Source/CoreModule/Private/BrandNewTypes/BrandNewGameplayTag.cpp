@@ -3,6 +3,17 @@
 
 namespace BrandNewGamePlayTag
 {
+	/**
+	 * Attribute Tags
+	 */
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentHealth, "Attribute.CurrentHealth")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxMana, "Attribute.MaxMana")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentMana, "Attribute.CurrentMana")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Strength, "Attribute.Strength")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Intelligence, "Attribute.Intelligence")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Dexterity, "Attribute.Dexterity")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vitality, "Attribute.Vitality")
 
 	/**
 	 * Input Tags
@@ -15,18 +26,9 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Equip, "Input.Ability.Equip")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Unequip, "Input.Ability.Unequip")
-
-	/**
-	 * Attribute Tags
-	 */
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentHealth, "Attribute.CurrentHealth")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxMana, "Attribute.MaxMana")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentMana, "Attribute.CurrentMana")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Strength, "Attribute.Strength")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Intelligence, "Attribute.Intelligence")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Dexterity, "Attribute.Dexterity")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vitality, "Attribute.Vitality")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo, "Input.Ability.Combo");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo_NormalAttack, "Input.Ability.Combo.NormalAttack");
 	
 	/**
 	 * Ability Tags
@@ -34,11 +36,20 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_EquipWeapon, "Ability.Player.EquipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_UnequipWeapon, "Ability.Player.UnequipWeapon")
 	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_NormalAttack, "Ability.Player.NormalAttack")
+	
 	/**
 	 * Event Tags
 	 */
 	UE_DEFINE_GAMEPLAY_TAG(Event_EquipWeapon, "Event.EquipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Event_UnequipWeapon, "Event.UnequipWeapon")
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_ComboWindow_Open, "Event.ComboWindow.Open")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_End, "Event.Attack.End")
+	
+	/**
+	 * State Tags
+	 */
 	
 }

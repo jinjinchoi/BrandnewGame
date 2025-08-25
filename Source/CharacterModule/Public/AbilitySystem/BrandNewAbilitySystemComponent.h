@@ -22,5 +22,8 @@ public:
 	void GrantPlayerInputAbilities(const TArray<FPlayerAbilitySet>& AbilitySet);
 	// InputTag를 받아와 어빌리티를 실행
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
+	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
+
+	
 	
 };

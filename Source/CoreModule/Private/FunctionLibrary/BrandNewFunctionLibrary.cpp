@@ -29,3 +29,41 @@ void UBrandNewFunctionLibrary::ApplyPrimaryAttributesSetByCaller(
 	InASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 	
 }
+
+bool UBrandNewFunctionLibrary::DoseActorHasTag(AActor* TargetActor, const FGameplayTag& TagToCheck)
+{
+	if (!IsValid(TargetActor)) return false;
+
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+	{
+		return ASC->HasMatchingGameplayTag(TagToCheck);
+	}
+
+	return false;
+}
+
+void UBrandNewFunctionLibrary::AddGameplayTagToActor(AActor* TargetActor, const FGameplayTag& TagToAdd)
+{
+	if (!IsValid(TargetActor)) return;
+	
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+	{
+		if (!ASC->HasMatchingGameplayTag(TagToAdd))
+		{
+			ASC->AddLooseGameplayTag(TagToAdd);
+		}
+	}
+}
+
+void UBrandNewFunctionLibrary::RemoveGameplayTagToActor(AActor* TargetActor, const FGameplayTag& TagToAdd)
+{
+	if (!IsValid(TargetActor)) return;
+	
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+	{
+		if (ASC->HasMatchingGameplayTag(TagToAdd))
+		{
+			ASC->RemoveLooseGameplayTag(TagToAdd);
+		}
+	}
+}
