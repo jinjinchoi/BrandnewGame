@@ -17,6 +17,8 @@ class CHARACTERMODULE_API ABrandNewWeapon : public AActor
 public:	
 	ABrandNewWeapon();
 
+	void ToggleCollisionEnable(const bool bIsEnable);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -26,10 +28,16 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBoxComponent> WeaponCollisionBox;
 
+	UFUNCTION()
+	void CollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
 private:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Weapon Properties")
 	ECombatWeaponType WeaponType;
 
+	UPROPERTY()
+	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
+	
 public:
 	FORCEINLINE ECombatWeaponType GetCombatWeaponType () const { return WeaponType; }
 

@@ -11,6 +11,7 @@ public class CoreModule : ModuleRules
             {
                 "Core",
                 "GameplayTags",
+                "GameplayAbilities",
             }
         );
 
@@ -22,7 +23,6 @@ public class CoreModule : ModuleRules
                 "Slate",
                 "SlateCore",
                 "EnhancedInput",
-                "GameplayAbilities"
             }
         );
     }

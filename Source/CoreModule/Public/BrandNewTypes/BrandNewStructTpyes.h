@@ -1,6 +1,10 @@
 ﻿#pragma once
 
+#include "GameplayTagContainer.h"
 #include "BrandNewStructTpyes.generated.h"
+
+class UGameplayEffect;
+class UAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FPlayerAnimData
@@ -38,7 +42,7 @@ struct FGateSettings
 };
 
 
-/* 캐릭터 Attribute를 설정하기 위한 데이터 테이블용 구조체 */
+/* 캐릭터 Attribute를 설정하기 위한 데이터 테이블을 구성할 row 구조체 */
 USTRUCT(BlueprintType)
 struct FPrimaryAttributeDataRow : public FTableRowBase
 {
@@ -67,13 +71,9 @@ struct FPrimaryAttributeDataRow : public FTableRowBase
 	
 };
 
-/* 캐릭터 Attribute를 설정하기 위한 데이터 테이블용 구조체 */
-USTRUCT(BlueprintType)
+/* 캐릭터 Attribute를 설정하기 위한 구조체 */
 struct FBaseAttributePrams
 {
-	GENERATED_BODY()
-
-
 	float MaxHealth = 0.f;
 	float CurrentHealth = 0.f;
 	float MaxMana = 0.f;
@@ -84,4 +84,34 @@ struct FBaseAttributePrams
 	float Dexterity = 0.f;
 	float Vitality = 0.f;
 	
+};
+
+USTRUCT(BlueprintType)
+struct FDamageEffectParams
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	TObjectPtr<UObject> WorldContextObject = nullptr;
+
+	UPROPERTY()
+	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent = nullptr;
+	
+	FGameplayTag DamageType = FGameplayTag();
+	FGameplayTag DamageElement = FGameplayTag();
+	int32 AbilityLevel = 1;
+	float DamageCoefficient = 0.f;
+
+	bool IsValid () const
+	{
+		return WorldContextObject && SourceAbilitySystemComponent && TargetAbilitySystemComponent && DamageGameplayEffectClass;
+	}
+
+
 };

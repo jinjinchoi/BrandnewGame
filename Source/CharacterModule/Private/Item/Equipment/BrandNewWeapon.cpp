@@ -3,7 +3,10 @@
 
 #include "Item/Equipment/BrandNewWeapon.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/BoxComponent.h"
+#include "Interfaces/BrandNewPlayerInterface.h"
 
 ABrandNewWeapon::ABrandNewWeapon()
 {
@@ -25,5 +28,48 @@ ABrandNewWeapon::ABrandNewWeapon()
 void ABrandNewWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		WeaponCollisionBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::CollisionBoxBeginOverlap);
+	}
+	
+}
+
+void ABrandNewWeapon::ToggleCollisionEnable(const bool bIsEnable)
+{
+	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+	
+	if (bIsEnable)
+	{
+		WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else
+	{
+		WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		OverlappedActors.Empty();
+	}
+}
+
+void ABrandNewWeapon::CollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	const bool bCanNotAttack =
+		!IsValid(OtherActor) ||
+		!OtherActor->Implements<UBrandNewPlayerInterface>() ||
+		OverlappedActors.Contains(OtherActor) ||
+		!GetOwner() ||
+		GetOwner() == OtherActor;
+
+	if (bCanNotAttack) return;
+
+	OverlappedActors.Add(OtherActor);
+
+	FGameplayEventData Data;
+	Data.Instigator = GetInstigator();
+	Data.Target = OtherActor;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), BrandNewGamePlayTag::Event_Hit_Melee, Data);
+	
 	
 }

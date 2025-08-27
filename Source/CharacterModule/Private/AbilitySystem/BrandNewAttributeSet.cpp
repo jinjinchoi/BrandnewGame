@@ -4,6 +4,7 @@
 #include "AbilitySystem/BrandNewAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
+#include "GameplayEffectExtension.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -31,6 +32,41 @@ void UBrandNewAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	
 }
 
+void UBrandNewAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+	}
+	if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+	}
+	
+}
+
+void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	}
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		
+	}
+}
+
+
+#pragma region OnRep_Functions
 void UBrandNewAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Health, OldHealth);
@@ -100,4 +136,4 @@ void UBrandNewAttributeSet::OnRep_MagicDefensePower(const FGameplayAttributeData
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MagicDefensePower, OldMagicDefensePower);
 }
-
+#pragma endregion 

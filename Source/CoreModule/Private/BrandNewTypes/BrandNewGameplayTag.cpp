@@ -33,10 +33,10 @@ namespace BrandNewGamePlayTag
 	/**
 	 * Ability Tags
 	 */
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_EquipWeapon, "Ability.Player.EquipWeapon")
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_UnequipWeapon, "Ability.Player.UnequipWeapon")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_EquipWeapon, "Ability.Player.Combat.EquipWeapon")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_UnequipWeapon, "Ability.Player.Combat.UnequipWeapon")
 	
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_NormalAttack, "Ability.Player.NormalAttack")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_NormalAttack, "Ability.Player.Combat.NormalAttack")
 	
 	/**
 	 * Event Tags
@@ -45,11 +45,25 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Event_UnequipWeapon, "Event.UnequipWeapon")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_ComboWindow_Open, "Event.ComboWindow.Open")
-	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_End, "Event.Attack.End")
 	
+	UE_DEFINE_GAMEPLAY_TAG(Event_Hit_Melee, "Event.Hit.Melee")
+	
 	/**
-	 * State Tags
+	 * Damage Tags
 	 */
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Type_Physical, "Damage.Type.Physical")
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Type_Magic, "Damage.Type.Magic")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_NoneElemental, "Damage.Element.NoneElemental")
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Fire, "Damage.Element.Fire")
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Ice, "Damage.Element.Ice")
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Light, "Damage.Element.Light")
+	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Darkness, "Damage.Element.Darkness")
+
+	
+	
+
+	
 	
 }

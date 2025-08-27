@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Interfaces/BrandNewCharacterInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
 class UBrandNewAbilitySystemComponent;
@@ -13,7 +14,7 @@ class UGameplayEffect;
 class UAttributeSet;
 
 UCLASS()
-class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAbilitySystemInterface
+class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAbilitySystemInterface, public IBrandNewCharacterInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,10 @@ public:
 	/* begin IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	/* end IAbilitySystemInterface */
+
+	/* begin IBrandNewCharacterInterface */
+	virtual void ToggleWeaponCollision_Implementation(bool bEnable) override;
+	/* end IBrandNewCharacterInterface */
 
 protected:
 	/* begin Actor Class */

@@ -6,10 +6,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BrandNewFunctionLibrary.generated.h"
 
-struct FGameplayTag;
-class UGameplayEffect;
-class UAbilitySystemComponent;
-struct FBaseAttributePrams;
 /**
  * 
  */
@@ -19,16 +15,7 @@ class COREMODULE_API UBrandNewFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static void ApplyPrimaryAttributesSetByCaller(
-		const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
 
-	UFUNCTION(BlueprintCallable, Category = "BrandNewFunctionLibrary|Gameplay Tag")
-	static bool DoseActorHasTag(AActor* TargetActor, const FGameplayTag& TagToCheck);
-
-	UFUNCTION(BlueprintCallable, Category = "BrandNewFunctionLibrary|Gameplay Tag")
-	static void AddGameplayTagToActor(AActor* TargetActor, const FGameplayTag& TagToAdd);
 	
-	UFUNCTION(BlueprintCallable, Category = "BrandNewFunctionLibrary|Gameplay Tag")
-	static void RemoveGameplayTagToActor(AActor* TargetActor, const FGameplayTag& TagToAdd);
 	
 };

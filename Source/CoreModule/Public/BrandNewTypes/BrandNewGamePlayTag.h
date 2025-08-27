@@ -36,24 +36,36 @@ namespace BrandNewGamePlayTag
 	/**
 	 * Ability Tags
 	 */
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_EquipWeapon);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_UnequipWeapon);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_EquipWeapon);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_UnequipWeapon);
 	
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_NormalAttack);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_NormalAttack);
 
 	/**
 	 * Event Tags
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_EquipWeapon);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_UnequipWeapon);
-	
+
+	// 애니메이션에서 콤보 가능한 구간을 설정하는 태그
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_ComboWindow_Open);
-	
+	// 애니메이션에서 공격 종료 지점을 알리는 태그 (이후 나머지 애니메이션 재생)
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Attack_End);
+	
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit_Melee);
 
 	/**
-	 * State Tags
+	 * Damage Tags
 	 */
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Type_Physical);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Type_Magic);
+	
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_NoneElemental);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Fire);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Ice);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Light);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Darkness);
+	
 	
 	
 	

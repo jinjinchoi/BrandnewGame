@@ -3,11 +3,11 @@
 
 #include "Character/BrandNewBaseCharacter.h"
 
+#include "CharacterFunctionLibrary.h"
 #include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
-#include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
 
@@ -74,7 +74,7 @@ void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
 		AttributePrams.MaxMana = FoundRow->MaxMana;
 		AttributePrams.CurrentMana = FoundRow->MaxMana;
 		
-		UBrandNewFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
+		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
 	}
 	
 }
@@ -102,4 +102,12 @@ void ABrandNewBaseCharacter::SetupWeapon()
 UAbilitySystemComponent* ABrandNewBaseCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ABrandNewBaseCharacter::ToggleWeaponCollision_Implementation(bool bEnable)
+{
+	if (!CombatWeapon) return;
+
+	CombatWeapon->ToggleCollisionEnable(bEnable);
+	
 }

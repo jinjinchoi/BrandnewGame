@@ -25,6 +25,9 @@ public:
 	UBrandNewAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
 #pragma region  Vital // 체력 및 마력
 	
 	UPROPERTY(ReplicatedUsing = OnRep_Health)
@@ -65,36 +68,44 @@ public:
 	
 #pragma endregion 
 
-
 #pragma region SecondaryAttribute
 	
 	UPROPERTY(ReplicatedUsing = OnRep_PhysicalAttackPower)
-	FGameplayAttributeData PhysicalAttackPower;
+	FGameplayAttributeData PhysicalAttackPower; // 물리공격력
 	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalAttackPower);
 
 	UPROPERTY(ReplicatedUsing = OnRep_MagicAttackPower)
-	FGameplayAttributeData MagicAttackPower;
+	FGameplayAttributeData MagicAttackPower; // 마법공격력
 	ATTRIBUTE_ACCESSORS(ThisClass, MagicAttackPower);
-
+	
 	UPROPERTY(ReplicatedUsing = OnRep_CriticalChance)
-	FGameplayAttributeData CriticalChance;
+	FGameplayAttributeData CriticalChance; // 치명타 확률
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalChance);
 
 	UPROPERTY(ReplicatedUsing = OnRep_CriticalMagnitude)
-	FGameplayAttributeData CriticalMagnitude;
+	FGameplayAttributeData CriticalMagnitude; // 치명타 배율
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalMagnitude);
-
+	
 	UPROPERTY(ReplicatedUsing = OnRep_PhysicalDefensePower)
-	FGameplayAttributeData PhysicalDefensePower;
+	FGameplayAttributeData PhysicalDefensePower; // 물리방어력
 	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalDefensePower);
 
 	UPROPERTY(ReplicatedUsing = OnRep_MagicDefensePower)
-	FGameplayAttributeData MagicDefensePower;
+	FGameplayAttributeData MagicDefensePower; // 마법방어력
 	ATTRIBUTE_ACCESSORS(ThisClass, MagicDefensePower);
 
+#pragma endregion
+
+#pragma region MetaAttribute
+	UPROPERTY()
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage);
+	
 #pragma endregion 
 
 private:
+
+#pragma region OnRep_Functions
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 	
@@ -136,5 +147,6 @@ private:
 	
 	UFUNCTION()
 	void OnRep_MagicDefensePower(const FGameplayAttributeData& OldMagicDefensePower);
+#pragma endregion
 	
 };

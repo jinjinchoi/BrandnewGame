@@ -74,7 +74,8 @@ void UBrandNewAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag&
 		if (AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
-			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+			InvokeReplicatedEvent(
+				EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 		}
 	}
 }
