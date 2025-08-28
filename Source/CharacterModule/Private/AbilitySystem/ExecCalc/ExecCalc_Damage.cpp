@@ -115,7 +115,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	const float FinalDamage = BaseDamage * (1 - TargetDefensePower);
 
-	const FGameplayModifierEvaluatedData EvaluatedData(UBrandNewAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, FinalDamage);
+	const FGameplayModifierEvaluatedData EvaluatedData(UBrandNewAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Override, floor(FinalDamage));
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
 	
 }
