@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
 #include "BrandNewStructTpyes.generated.h"
 
@@ -112,6 +113,5 @@ struct FDamageEffectParams
 	{
 		return WorldContextObject && SourceAbilitySystemComponent && TargetAbilitySystemComponent && DamageGameplayEffectClass;
 	}
-
-
 };
+
