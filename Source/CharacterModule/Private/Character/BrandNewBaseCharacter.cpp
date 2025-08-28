@@ -47,8 +47,10 @@ void ABrandNewBaseCharacter::InitAbilityActorInfo()
 	if (!AbilitySystemComponent) return;
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	ApplyPrimaryAttribute();
 	
+	ApplyPrimaryAttribute();
+	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 }
 
 void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
@@ -76,6 +78,19 @@ void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
 		
 		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
 	}
+	
+}
+
+void ABrandNewBaseCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const
+{
+	if (!EffectClass || !AbilitySystemComponent) return;
+
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EffectClass, Level, ContextHandle);
+	
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	
 }
 

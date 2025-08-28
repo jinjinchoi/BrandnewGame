@@ -8,6 +8,7 @@
 #include "Interfaces/BrandNewCharacterInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
+class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
 class ABrandNewWeapon;
 class UGameplayEffect;
@@ -41,7 +42,7 @@ protected:
 	TObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet;
+	TObjectPtr<UBrandNewAttributeSet> AttributeSet;
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
 	TObjectPtr<UDataTable> AttributeDataTable;
@@ -51,6 +52,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
 	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
@@ -63,9 +70,10 @@ protected:
 
 private:
 	void ApplyPrimaryAttribute() const;
+	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 	void SetupWeapon();
 
 public:
-	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	
 };
