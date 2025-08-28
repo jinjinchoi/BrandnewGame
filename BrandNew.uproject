@@ -26,6 +26,11 @@
 				"EnhancedInput",
 				"GameplayAbilities"
 			]
+		},
+		{
+			"Name": "UIModule",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

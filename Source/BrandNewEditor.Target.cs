@@ -16,6 +16,6 @@ public class BrandNewEditorTarget : TargetRules
 
 	private void RegisterModulesCreatedByRider()
 	{
-		ExtraModuleNames.AddRange(new string[] { "CoreModule", "CharacterModule" });
+		ExtraModuleNames.AddRange(new string[] { "CoreModule", "CharacterModule", "UIModule" });
 	}
 }
