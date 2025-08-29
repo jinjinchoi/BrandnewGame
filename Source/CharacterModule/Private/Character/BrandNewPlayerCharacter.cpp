@@ -2,7 +2,10 @@
 
 
 #include "Character/BrandNewPlayerCharacter.h"
+
+#include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
+#include "AbilitySystem/BrandNewAttributeSet.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
@@ -10,9 +13,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/BnPlayerControllerInterface.h"
+#include "Interfaces/BrandNewHUDInterface.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/HUD.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
@@ -86,8 +91,7 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
-	Server_SetMovementMode(CurrentGate);
-
+	
 }
 
 
@@ -95,7 +99,10 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	Server_SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
+	BindAttributeDelegates();
+	InitHUDAndBroadCastInitialValue();
 	AddCharacterAbilities();
 }
 
@@ -103,7 +110,9 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
+	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
+	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
 }
 
 void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -133,6 +142,68 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 			
 		})
 	);
+}
+
+void ABrandNewPlayerCharacter::BindAttributeDelegates()
+{
+	if (!IsLocallyControlled() || !AbilitySystemComponent || !AttributeSet) return;
+
+	TWeakObjectPtr WeakThis = this;
+
+	// 체력 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetHealthAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		// const FString Msg = FString::Printf(TEXT("Current Health: %f"), Data.NewValue);
+		// DebugHelper::Print(WeakThis.Get(), Msg, FColor::Yellow);
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->HealthChangedDelegate.ExecuteIfBound(Data.NewValue);
+		}
+	});
+
+	// 최대 체력 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetMaxHealthAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->MaxHealthChangedDelegate.ExecuteIfBound(Data.NewValue);
+		}
+	});
+
+	// 마나 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetManaAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->ManaChangedDelegate.ExecuteIfBound(Data.NewValue);
+		}
+	});
+
+	// 최대 마나 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetMaxManaAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->MaxManaChangedDelegate.ExecuteIfBound(Data.NewValue);
+		}
+	});
+	
+}
+
+void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
+{
+	if (!IsLocallyControlled()) return;
+	
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController) return;
+	IBrandNewHUDInterface* BrandNewHUD = Cast<IBrandNewHUDInterface>(PlayerController->GetHUD());
+	if (!BrandNewHUD) return;
+	BrandNewHUD->RequestInitHUD();
+	
 }
 
 void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInputTag) const
@@ -215,6 +286,33 @@ void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 	
 }
 
+FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetHealthChangedDelegate()
+{
+	return HealthChangedDelegate;
+}
+
+FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxHealthChangedDelegate()
+{
+	return MaxHealthChangedDelegate;
+}
+
+FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetManaChangedDelegate()
+{
+	return ManaChangedDelegate;
+}
+
+FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxManaChangedDelegate()
+{
+	return MaxManaChangedDelegate;
+}
+
+void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
+{
+	MaxHealthChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxHealth());
+	HealthChangedDelegate.ExecuteIfBound(AttributeSet->GetHealth());
+	MaxManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxMana());
+	ManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMana());
+}
 
 
 #pragma region Movement

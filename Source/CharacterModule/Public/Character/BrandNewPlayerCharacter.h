@@ -34,6 +34,11 @@ public:
 	virtual AActor*GetCombatWeaponActor_Implementation() const override;
 	virtual void OnWeaponEquipped_Implementation() override;
 	virtual void OnWeaponUnequipped_Implementation() override;
+	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
+	virtual void RequestBroadCastAttributeValue() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -62,15 +67,26 @@ protected:
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
 	void AddCharacterAbilities() const;
+	/* Attribute 변화를 바인딩 하는 함수 */
+	void BindAttributeDelegates();
+	/* HUD 초기화 하고 초기 값 브로드캐스트 하는 함수 */
+	void InitHUDAndBroadCastInitialValue() const;
 
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)
 	ECombatWeaponType EquippedWeaponType = ECombatWeaponType::Unequipped;
 
+	// 무기 장착 타입에 따라 매핑 컨텍스트를 추가하거나 제거하는데 무기 타입이 바뀔 때 전의 매핑 컨텍스트를 제외하기 위해서 마지막으로 사용한 무기 타입을 저장.
 	ECombatWeaponType LastEquippedWeaponType = ECombatWeaponType::Unequipped;
 
 	UFUNCTION()
 	void OnRep_CurrentEquippedWeaponType();
+
+	FOnAttributeChangedDelegate HealthChangedDelegate;
+	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
+	FOnAttributeChangedDelegate ManaChangedDelegate;
+	FOnAttributeChangedDelegate MaxManaChangedDelegate;
+	
 	
 #pragma region Movement
 	

@@ -10,7 +10,8 @@ public class UIModule : ModuleRules
             new string[]
             {
                 "Core",
-                "UMG"
+                "UMG",
+                "CoreModule"
             }
         );
 

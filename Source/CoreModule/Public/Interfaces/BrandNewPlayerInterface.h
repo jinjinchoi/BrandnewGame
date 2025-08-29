@@ -7,6 +7,8 @@
 #include "UObject/Interface.h"
 #include "BrandNewPlayerInterface.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float);
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UBrandNewPlayerInterface : public UInterface
@@ -40,5 +42,13 @@ public:
 	/* 무장 해제시 무기 타입 enum을 Unequip으로 변경하기 위해 별도의 함수로 분리 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnWeaponUnequipped();
+
+	/* Vital Attribute 값을 브로드캐스트 요청 하는 함수 */
+	virtual void RequestBroadCastAttributeValue() = 0;
+
+	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() = 0;
+	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() = 0;
+	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
+	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
 	
 };

@@ -6,26 +6,41 @@
 #include "UObject/Object.h"
 #include "OverlayWidgetController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, float, NewValue);
+
 class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class UIMODULE_API UOverlayWidgetController : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	
+	void BindCallbacksToDependencies(APawn* InControlledPawn) const;
 
-	void BindCallbacksToDependencies();
+	UFUNCTION(BlueprintCallable, Category = "BrandNew|WidgetControllerFunc")
+	void BroadCastInitialValue();
+
+	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	FOnPlayerAttributeChanged OnHealthChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	FOnPlayerAttributeChanged OnMaxHealthChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	FOnPlayerAttributeChanged OnManaChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	FOnPlayerAttributeChanged OnMaxManaChangedDelegate;
 
 private:
 	UPROPERTY()
-	TObjectPtr<UBrandNewAbilitySystemComponent> BnAbilitySystemComponent;
+	TObjectPtr<APawn> ControlledPawn;
 
-	UPROPERTY()
-	TObjectPtr<UBrandNewAttributeSet> BnAttributeSet;
+public:
+	FORCEINLINE void SetControlledPawn(APawn* PawnToSet) { ControlledPawn = PawnToSet; };
 	
 };
