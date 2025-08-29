@@ -104,6 +104,8 @@ public:
 #pragma endregion 
 
 private:
+	void HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data);
+	
 
 #pragma region OnRep_Functions
 	UFUNCTION()

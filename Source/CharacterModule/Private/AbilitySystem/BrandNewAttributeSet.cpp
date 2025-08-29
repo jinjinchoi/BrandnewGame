@@ -61,12 +61,35 @@ void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffe
 	}
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		
+		HandleIncomingDamage(Data);
 	}
+}
+
+void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+	if (LocalIncomingDamage <= 0.f) return;
+	if (GetHealth() <= 0.f) return;
+
+	const float NewHealth = FMath::Clamp(GetHealth() - LocalIncomingDamage, 0.f, GetMaxHealth());
+	SetHealth(NewHealth);
+
+	if (NewHealth <= 0.f)
+	{
+		// Death Logic
+	}
+	else
+	{
+		// Hit Logic
+	}
+	
+	
 }
 
 
 #pragma region OnRep_Functions
+
 void UBrandNewAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Health, OldHealth);
