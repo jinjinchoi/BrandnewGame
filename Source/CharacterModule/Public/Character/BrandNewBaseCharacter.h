@@ -37,27 +37,13 @@ protected:
 	/* end Actor Class */
 	
 	virtual void InitAbilityActorInfo();
+	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 
 	UPROPERTY()
 	TObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UBrandNewAttributeSet> AttributeSet;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
-	TObjectPtr<UDataTable> AttributeDataTable;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
-	FName AttributeTableKeyName;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
@@ -69,8 +55,6 @@ protected:
 	FName CombatSocketName = FName("CombatSocket");
 
 private:
-	void ApplyPrimaryAttribute() const;
-	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 	void SetupWeapon();
 
 public:

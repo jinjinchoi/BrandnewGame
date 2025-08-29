@@ -52,12 +52,6 @@ struct FPrimaryAttributeDataRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	FName ID = NAME_None;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Vital Attribute")
-	float MaxHealth = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Vital Attribute")
-	float MaxMana = 0.f;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
 	float Strength = 0.f;
 
@@ -72,20 +66,66 @@ struct FPrimaryAttributeDataRow : public FTableRowBase
 	
 };
 
-/* 캐릭터 Attribute를 설정하기 위한 구조체 */
+/* 캐릭터 1차 속성을 설정하기 위한 구조체 */
 struct FBaseAttributePrams
 {
+	float Strength = 0.f;
+	float Intelligence = 0.f;
+	float Dexterity = 0.f;
+	float Vitality = 0.f;
+};
+
+/* Enemy의 Attribute를 저장할 데이터 테이블 Row */
+USTRUCT(BlueprintType)
+struct FSecondaryAttributeDataRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	FName ID = NAME_None;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float PhysicalAttackPower = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float MagicAttackPower = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float PhysicalDefensePower = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float MagicDefensePower = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float CriticalChance = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float CriticalMagnitude = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float MaxHealth = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
+	float MaxMana = 0.f;
+	
+};
+
+
+/* 2차 속성을 저장하는 구조체 */
+struct FSecondaryAttributePrams
+{
+	float PhysicalAttackPower = 0.f;
+	float MagicAttackPower = 0.f;
+	float PhysicalDefensePower = 0.f;
+	float MagicDefensePower = 0.f;
+	float CriticalChance = 0.f;
+	float CriticalMagnitude = 0.f;
 	float MaxHealth = 0.f;
 	float CurrentHealth = 0.f;
 	float MaxMana = 0.f;
 	float CurrentMana = 0.f;
-	
-	float Strength = 0.f;
-	float Intelligence = 0.f;
-	float Dexterity = 0.f;
-	float Vitality = 0.f;
-	
 };
+
 
 USTRUCT(BlueprintType)
 struct FDamageEffectParams

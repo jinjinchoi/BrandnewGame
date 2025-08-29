@@ -6,14 +6,24 @@ namespace BrandNewGamePlayTag
 	/**
 	 * Attribute Tags
 	 */
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxHealth, "Attribute.MaxHealth")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentHealth, "Attribute.CurrentHealth")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_MaxMana, "Attribute.MaxMana")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_CurrentMana, "Attribute.CurrentMana")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Strength, "Attribute.Strength")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Intelligence, "Attribute.Intelligence")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Dexterity, "Attribute.Dexterity")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vitality, "Attribute.Vitality")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Strength, "Attribute.Primary.Strength")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Intelligence, "Attribute.Primary.Intelligence")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Dexterity, "Attribute.Primary.Dexterity")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Vitality, "Attribute.Primary.Vitality")
+
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MaxHealth, "Attribute.Secondary.MaxHealth")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vital_CurrentHealth, "Attribute.Vital.CurrentHealth")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MaxMana, "Attribute.Secondary.MaxMana")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vital_CurrentMana, "Attribute.Vital.CurrentMana")
+
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_PhysicalAttackPower, "Attribute.Secondary.PhysicalAttackPower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MagicAttackPower, "Attribute.Secondary.MagicAttackPower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_PhysicalDefensePower, "Attribute.Secondary.PhysicalDefensePower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MagicDefensePower, "Attribute.Secondary.MagicDefensePower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalChance, "Attribute.Secondary.CriticalChance")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalMagnitude, "Attribute.Secondary.CriticalMagnitude")
+
+	
 
 	/**
 	 * Input Tags

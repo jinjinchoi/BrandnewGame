@@ -56,13 +56,36 @@ protected:
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
 
-	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
-	TMap<ECombatWeaponType, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
+	/* begin Base Character */
+	virtual void InitAbilityActorInfo() override;
+	/* end Base Character */
+	void ApplyPrimaryAttribute() const;
+
+	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
+	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	TObjectPtr<UDataTable> AttributeDataTable;
+
+	/* AttributeDataTable의 Key Name */
+	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	FName AttributeTableKeyName;
+	
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
 	/** 모든 캐릭터에게 공통으로 부여할 어빌리티를 저장하는 데이터 에셋 **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
 	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
+
+	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
+	TMap<ECombatWeaponType, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
+
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수

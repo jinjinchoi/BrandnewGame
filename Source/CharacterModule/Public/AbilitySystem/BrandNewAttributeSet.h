@@ -78,6 +78,14 @@ public:
 	FGameplayAttributeData MagicAttackPower; // 마법공격력
 	ATTRIBUTE_ACCESSORS(ThisClass, MagicAttackPower);
 	
+	UPROPERTY(ReplicatedUsing = OnRep_PhysicalDefensePower)
+	FGameplayAttributeData PhysicalDefensePower; // 물리방어력
+	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalDefensePower);
+
+	UPROPERTY(ReplicatedUsing = OnRep_MagicDefensePower)
+	FGameplayAttributeData MagicDefensePower; // 마법방어력
+	ATTRIBUTE_ACCESSORS(ThisClass, MagicDefensePower);
+	
 	UPROPERTY(ReplicatedUsing = OnRep_CriticalChance)
 	FGameplayAttributeData CriticalChance; // 치명타 확률
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalChance);
@@ -86,13 +94,6 @@ public:
 	FGameplayAttributeData CriticalMagnitude; // 치명타 배율
 	ATTRIBUTE_ACCESSORS(ThisClass, CriticalMagnitude);
 	
-	UPROPERTY(ReplicatedUsing = OnRep_PhysicalDefensePower)
-	FGameplayAttributeData PhysicalDefensePower; // 물리방어력
-	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalDefensePower);
-
-	UPROPERTY(ReplicatedUsing = OnRep_MagicDefensePower)
-	FGameplayAttributeData MagicDefensePower; // 마법방어력
-	ATTRIBUTE_ACCESSORS(ThisClass, MagicDefensePower);
 
 #pragma endregion
 

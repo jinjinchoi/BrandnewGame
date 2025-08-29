@@ -3,8 +3,6 @@
 
 #include "Character/BrandNewBaseCharacter.h"
 
-#include "CharacterFunctionLibrary.h"
-#include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
@@ -48,42 +46,11 @@ void ABrandNewBaseCharacter::InitAbilityActorInfo()
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	
-	ApplyPrimaryAttribute();
-	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
-}
-
-void ABrandNewBaseCharacter::ApplyPrimaryAttribute() const
-{
-	if (!HasAuthority()) return;
-	
-	if (!AttributeDataTable || !PrimaryAttributeEffect || !AbilitySystemComponent)
-	{
-		const FString Msg = FString::Printf(TEXT("Invalid DataTable or GameplayEffect or ASC pointer detected at %s"), *GetName());
-		DebugHelper::Print(Msg);
-	}
-	
-	static const FString ContextString(TEXT("Primary Attribute Data"));
-	if (const FPrimaryAttributeDataRow* FoundRow = AttributeDataTable->FindRow<FPrimaryAttributeDataRow>(AttributeTableKeyName, ContextString))
-	{
-		FBaseAttributePrams AttributePrams;
-		AttributePrams.Strength = FoundRow->Strength;
-		AttributePrams.Dexterity = FoundRow->Dexterity;
-		AttributePrams.Intelligence = FoundRow->Intelligence;
-		AttributePrams.Vitality = FoundRow->Vitality;
-		AttributePrams.MaxHealth = FoundRow->MaxHealth;
-		AttributePrams.CurrentHealth = FoundRow->MaxHealth;
-		AttributePrams.MaxMana = FoundRow->MaxMana;
-		AttributePrams.CurrentMana = FoundRow->MaxMana;
-		
-		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
-	}
-	
 }
 
 void ABrandNewBaseCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const
 {
-	if (!EffectClass || !AbilitySystemComponent) return;
+	if (!HasAuthority() || !EffectClass || !AbilitySystemComponent) return;
 
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);

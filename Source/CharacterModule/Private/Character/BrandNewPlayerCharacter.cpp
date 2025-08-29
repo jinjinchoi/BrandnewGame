@@ -3,6 +3,7 @@
 
 #include "Character/BrandNewPlayerCharacter.h"
 
+#include "CharacterFunctionLibrary.h"
 #include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
@@ -94,6 +95,39 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	
 }
 
+void ABrandNewPlayerCharacter::InitAbilityActorInfo()
+{
+	Super::InitAbilityActorInfo();
+
+	ApplyPrimaryAttribute();
+	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+}
+
+void ABrandNewPlayerCharacter::ApplyPrimaryAttribute() const
+{
+	if (!HasAuthority()) return;
+	
+	if (!AttributeDataTable || !PrimaryAttributeEffect || !AbilitySystemComponent)
+	{
+		const FString Msg = FString::Printf(TEXT("Invalid DataTable or GameplayEffect or ASC pointer detected at %s"), *GetName());
+		DebugHelper::Print(Msg);
+		return;
+	}
+	
+	static const FString ContextString(TEXT("Primary Attribute Data"));
+	if (const FPrimaryAttributeDataRow* FoundRow = AttributeDataTable->FindRow<FPrimaryAttributeDataRow>(AttributeTableKeyName, ContextString))
+	{
+		FBaseAttributePrams AttributePrams;
+		AttributePrams.Strength = FoundRow->Strength;
+		AttributePrams.Dexterity = FoundRow->Dexterity;
+		AttributePrams.Intelligence = FoundRow->Intelligence;
+		AttributePrams.Vitality = FoundRow->Vitality;
+		
+		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
+	}
+}
+
 
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -109,7 +143,8 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 void ABrandNewPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	
+
+	UpdateMovementComponentPrams();
 	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
 	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
 	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
