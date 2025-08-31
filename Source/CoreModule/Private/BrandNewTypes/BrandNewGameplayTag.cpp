@@ -48,6 +48,9 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_NormalAttack, "Ability.Player.Combat.NormalAttack")
 	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Hit, "Ability.Shared.React.Hit")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Death, "Ability.Shared.React.Death")
+	
 	/**
 	 * Event Tags
 	 */

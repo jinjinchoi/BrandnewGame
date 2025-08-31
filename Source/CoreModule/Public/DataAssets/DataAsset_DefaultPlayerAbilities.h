@@ -41,5 +41,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities")
 	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities")
+	TArray<TSubclassOf<UGameplayAbility>> ReactAbilities;
 };

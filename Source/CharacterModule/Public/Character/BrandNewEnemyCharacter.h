@@ -7,6 +7,7 @@
 #include "Character/BrandNewBaseCharacter.h"
 #include "BrandNewEnemyCharacter.generated.h"
 
+class UDataAsset_EnemyAbilities;
 /**
  * 
  */
@@ -21,7 +22,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void InitAbilityActorInfo() override;
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Enemy Data")
 	FName EnemyName = NAME_None;
@@ -35,8 +35,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
 	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
 
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSoftObjectPtr<UDataAsset_EnemyAbilities> EnemyAbilitiesDataAsset;
+
 private:
 	FSecondaryAttributeDataRow* FindEnemyDataRow() const;
 	void ApplyEnemyAttribute() const;
+	void GiveAbilitiesToEnemy();
 	
 };

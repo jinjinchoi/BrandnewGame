@@ -6,7 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/BoxComponent.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/BrandNewCharacterInterface.h"
 
 ABrandNewWeapon::ABrandNewWeapon()
 {
@@ -56,7 +56,7 @@ void ABrandNewWeapon::CollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedCo
 {
 	const bool bCanNotAttack =
 		!IsValid(OtherActor) ||
-		!OtherActor->Implements<UBrandNewPlayerInterface>() ||
+		!OtherActor->Implements<UBrandNewCharacterInterface>() ||
 		OverlappedActors.Contains(OtherActor) ||
 		!GetOwner() ||
 		GetOwner() == OtherActor;

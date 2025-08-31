@@ -6,6 +6,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "DataAssets/DataAsset_EnemyAbilities.h"
+#include "Engine/AssetManager.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 {
@@ -17,13 +19,12 @@ void ABrandNewEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	InitAbilityActorInfo();
+	if (HasAuthority())
+	{
+		ApplyEnemyAttribute();
+		GiveAbilitiesToEnemy();
+	}
 	
-}
-
-void ABrandNewEnemyCharacter::InitAbilityActorInfo()
-{
-	Super::InitAbilityActorInfo();
-	ApplyEnemyAttribute();
 }
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
@@ -66,4 +67,30 @@ void ABrandNewEnemyCharacter::ApplyEnemyAttribute() const
 
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
+}
+
+void ABrandNewEnemyCharacter::GiveAbilitiesToEnemy()
+{
+	if (EnemyAbilitiesDataAsset.IsNull() || !HasAuthority() || !AbilitySystemComponent) return;
+
+	TWeakObjectPtr WeakThis = this;
+
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+	StreamableManager.RequestAsyncLoad(
+		EnemyAbilitiesDataAsset.ToSoftObjectPath(),
+		FStreamableDelegate::CreateLambda([WeakThis]()
+		{
+			ABrandNewEnemyCharacter* Enemy = WeakThis.Get();
+			if (!IsValid(Enemy)) return;
+			
+			const UDataAsset_EnemyAbilities* LoadedData = Enemy->EnemyAbilitiesDataAsset.Get();
+			if (IsValid(LoadedData) && IsValid(Enemy->AbilitySystemComponent))
+			{
+				Enemy->AbilitySystemComponent->GrantAbilities(LoadedData->ReactAbilities, false);
+				Enemy->AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
+			}
+			
+		})
+	);
+	
 }

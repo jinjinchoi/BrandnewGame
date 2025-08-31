@@ -78,7 +78,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
 	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
-	/** 모든 캐릭터에게 공통으로 부여할 어빌리티를 저장하는 데이터 에셋 **/
+	/** 플레이어에게 부여할 어빌리티를 저장하는 데이터 에셋 **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
 	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
 

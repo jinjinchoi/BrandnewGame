@@ -163,16 +163,22 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 {
 	if (!HasAuthority() || DefaultAbilitiesDataAsset.IsNull() || !AbilitySystemComponent) return;
 
+	TWeakObjectPtr WeakThis = this;
+
 	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
 	Streamable.RequestAsyncLoad(
 		DefaultAbilitiesDataAsset.ToSoftObjectPath(),
-		FStreamableDelegate::CreateLambda([this]()
+		FStreamableDelegate::CreateLambda([WeakThis]()
 		{
-			const UDataAsset_DefaultPlayerAbilities* LoadedData = DefaultAbilitiesDataAsset.Get();
-			if (IsValid(LoadedData) && IsValid(AbilitySystemComponent))
+			const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get();
+			if (!IsValid(PlayerCharacter))  return;
+			
+			const UDataAsset_DefaultPlayerAbilities* LoadedData = PlayerCharacter->DefaultAbilitiesDataAsset.Get();
+			if (IsValid(LoadedData) && IsValid(PlayerCharacter->AbilitySystemComponent))
 			{
-				AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
-				AbilitySystemComponent->GrantPlayerInputAbilities(LoadedData->InputAbilities);
+				PlayerCharacter->AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
+				PlayerCharacter->AbilitySystemComponent->GrantAbilities(LoadedData->ReactAbilities, false);
+				PlayerCharacter->AbilitySystemComponent->GrantPlayerInputAbilities(LoadedData->InputAbilities);
 			}
 			
 		})

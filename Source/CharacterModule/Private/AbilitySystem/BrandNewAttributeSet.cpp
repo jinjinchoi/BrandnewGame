@@ -3,8 +3,10 @@
 
 #include "AbilitySystem/BrandNewAttributeSet.h"
 
+#include "DebugHelper.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -73,7 +75,7 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	if (GetHealth() <= 0.f) return;
 
 	const float NewHealth = FMath::Clamp(GetHealth() - LocalIncomingDamage, 0.f, GetMaxHealth());
-	SetHealth(NewHealth);
+	SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
 
 	if (NewHealth <= 0.f)
 	{
@@ -82,6 +84,9 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	else
 	{
 		// Hit Logic
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Hit);
+		Data.Target.TryActivateAbilitiesByTag(TagContainer);
 	}
 	
 	
