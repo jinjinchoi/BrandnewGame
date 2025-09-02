@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/BrandNewAttributeSet.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "CharacterFunctionLibrary.h"
 #include "DebugHelper.h"
 #include "Net/UnrealNetwork.h"
@@ -92,7 +93,8 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 		EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();
 		EventData.Target = GetOwningActor();
 		EventData.EventMagnitude = LocalIncomingDamage;
-		
+
+		// Hit Ability Activate
 		Data.Target.HandleGameplayEvent(EventData.EventTag, &EventData);
 
 		// 넉백
@@ -105,9 +107,24 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 				TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
 			}
 		}
-		
 	}
+	ShowDamageText(Data, LocalIncomingDamage);
 	
+}
+
+void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const
+{
+	FGameplayCueParameters GameplayCueParams;
+	GameplayCueParams.RawMagnitude = DamageAmount;
+	GameplayCueParams.Instigator = Data.EffectSpec.GetContext().GetInstigator();
+	GameplayCueParams.Location = GetOwningActor()->GetActorLocation();
+	GameplayCueParams.OriginalTag = UCharacterFunctionLibrary::GetDamageElementTagToContext(Data.EffectSpec.GetContext());
+
+	const bool bIsCritical = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).IsCriticalHit();
+	const FGameplayTag CueTag =
+		bIsCritical ? BrandNewGamePlayTag::GameplayCue_Widget_Damage_Critical : BrandNewGamePlayTag::GameplayCue_Widget_Damage_Normal;
+	
+	Data.Target.ExecuteGameplayCue(CueTag, GameplayCueParams);
 	
 }
 

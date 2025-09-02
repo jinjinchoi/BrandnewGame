@@ -28,6 +28,17 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
+
+private:
+	void HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data);
+	void ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const;
+
+
+	
+public:
+	////////////////////////////////////
+	////////// Attributes//////////////
+	/////////////////////////////////
 #pragma region  Vital // 체력 및 마력
 	
 	UPROPERTY(ReplicatedUsing = OnRep_Health)
@@ -105,9 +116,6 @@ public:
 #pragma endregion 
 
 private:
-	void HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data);
-	
-
 #pragma region OnRep_Functions
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);

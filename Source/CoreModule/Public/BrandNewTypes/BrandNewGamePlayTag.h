@@ -83,11 +83,17 @@ namespace BrandNewGamePlayTag
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Light);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Damage_Element_Darkness);
 	
-	
 	/**
-	 * Status Tag
+	 * Status Tags
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Shared_Hit);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Shared_Dead);
+
+	/**
+	 * Gameplay Cue Tags
+	 */
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Widget_Damage_Normal);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Widget_Damage_Critical);
+	
 	
 }

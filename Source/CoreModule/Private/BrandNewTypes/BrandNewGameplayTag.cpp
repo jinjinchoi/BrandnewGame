@@ -81,9 +81,17 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Light, "Damage.Element.Light")
 	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Darkness, "Damage.Element.Darkness")
 
-	
+	/**
+	 * Status Tags
+	 */
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Hit, "Status.Shared.Hit")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Dead, "Status.Shared.Dead")
+
+	/**
+	 * Gameplay Cue Tags
+	 */
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Normal, "GameplayCue.Widget.Damage.Normal")
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Critical, "GameplayCue.Widget.Damage.Critical")
 
 	
 	
