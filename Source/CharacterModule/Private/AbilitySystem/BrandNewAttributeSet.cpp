@@ -3,10 +3,13 @@
 
 #include "AbilitySystem/BrandNewAttributeSet.h"
 
+#include "CharacterFunctionLibrary.h"
 #include "DebugHelper.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -84,9 +87,25 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	else
 	{
 		// Hit Logic
-		FGameplayTagContainer TagContainer;
-		TagContainer.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Hit);
-		Data.Target.TryActivateAbilitiesByTag(TagContainer);
+		FGameplayEventData EventData;
+		EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTag(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
+		EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();
+		EventData.Target = GetOwningActor();
+		EventData.EventMagnitude = LocalIncomingDamage;
+		
+		Data.Target.HandleGameplayEvent(EventData.EventTag, &EventData);
+
+		// 넉백
+		const FVector KnockbackVector = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).GetKnockbackImpulse();
+		if (!KnockbackVector.IsNearlyZero())
+		{
+			if (ACharacter* TargetCharacter = Cast<ACharacter>(Data.Target.GetAvatarActor()))
+			{
+				TargetCharacter->GetCharacterMovement()->StopMovementImmediately();
+				TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
+			}
+		}
+		
 	}
 	
 	

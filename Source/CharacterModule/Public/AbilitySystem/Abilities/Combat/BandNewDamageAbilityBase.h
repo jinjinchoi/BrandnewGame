@@ -34,5 +34,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Damage", meta=(ClampMin="0.0"))
 	FScalableFloat DamageCoefficient;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	float KnockbackForce = 200.f;
 	
 };

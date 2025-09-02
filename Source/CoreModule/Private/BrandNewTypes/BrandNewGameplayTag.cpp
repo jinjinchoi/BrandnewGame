@@ -61,6 +61,13 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_End, "Event.Attack.End")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Hit_Melee, "Event.Hit.Melee")
+
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact, "Event.HitReact")
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Front, "Event.HitReact.Front")
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Back, "Event.HitReact.Back")
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Left, "Event.HitReact.Left")
+	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Right, "Event.HitReact.Right")
+
 	
 	/**
 	 * Damage Tags
@@ -73,6 +80,10 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Ice, "Damage.Element.Ice")
 	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Light, "Damage.Element.Light")
 	UE_DEFINE_GAMEPLAY_TAG(Damage_Element_Darkness, "Damage.Element.Darkness")
+
+	
+	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Hit, "Status.Shared.Hit")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Dead, "Status.Shared.Dead")
 
 	
 	

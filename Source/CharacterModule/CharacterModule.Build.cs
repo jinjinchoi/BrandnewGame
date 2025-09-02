@@ -26,7 +26,8 @@ public class CharacterModule : ModuleRules
                 "InputCore",
                 "EnhancedInput",
                 "AnimGraphRuntime",
-                "GameplayTasks"
+                "GameplayTasks",
+                "UMG"
             }
         );
     }

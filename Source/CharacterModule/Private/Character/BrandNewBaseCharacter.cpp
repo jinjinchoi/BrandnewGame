@@ -30,6 +30,14 @@ void ABrandNewBaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimePr
 	
 }
 
+void ABrandNewBaseCharacter::LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride)
+{
+	if (bCanLaunch)
+	{
+		Super::LaunchCharacter(LaunchVelocity, bXYOverride, bZOverride);
+	}
+}
+
 
 void ABrandNewBaseCharacter::BeginPlay()
 {
@@ -92,4 +100,9 @@ void ABrandNewBaseCharacter::ToggleWeaponCollision_Implementation(bool bEnable)
 
 	CombatWeapon->ToggleCollisionEnable(bEnable);
 	
+}
+
+void ABrandNewBaseCharacter::OnCharacterHit_Implementation(const bool bIsHit)
+{
+	bIsHitReacting = bIsHit;
 }

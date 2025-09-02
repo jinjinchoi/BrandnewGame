@@ -5,13 +5,20 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
+#include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "Components/WidgetComponent.h"
 #include "DataAssets/DataAsset_EnemyAbilities.h"
 #include "Engine/AssetManager.h"
+#include "Interfaces/BnWidgetInterface.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 {
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
+	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar Widget Component"));
+	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
+	
 }
 
 void ABrandNewEnemyCharacter::BeginPlay()
@@ -24,6 +31,44 @@ void ABrandNewEnemyCharacter::BeginPlay()
 		ApplyEnemyAttribute();
 		GiveAbilitiesToEnemy();
 	}
+
+	if (IBnWidgetInterface* WidgetInterface = Cast<IBnWidgetInterface>(HealthBarWidgetComponent->GetUserWidgetObject()))
+	{
+		WidgetInterface->SetUIWidgetController(this);
+	}
+
+	BindAttributeChanged();
+
+}
+
+void ABrandNewEnemyCharacter::BindAttributeChanged()
+{
+	TWeakObjectPtr WeakThis = this;
+
+	// 체력 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetHealthAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		// const FString Msg = FString::Printf(TEXT("Current Health: %f"), Data.NewValue);
+		// DebugHelper::Print(WeakThis.Get(), Msg, FColor::Yellow);
+		if (const ABrandNewEnemyCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->HealthChangedDelegate.Broadcast(Data.NewValue);
+		}
+	});
+
+	// 최대 체력 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetMaxHealthAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewEnemyCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->MaxHealthChangedDelegate.Broadcast(Data.NewValue);
+		}
+	});
+
+	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
+	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
 	
 }
 

@@ -46,9 +46,17 @@ bool FBrandNewEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* Map, 
 		{
 			RepBits |= 1 << 9;
 		}
+		if (HitDirectionTag.IsValid())
+		{
+			RepBits |= 1 << 10;
+		}
+		if (!KnockbackImpulse.IsNearlyZero())
+		{
+			RepBits |= 1 << 11;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 10);
+	Ar.SerializeBits(&RepBits, 12);
 
 	if (RepBits & (1 << 0))
 	{
@@ -115,6 +123,21 @@ bool FBrandNewEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* Map, 
 			}
 		}
 		DamageElementTag->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 10))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!HitDirectionTag.IsValid())
+			{
+				HitDirectionTag = MakeShared<FGameplayTag>();
+			}
+		}
+		HitDirectionTag->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 11))
+	{
+		KnockbackImpulse.NetSerialize(Ar, Map, bOutSuccess);
 	}
 
 	if (Ar.IsLoading())

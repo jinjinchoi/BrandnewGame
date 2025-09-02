@@ -3,9 +3,12 @@
 
 #include "AbilitySystem/Abilities/Combat/BandNewDamageAbilityBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "CharacterFunctionLibrary.h"
 
 FDamageEffectParams UBandNewDamageAbilityBase::MakeDamageEffectParams(AActor* TargetActor) const
 {
+	if (!GetAvatarActorFromActorInfo() || !IsValid(TargetActor)) return FDamageEffectParams();
+	
 	FDamageEffectParams DamageEffectParams;
 	DamageEffectParams.WorldContextObject = GetAvatarActorFromActorInfo();
 	DamageEffectParams.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
@@ -14,10 +17,13 @@ FDamageEffectParams UBandNewDamageAbilityBase::MakeDamageEffectParams(AActor* Ta
 	DamageEffectParams.DamageGameplayEffectClass = DamageEffectClass;
 	DamageEffectParams.DamageType = DamageType;
 	DamageEffectParams.DamageElement = DamageElement;
+	DamageEffectParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	DamageEffectParams.HitDirection = UCharacterFunctionLibrary::ComputeHitReactDirection(GetAvatarActorFromActorInfo(), TargetActor);
 
-	if (IsValid(TargetActor))
+	if (KnockbackForce != 0.f)
 	{
-		DamageEffectParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+		const FVector ToTarget = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
+		DamageEffectParams.KnockbackImpulse = ToTarget * KnockbackForce + FVector(0, 0, 10);
 	}
 
 	return DamageEffectParams;

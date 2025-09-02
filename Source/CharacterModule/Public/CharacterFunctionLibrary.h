@@ -24,8 +24,10 @@ public:
 
 	static void SetDamageTypeTagToContext(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InTypeTag);
 	static void SetDamageElementTagToContext(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InElemTag);
+	static void SetHitDirectionTag(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InHitDirectionTag);
 	static FGameplayTag GetDamageTypeTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
 	static FGameplayTag GetDamageElementTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
+	static FGameplayTag GetHitDirectionTag(const FGameplayEffectContextHandle& EffectContextHandle);
 	
 	static void ApplyPrimaryAttributesSetByCaller(
 		const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
@@ -42,6 +44,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UCharacterFunctionLibrary|Gameplay Ability")
 	static FActiveGameplayEffectHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams);
 
-
+	static FGameplayTag ComputeHitReactDirection(const AActor* InAttacker, const AActor* InVictim);
+	
 	
 };

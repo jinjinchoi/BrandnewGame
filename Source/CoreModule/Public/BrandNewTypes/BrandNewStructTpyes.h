@@ -146,8 +146,10 @@ struct FDamageEffectParams
 	
 	FGameplayTag DamageType = FGameplayTag();
 	FGameplayTag DamageElement = FGameplayTag();
+	FGameplayTag HitDirection = FGameplayTag();
 	int32 AbilityLevel = 1;
 	float DamageCoefficient = 0.f;
+	FVector KnockbackImpulse = FVector::ZeroVector;
 
 	bool IsValid () const
 	{

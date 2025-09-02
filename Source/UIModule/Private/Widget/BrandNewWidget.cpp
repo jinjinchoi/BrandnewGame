@@ -9,3 +9,8 @@ void UBrandNewWidget::SetWidgetController(UObject* InWidgetController)
 	OnWidgetControllerSet();
 	
 }
+
+void UBrandNewWidget::SetUIWidgetController(UObject* ControllerToSet)
+{
+	SetWidgetController(ControllerToSet);
+}

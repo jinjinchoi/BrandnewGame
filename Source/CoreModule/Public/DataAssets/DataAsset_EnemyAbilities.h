@@ -8,7 +8,7 @@
 
 class UGameplayAbility;
 /**
- * 
+ * 에너미의 어빌리티를 설정하는 데이터 에셋
  */
 UCLASS()
 class COREMODULE_API UDataAsset_EnemyAbilities : public UDataAsset

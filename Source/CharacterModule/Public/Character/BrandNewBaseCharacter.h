@@ -23,13 +23,20 @@ public:
 	ABrandNewBaseCharacter();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/* begin Character Interface */
+	virtual void LaunchCharacter(FVector LaunchVelocity, bool bXYOverride, bool bZOverride) override;
+	/* end Character Interface */
+
 	/* begin IAbilitySystemInterface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	/* end IAbilitySystemInterface */
 
 	/* begin IBrandNewCharacterInterface */
 	virtual void ToggleWeaponCollision_Implementation(bool bEnable) override;
+	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
 	/* end IBrandNewCharacterInterface */
+
+
 
 protected:
 	/* begin Actor Class */
@@ -53,6 +60,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	FName CombatSocketName = FName("CombatSocket");
+
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	bool bCanLaunch = true;
+	
+	bool bIsHitReacting = false;
 
 private:
 	void SetupWeapon();

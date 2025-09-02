@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "BrandNewCharacterInterface.generated.h"
+#include "BnWidgetInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE()
-class UBrandNewCharacterInterface : public UInterface
+class UBnWidgetInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,17 +16,11 @@ class UBrandNewCharacterInterface : public UInterface
 /**
  * 
  */
-class COREMODULE_API IBrandNewCharacterInterface
+class COREMODULE_API IBnWidgetInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ToggleWeaponCollision(bool bEnable);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnCharacterHit(const bool bIsHit);
-	
-	
+	virtual void SetUIWidgetController(UObject* ControllerToSet) = 0;
 };

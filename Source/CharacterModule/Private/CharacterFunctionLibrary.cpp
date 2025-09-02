@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "Kismet/KismetMathLibrary.h"
 
 FBrandNewEffectContext& UCharacterFunctionLibrary::GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle)
 {
@@ -42,6 +43,15 @@ void UCharacterFunctionLibrary::SetDamageElementTagToContext(FGameplayEffectCont
 	}
 }
 
+void UCharacterFunctionLibrary::SetHitDirectionTag(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InHitDirectionTag)
+{
+	if (InHitDirectionTag.IsValid())
+	{
+		const TSharedPtr<FGameplayTag> HitDirectionTag = MakeShared<FGameplayTag>(InHitDirectionTag);
+		GetBrandNewEffectContext(EffectContextHandle).SetHitDirectionTag(HitDirectionTag);
+	}
+}
+
 FGameplayTag UCharacterFunctionLibrary::GetDamageTypeTagToContext(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	const TSharedPtr<FGameplayTag>& DamageSharedTag = GetBrandNewEffectContext(EffectContextHandle).GetDamageTypeTag();
@@ -58,6 +68,16 @@ FGameplayTag UCharacterFunctionLibrary::GetDamageElementTagToContext( const FGam
 	if (ElementSharedTag.IsValid())
 	{
 		return *ElementSharedTag;
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UCharacterFunctionLibrary::GetHitDirectionTag(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	const TSharedPtr<FGameplayTag>& HitDirectionTag = GetBrandNewEffectContext(EffectContextHandle).GetHitDirectionTag();
+	if (HitDirectionTag.IsValid())
+	{
+		return *HitDirectionTag;
 	}
 	return FGameplayTag();
 }
@@ -129,6 +149,9 @@ FActiveGameplayEffectHandle UCharacterFunctionLibrary::ApplyDamageEffect(const F
 
 	SetDamageElementTagToContext(ContextHandle, DamageEffectParams.DamageElement);
 	SetDamageTypeTagToContext(ContextHandle, DamageEffectParams.DamageType);
+	SetHitDirectionTag(ContextHandle, DamageEffectParams.HitDirection);
+
+	GetBrandNewEffectContext(ContextHandle).SetKnockbackImpulse(DamageEffectParams.KnockbackImpulse);
 	
 	const FGameplayEffectSpecHandle SpecHandle =
 		DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(
@@ -140,5 +163,45 @@ FActiveGameplayEffectHandle UCharacterFunctionLibrary::ApplyDamageEffect(const F
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.DamageCoefficient);
 
 	return DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+}
+
+FGameplayTag UCharacterFunctionLibrary::ComputeHitReactDirection(const AActor* InAttacker, const AActor* InVictim)
+{
+	if (!IsValid(InAttacker) || !IsValid(InVictim))
+	{
+		return BrandNewGamePlayTag::Event_HitReact_Front;
+	}
+
+	const FVector VictimForward = InVictim->GetActorForwardVector();
+	const FVector VictimToAttackerNormalized = (InAttacker->GetActorLocation() - InVictim->GetActorLocation()).GetSafeNormal();
+
+	const float DotResult = FVector::DotProduct(VictimForward, VictimToAttackerNormalized);
+	float AngleDifference = UKismetMathLibrary::DegAcos(DotResult);
+
+	const FVector CrossResult = FVector::CrossProduct(VictimForward, VictimToAttackerNormalized);
+
+	if (CrossResult.Z < 0.f)
+	{
+		AngleDifference *= -1.f;
+	}
+
+	if (AngleDifference >= -45.f && AngleDifference <= 45.f)
+	{
+		return BrandNewGamePlayTag::Event_HitReact_Front;
+	}
+	else if (AngleDifference < -45.f && AngleDifference >= -135.f)
+	{
+		return BrandNewGamePlayTag::Event_HitReact_Left;
+	}
+	else if (AngleDifference < -135.f || AngleDifference > 135.f)
+	{
+		return BrandNewGamePlayTag::Event_HitReact_Back;
+	}
+	else if (AngleDifference > 45.f && AngleDifference <= 135.f)
+	{
+		return BrandNewGamePlayTag::Event_HitReact_Right;
+	}
+
+	return BrandNewGamePlayTag::Event_HitReact_Front;
 }
 
