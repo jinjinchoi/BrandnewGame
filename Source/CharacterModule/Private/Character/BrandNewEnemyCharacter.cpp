@@ -10,6 +10,7 @@
 #include "Components/WidgetComponent.h"
 #include "DataAssets/DataAsset_EnemyAbilities.h"
 #include "Engine/AssetManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/BnWidgetInterface.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
@@ -18,6 +19,9 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 
 	HealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar Widget Component"));
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
+
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.f);
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	
 }
 

@@ -4,19 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "AnimInstances/BrandNewBaseAnimInstance.h"
+#include "Interfaces/BnBaseAnimInstanceInterface.h"
 #include "BrandNewCharacterAnimInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CHARACTERMODULE_API UBrandNewCharacterAnimInstance : public UBrandNewBaseAnimInstance
+class CHARACTERMODULE_API UBrandNewCharacterAnimInstance : public UBrandNewBaseAnimInstance, public IBnBaseAnimInstanceInterface 
 {
 	GENERATED_BODY()
 
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+
+	virtual void SetIsStrafing(const bool InIsStrafing) override;
 
 protected:
 	UPROPERTY()
@@ -46,6 +49,10 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|JumpData")
 	bool bIsOnAir = false;
 
-	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|LocomotionData")
+	float VelocityLocomotionAngle = 0.f;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|CombatData")
+	bool bIsStrafing = false;
 	
 };

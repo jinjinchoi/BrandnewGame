@@ -24,11 +24,7 @@
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-
+	
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->TargetArmLength = 500.f;
@@ -41,8 +37,6 @@ ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom);
 	FollowCamera->bUsePawnControlRotation = false;
 	
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	
 }

@@ -24,7 +24,6 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalMagnitude, "Attribute.Secondary.CriticalMagnitude")
 
 	
-
 	/**
 	 * Input Tags
 	 */ 
@@ -86,6 +85,7 @@ namespace BrandNewGamePlayTag
 	 */
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Hit, "Status.Shared.Hit")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Dead, "Status.Shared.Dead")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Strafing, "Status.Shared.Strafing")
 
 	/**
 	 * Gameplay Cue Tags

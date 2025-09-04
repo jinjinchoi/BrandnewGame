@@ -27,6 +27,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnCharacterHit(const bool bIsHit);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnCharacterDied();
 	
+	virtual bool IsHitReacting() const = 0;
 	
 };

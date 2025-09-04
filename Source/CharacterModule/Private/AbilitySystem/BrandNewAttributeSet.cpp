@@ -5,12 +5,10 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "CharacterFunctionLibrary.h"
-#include "DebugHelper.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -84,6 +82,9 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	if (NewHealth <= 0.f)
 	{
 		// Death Logic
+		FGameplayTagContainer DeathTagContainer;
+		DeathTagContainer.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+		Data.Target.TryActivateAbilitiesByTag(DeathTagContainer);
 	}
 	else
 	{
@@ -103,7 +104,6 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 		{
 			if (ACharacter* TargetCharacter = Cast<ACharacter>(Data.Target.GetAvatarActor()))
 			{
-				TargetCharacter->GetCharacterMovement()->StopMovementImmediately();
 				TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
 			}
 		}

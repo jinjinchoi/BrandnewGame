@@ -24,7 +24,8 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"EnhancedInput",
-				"GameplayAbilities"
+				"GameplayAbilities",
+				"AIModule"
 			]
 		},
 		{

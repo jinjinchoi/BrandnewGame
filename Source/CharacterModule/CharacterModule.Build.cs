@@ -12,7 +12,8 @@ public class CharacterModule : ModuleRules
                 "Core", 
                 "GameplayTags",
                 "CoreModule",
-                "GameplayAbilities"
+                "GameplayAbilities",
+                "AIModule"
             }
         );
 

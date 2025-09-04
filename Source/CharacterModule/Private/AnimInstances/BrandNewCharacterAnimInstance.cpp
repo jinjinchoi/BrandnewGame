@@ -3,7 +3,11 @@
 
 #include "AnimInstances/BrandNewCharacterAnimInstance.h"
 
+#include "CharacterFunctionLibrary.h"
+#include "KismetAnimationLibrary.h"
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Character/BrandNewBaseCharacter.h"
+#include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UBrandNewCharacterAnimInstance::NativeInitializeAnimation()
@@ -33,5 +37,12 @@ void UBrandNewCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float Delta
 	bHasAcceleration = Acceleration.SizeSquared2D() > 0.f;
 	
 	bIsOnAir = OwningMovementComponent->IsFalling();
+
+	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Velocity, OwningCharacter->GetActorRotation());
 	
+}
+
+void UBrandNewCharacterAnimInstance::SetIsStrafing(const bool InIsStrafing)
+{
+	bIsStrafing = InIsStrafing;
 }

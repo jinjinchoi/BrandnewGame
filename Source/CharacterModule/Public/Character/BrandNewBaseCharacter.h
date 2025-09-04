@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "Interfaces/BrandNewCharacterInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
@@ -34,6 +35,8 @@ public:
 	/* begin IBrandNewCharacterInterface */
 	virtual void ToggleWeaponCollision_Implementation(bool bEnable) override;
 	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
+	virtual void OnCharacterDied_Implementation() override;
+	virtual bool IsHitReacting() const override;
 	/* end IBrandNewCharacterInterface */
 
 
@@ -44,6 +47,8 @@ protected:
 	/* end Actor Class */
 	
 	virtual void InitAbilityActorInfo();
+	virtual void BindGameplayTagDelegates();
+	
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 
 	UPROPERTY()
@@ -65,9 +70,11 @@ protected:
 	bool bCanLaunch = true;
 	
 	bool bIsHitReacting = false;
+	bool bIsDead = false;
 
 private:
 	void SetupWeapon();
+	void OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }

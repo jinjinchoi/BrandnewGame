@@ -7,8 +7,20 @@
 #include "Components/BrandNewInputComponent.h"
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "InputActionValue.h"
+#include "BrandNewTypes/BrandNewMacro.h"
 #include "Character/BrandNewPlayerCharacter.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
+
+ABrandNewPlayerController::ABrandNewPlayerController()
+{
+	PlayerTeamID = TEAM_PLAYER;
+}
+
+
+FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
+{
+	return PlayerTeamID;
+}
 
 void ABrandNewPlayerController::BeginPlay()
 {
@@ -50,6 +62,23 @@ void ABrandNewPlayerController::SetupInputComponent()
 		
 	}
 	
+}
+
+void ABrandNewPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	// Server
+	PlayerInterface = InPawn;
+	check(PlayerInterface);
+}
+
+void ABrandNewPlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+
+	// Client
+	PlayerInterface = GetPawn();
 }
 
 void ABrandNewPlayerController::AddInputMappingForWeapon(const ECombatWeaponType InWeaponType)
@@ -97,6 +126,8 @@ void ABrandNewPlayerController::Input_AbilityInputReleased(FGameplayTag InInputT
 
 void ABrandNewPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
+	if (!PlayerInterface || PlayerInterface->IsHitReacting()) return;
+	
 	ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
 	if (!ControlledCharacter) return;
 	
@@ -110,10 +141,11 @@ void ABrandNewPlayerController::Input_Move(const FInputActionValue& InputActionV
 	ControlledCharacter->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 	ControlledCharacter->AddMovementInput(RightDirection, InputAxisVector.X);
 
-	if (IBrandNewPlayerAnimInterface* PlayerAnimInterface = Cast<IBrandNewPlayerAnimInterface>(ControlledCharacter->GetMesh()->GetAnimInstance()))
-	{
-		PlayerAnimInterface->MovementInputReceived(InputAxisVector, Rotation);
-	}
+	// for turn in place
+	// if (IBrandNewPlayerAnimInterface* PlayerAnimInterface = Cast<IBrandNewPlayerAnimInterface>(ControlledCharacter->GetMesh()->GetAnimInstance()))
+	// {
+	// 	PlayerAnimInterface->MovementInputReceived(InputAxisVector, Rotation);
+	// }
 	
 	
 }

@@ -88,6 +88,7 @@ namespace BrandNewGamePlayTag
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Shared_Hit);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Shared_Dead);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Shared_Strafing);
 
 	/**
 	 * Gameplay Cue Tags

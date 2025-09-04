@@ -63,9 +63,6 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|LocomotionData")
 	float AccelerationLocomotionAngle = 0.f;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|LocomotionData")
-	float VelocityLocomotionAngle = 0.f;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category="Native|JumpData")
 	bool bIsJumping = false;

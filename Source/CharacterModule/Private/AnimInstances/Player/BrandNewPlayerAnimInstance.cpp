@@ -27,7 +27,6 @@ void UBrandNewPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSec
 	CurrentGate = InComingGate;
 	bIsGateChanged = CurrentGate != LastFrameGate;
 	
-	VelocityLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Velocity, OwningCharacter->GetActorRotation());
 	AccelerationLocomotionAngle = UKismetAnimationLibrary::CalculateDirection(Acceleration, OwningCharacter->GetActorRotation());
 	
 	CalculateJumpState();
