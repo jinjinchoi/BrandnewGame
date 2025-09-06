@@ -3,26 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
+#include "BrandNewWidgetControllerBase.h"
 #include "OverlayWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, float, NewValue);
 
 class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
+
 /**
  * 
  */
-UCLASS(BlueprintType)
-class UIMODULE_API UOverlayWidgetController : public UObject
+UCLASS()
+class UIMODULE_API UOverlayWidgetController : public UBrandNewWidgetControllerBase
 {
 	GENERATED_BODY()
 
 public:
-	void BindCallbacksToDependencies(APawn* InControlledPawn) const;
-
-	UFUNCTION(BlueprintCallable, Category = "BrandNew|WidgetControllerFunc")
-	void BroadCastInitialValue();
+	virtual void BindCallbacksToDependencies(APawn* InControlledPawn) const override;
+	virtual void BroadCastInitialValue() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
 	FOnPlayerAttributeChanged OnHealthChangedDelegate;
@@ -35,12 +34,5 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
 	FOnPlayerAttributeChanged OnMaxManaChangedDelegate;
-
-private:
-	UPROPERTY()
-	TObjectPtr<APawn> ControlledPawn;
-
-public:
-	FORCEINLINE void SetControlledPawn(APawn* PawnToSet) { ControlledPawn = PawnToSet; };
 	
 };

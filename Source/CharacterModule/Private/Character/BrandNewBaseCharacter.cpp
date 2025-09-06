@@ -154,3 +154,8 @@ bool ABrandNewBaseCharacter::IsHitReacting() const
 {
 	return bIsHitReacting;
 }
+
+UMotionWarpingComponent* ABrandNewBaseCharacter::GetMotionWarpingComponent_Implementation()
+{
+	return MotionWarpingComponent;
+}

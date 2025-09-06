@@ -4,6 +4,7 @@
 #include "HUD/BrandNewHUD.h"
 
 #include "Widget/BrandNewWidget.h"
+#include "WidgetController/CharacterInfoWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
 
 void ABrandNewHUD::InitHUD()
@@ -30,4 +31,18 @@ void ABrandNewHUD::InitHUD()
 void ABrandNewHUD::RequestInitHUD()
 {
 	InitHUD();
+}
+
+UCharacterInfoWidgetController* ABrandNewHUD::GetCharacterInfoWidgetController()
+{
+	check(CharacterInfoWidgetControllerClass)
+	
+	if (!CharacterInfoWidgetController)
+	{
+		CharacterInfoWidgetController = NewObject<UCharacterInfoWidgetController>(this, CharacterInfoWidgetControllerClass);
+		CharacterInfoWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+	}
+
+	return CharacterInfoWidgetController;
+	
 }

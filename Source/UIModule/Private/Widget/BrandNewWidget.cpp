@@ -14,3 +14,4 @@ void UBrandNewWidget::SetUIWidgetController(UObject* ControllerToSet)
 {
 	SetWidgetController(ControllerToSet);
 }
+

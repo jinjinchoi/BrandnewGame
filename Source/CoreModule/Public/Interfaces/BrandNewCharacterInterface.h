@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "BrandNewCharacterInterface.generated.h"
 
+class UMotionWarpingComponent;
+
 // This class does not need to be modified.
 UINTERFACE()
 class UBrandNewCharacterInterface : public UInterface
@@ -30,6 +32,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnCharacterDied();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UMotionWarpingComponent* GetMotionWarpingComponent();
 	
 	virtual bool IsHitReacting() const = 0;
 	

@@ -7,6 +7,7 @@
 #include "Interfaces/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
+class UCharacterInfoWidgetController;
 class UOverlayWidgetController;
 class UBrandNewWidget;
 /**
@@ -23,6 +24,8 @@ public:
 	/* begin IBrandNewHUDInterface */
 	virtual void RequestInitHUD() override;
 	/* end IBrandNewHUDInterface */
+
+	UCharacterInfoWidgetController* GetCharacterInfoWidgetController();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
@@ -36,6 +39,11 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	TSubclassOf<UCharacterInfoWidgetController> CharacterInfoWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<UCharacterInfoWidgetController> CharacterInfoWidgetController;
 	
 };

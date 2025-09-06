@@ -37,11 +37,11 @@ protected:
 	/* begin IGenericTeamAgentInterface */
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	/* end IGenericTeamAgentInterface */
-	
+
 
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Input Properties")
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Input Properties")
 	TObjectPtr<UDataAsset_InputConfig> InputConfig;
 
 	UPROPERTY()
@@ -59,5 +59,18 @@ private:
 	void Input_Run();
 
 	FGenericTeamId PlayerTeamID;
+
+	
+////////////////////////////////////
+///////////  UI  //////////////////
+///////////////////////////////////
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|UI")
+	TSubclassOf<UUserWidget> InGameMenuWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> InGameMenuWidget;
+
+	void Input_OpenInGameMenu();
+	
 	
 };

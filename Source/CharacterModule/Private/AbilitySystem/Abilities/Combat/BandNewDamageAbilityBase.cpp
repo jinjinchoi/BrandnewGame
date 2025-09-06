@@ -23,7 +23,7 @@ FDamageEffectParams UBandNewDamageAbilityBase::MakeDamageEffectParams(AActor* Ta
 	if (KnockbackForce != 0.f)
 	{
 		const FVector ToTarget = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).GetSafeNormal();
-		DamageEffectParams.KnockbackImpulse = ToTarget * KnockbackForce + FVector(0, 0, 10);
+		DamageEffectParams.KnockbackImpulse = ToTarget * KnockbackForce;
 	}
 
 	return DamageEffectParams;

@@ -7,6 +7,7 @@
 #include "Components/BrandNewInputComponent.h"
 #include "DataAssets/DataAsset_InputConfig.h"
 #include "InputActionValue.h"
+#include "Blueprint/UserWidget.h"
 #include "BrandNewTypes/BrandNewMacro.h"
 #include "Character/BrandNewPlayerCharacter.h"
 #include "Interfaces/BrandNewPlayerAnimInterface.h"
@@ -57,6 +58,9 @@ void ABrandNewPlayerController::SetupInputComponent()
 			InputConfig, this, BrandNewGamePlayTag::Input_Walk, ETriggerEvent::Started, &ThisClass::Input_Walk);
 		BrandNewInputComponent->BindLocomotionInputAction(
 			InputConfig, this, BrandNewGamePlayTag::Input_Jump, ETriggerEvent::Triggered, &ThisClass::Input_Jump);
+
+		BrandNewInputComponent->BindLocomotionInputAction(
+			InputConfig, this, BrandNewGamePlayTag::Input_UI_OpenInGameMenu, ETriggerEvent::Triggered, &ThisClass::Input_OpenInGameMenu);
 
 		BrandNewInputComponent->BindAbilityInputAction(InputConfig, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
 		
@@ -167,6 +171,8 @@ void ABrandNewPlayerController::Input_Look(const FInputActionValue& InputActionV
 
 void ABrandNewPlayerController::Input_Jump()
 {
+	if (!PlayerInterface || PlayerInterface->IsHitReacting()) return;
+	
 	ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
 	if (!ControlledCharacter) return;
 	ControlledCharacter->Jump();
@@ -188,4 +194,19 @@ void ABrandNewPlayerController::Input_Run()
 	{
 		ControlledCharacter->Server_SetMovementMode(EGate::Running);
 	}
+}
+
+void ABrandNewPlayerController::Input_OpenInGameMenu()
+{
+	if (!IsLocalController()) return;
+	
+	check(InGameMenuWidgetClass);
+	
+	if (!InGameMenuWidget)
+	{
+		InGameMenuWidget = CreateWidget(this, InGameMenuWidgetClass);
+	}
+
+	InGameMenuWidget->AddToViewport();
+	
 }

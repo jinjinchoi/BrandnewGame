@@ -22,7 +22,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MagicDefensePower, "Attribute.Secondary.MagicDefensePower")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalChance, "Attribute.Secondary.CriticalChance")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalMagnitude, "Attribute.Secondary.CriticalMagnitude")
-
+	
 	
 	/**
 	 * Input Tags
@@ -38,6 +38,9 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo, "Input.Ability.Combo");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo_NormalAttack, "Input.Ability.Combo.NormalAttack");
+
+	UE_DEFINE_GAMEPLAY_TAG(Input_UI_OpenInGameMenu, "Input.UI.OpenInGameMenu")
+	
 	
 	/**
 	 * Ability Tags
@@ -58,7 +61,6 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Event_EquipWeapon, "Event.EquipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Event_UnequipWeapon, "Event.UnequipWeapon")
 	
-	UE_DEFINE_GAMEPLAY_TAG(Event_ComboWindow_Open, "Event.ComboWindow.Open")
 	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_End, "Event.Attack.End")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Hit_Melee, "Event.Hit.Melee")
@@ -95,9 +97,9 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Normal, "GameplayCue.Widget.Damage.Normal")
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Critical, "GameplayCue.Widget.Damage.Critical")
 
-	
-	
-
-	
+	/**
+	 * Block Tags
+	 */
+	UE_DEFINE_GAMEPLAY_TAG(Block_Player_Movement, "Block.Player.Movement");
 	
 }

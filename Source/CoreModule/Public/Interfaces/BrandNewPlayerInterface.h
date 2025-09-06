@@ -7,6 +7,7 @@
 #include "UObject/Interface.h"
 #include "BrandNewPlayerInterface.generated.h"
 
+struct FGameplayTag;
 DECLARE_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float);
 
 // This class does not need to be modified.
@@ -50,5 +51,6 @@ public:
 	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
-	
+
+	virtual float GetAttributeByTag(const FGameplayTag& AttributeTag) const = 0;
 };

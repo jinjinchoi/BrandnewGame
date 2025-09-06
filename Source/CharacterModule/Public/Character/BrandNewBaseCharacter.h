@@ -38,6 +38,7 @@ public:
 	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
 	virtual void OnCharacterDied_Implementation() override;
 	virtual bool IsHitReacting() const override;
+	virtual UMotionWarpingComponent* GetMotionWarpingComponent_Implementation() override;
 	/* end IBrandNewCharacterInterface */
 
 
@@ -52,7 +53,7 @@ protected:
 	
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Motion Warping")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
 	UPROPERTY()

@@ -10,6 +10,7 @@
 #include "Interfaces/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class UDataAsset_AttributeInfo;
 class UDataAsset_DefaultPlayerAbilities;
 class USpringArmComponent;
 class UCameraComponent;
@@ -39,6 +40,7 @@ public:
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual void RequestBroadCastAttributeValue() override;
+	virtual float GetAttributeByTag(const FGameplayTag& AttributeTag) const override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -86,6 +88,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
 	TMap<ECombatWeaponType, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
 
+	/* Attribute와 GameplayTag를 연결하는 데이터 에셋 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
+	TSoftObjectPtr<UDataAsset_AttributeInfo>  AttributeInfoDataAsset;
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수

@@ -7,8 +7,10 @@
 #include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DataAssets/DataAsset_AttributeInfo.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
 #include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -86,7 +88,7 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
-	
+	GetAttributeByTag(BrandNewGamePlayTag::Attribute_Primary_Dexterity);
 }
 
 void ABrandNewPlayerCharacter::InitAbilityActorInfo()
@@ -347,6 +349,17 @@ void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
 	HealthChangedDelegate.ExecuteIfBound(AttributeSet->GetHealth());
 	MaxManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxMana());
 	ManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMana());
+}
+
+float ABrandNewPlayerCharacter::GetAttributeByTag(const FGameplayTag& AttributeTag) const
+{
+	check(AttributeInfoDataAsset)
+	if (!AttributeInfoDataAsset || !AttributeSet) return 0.0f;
+
+	const FGameplayAttribute AttributeGetter = AttributeInfoDataAsset->FindAttributeGetter(AttributeTag);
+	
+	return AttributeGetter.GetNumericValue(AttributeSet);
+	
 }
 
 
