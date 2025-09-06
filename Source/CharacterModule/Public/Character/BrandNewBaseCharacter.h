@@ -14,6 +14,7 @@ class UBrandNewAbilitySystemComponent;
 class ABrandNewWeapon;
 class UGameplayEffect;
 class UAttributeSet;
+class UMotionWarpingComponent;
 
 UCLASS()
 class CHARACTERMODULE_API ABrandNewBaseCharacter : public ACharacter, public IAbilitySystemInterface, public IBrandNewCharacterInterface
@@ -51,18 +52,22 @@ protected:
 	
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	
 	UPROPERTY()
 	TObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UBrandNewAttributeSet> AttributeSet;
-
+	
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
 
 	UPROPERTY(Replicated)
 	TObjectPtr<ABrandNewWeapon> CombatWeapon;
 
+	/* 무기를 부착할 소켓 이름 */
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
 	FName CombatSocketName = FName("CombatSocket");
 

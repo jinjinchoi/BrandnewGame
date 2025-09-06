@@ -28,7 +28,8 @@ public class CharacterModule : ModuleRules
                 "EnhancedInput",
                 "AnimGraphRuntime",
                 "GameplayTasks",
-                "UMG"
+                "UMG",
+                "MotionWarping"
             }
         );
     }

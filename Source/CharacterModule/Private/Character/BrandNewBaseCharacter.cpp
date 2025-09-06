@@ -2,7 +2,7 @@
 
 
 #include "Character/BrandNewBaseCharacter.h"
-
+#include "MotionWarpingComponent.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
@@ -32,6 +32,7 @@ ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 
 	AttributeSet = CreateDefaultSubobject<UBrandNewAttributeSet>("AttributeSet");
 
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("MotionWarpingComponent");
 }
 
 void ABrandNewBaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
