@@ -4,6 +4,7 @@
 #include "Item/Equipment/BrandNewWeapon.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "CharacterFunctionLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/BoxComponent.h"
 #include "Interfaces/BrandNewCharacterInterface.h"
@@ -54,14 +55,19 @@ void ABrandNewWeapon::ToggleCollisionEnable(const bool bIsEnable)
 void ABrandNewWeapon::CollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const bool bCanNotAttack =
+	const bool bIsNotValid =
 		!IsValid(OtherActor) ||
 		!OtherActor->Implements<UBrandNewCharacterInterface>() ||
 		OverlappedActors.Contains(OtherActor) ||
 		!GetOwner() ||
 		GetOwner() == OtherActor;
 
-	if (bCanNotAttack) return;
+	if (bIsNotValid) return;
+
+	if (!UCharacterFunctionLibrary::IsTargetActorHostile(GetOwner(), OtherActor))
+	{
+		return;
+	}
 
 	OverlappedActors.Add(OtherActor);
 

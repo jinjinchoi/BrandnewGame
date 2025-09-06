@@ -24,6 +24,6 @@ public:
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag);
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 
-	
+	FGameplayAbilitySpec* FindAbilitySpecFromAbilityTag(const FGameplayTag& AbilityTag); 
 	
 };

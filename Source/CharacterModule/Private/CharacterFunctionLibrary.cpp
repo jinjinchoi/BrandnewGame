@@ -7,6 +7,7 @@
 #include "AbilitySystemComponent.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GenericTeamAgentInterface.h"
 
 FBrandNewEffectContext& UCharacterFunctionLibrary::GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle)
 {
@@ -203,5 +204,18 @@ FGameplayTag UCharacterFunctionLibrary::ComputeHitReactDirection(const AActor* I
 	}
 
 	return BrandNewGamePlayTag::Event_HitReact_Front;
+}
+
+bool UCharacterFunctionLibrary::IsTargetActorHostile(const AActor* QueryActor, const AActor* TargetActor)
+{
+	const IGenericTeamAgentInterface* QueryTeamAgent = Cast<IGenericTeamAgentInterface>(QueryActor->GetInstigatorController());
+	const IGenericTeamAgentInterface* TargetTeamAgent = Cast<IGenericTeamAgentInterface>(TargetActor->GetInstigatorController());
+
+	if (QueryTeamAgent && TargetTeamAgent)
+	{
+		return QueryTeamAgent->GetGenericTeamId() != TargetTeamAgent->GetGenericTeamId(); 
+	}
+
+	return false;
 }
 

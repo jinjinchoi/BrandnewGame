@@ -46,8 +46,10 @@ namespace BrandNewGamePlayTag
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_EquipWeapon);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_UnequipWeapon);
-	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_NormalAttack);
+	
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy_Combat_MeleeAttack);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy_Combat_RangeAttack);
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Shared_React_Hit);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Shared_React_Death);

@@ -80,3 +80,20 @@ void UBrandNewAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag&
 	}
 }
 
+FGameplayAbilitySpec* UBrandNewAbilitySystemComponent::FindAbilitySpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		for (const FGameplayTag& Tag : AbilitySpec.Ability.Get()->GetAssetTags())
+		{
+			if (Tag.MatchesTagExact(AbilityTag))
+			{
+				return &AbilitySpec;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
