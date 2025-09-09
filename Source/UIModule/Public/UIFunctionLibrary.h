@@ -15,7 +15,7 @@ class UIMODULE_API UUIFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable, Category = "UIFunctionLibrary|WidgetController")
+	UFUNCTION(BlueprintCallable, Category = "UIFunctionLibrary|WidgetController", meta=(DefaultToSelf = "WorldContextObject"))
 	static UCharacterInfoWidgetController* GetCharacterInfoWidgetController(const UObject* WorldContextObject); 
 	
 };

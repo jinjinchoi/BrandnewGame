@@ -61,7 +61,9 @@ protected:
 	/* begin Base Character */
 	virtual void InitAbilityActorInfo() override;
 	/* end Base Character */
+	
 	void ApplyPrimaryAttribute() const;
+	void AddToXP(const float XpToAdd) const;
 
 	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
 	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
@@ -80,6 +82,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
 	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
+	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	TSubclassOf<UGameplayEffect> XPAttributeEffect;
+
 	/** 플레이어에게 부여할 어빌리티를 저장하는 데이터 에셋 **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
 	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
@@ -90,7 +95,7 @@ protected:
 
 	/* Attribute와 GameplayTag를 연결하는 데이터 에셋 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
-	TSoftObjectPtr<UDataAsset_AttributeInfo>  AttributeInfoDataAsset;
+	TObjectPtr<UDataAsset_AttributeInfo>  AttributeInfoDataAsset;
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수

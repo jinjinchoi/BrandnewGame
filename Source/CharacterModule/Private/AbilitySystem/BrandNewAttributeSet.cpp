@@ -33,6 +33,8 @@ void UBrandNewAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CriticalMagnitude, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, PhysicalDefensePower, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MagicDefensePower, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CharacterLevel, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, XP, COND_None, REPNOTIFY_Always);
 	
 }
 
@@ -199,5 +201,16 @@ void UBrandNewAttributeSet::OnRep_PhysicalDefensePower(const FGameplayAttributeD
 void UBrandNewAttributeSet::OnRep_MagicDefensePower(const FGameplayAttributeData& OldMagicDefensePower)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MagicDefensePower, OldMagicDefensePower);
+}
+
+void UBrandNewAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldLevel)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, CharacterLevel, OldLevel);
+}
+
+void UBrandNewAttributeSet::OnRep_XP(const FGameplayAttributeData& OldXP)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, XP, OldXP);
+	
 }
 #pragma endregion 

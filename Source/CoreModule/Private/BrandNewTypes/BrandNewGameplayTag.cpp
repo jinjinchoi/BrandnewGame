@@ -10,6 +10,9 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Intelligence, "Attribute.Primary.Intelligence")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Dexterity, "Attribute.Primary.Dexterity")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Primary_Vitality, "Attribute.Primary.Vitality")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Experience_Level, "Attribute.Experience.Level")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Experience_XP, "Attribute.Experience.XP")
 
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MaxHealth, "Attribute.Secondary.MaxHealth")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vital_CurrentHealth, "Attribute.Vital.CurrentHealth")

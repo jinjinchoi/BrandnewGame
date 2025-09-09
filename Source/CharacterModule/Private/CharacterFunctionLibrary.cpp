@@ -98,6 +98,7 @@ void UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(const FBaseAtt
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, BrandNewGamePlayTag::Attribute_Primary_Dexterity, InAttributePrams.Dexterity);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, BrandNewGamePlayTag::Attribute_Primary_Intelligence, InAttributePrams.Intelligence);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, BrandNewGamePlayTag::Attribute_Primary_Vitality, InAttributePrams.Vitality);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, BrandNewGamePlayTag::Attribute_Experience_Level, InAttributePrams.Level);
 
 	InASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 }

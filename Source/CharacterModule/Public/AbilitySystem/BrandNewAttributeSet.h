@@ -108,6 +108,18 @@ public:
 
 #pragma endregion
 
+#pragma region ExperienceAttribute
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterLevel)
+	FGameplayAttributeData CharacterLevel; // 레벨
+	ATTRIBUTE_ACCESSORS(ThisClass, CharacterLevel);
+
+	UPROPERTY(ReplicatedUsing = OnRep_XP)
+	FGameplayAttributeData XP; // 레벨
+	ATTRIBUTE_ACCESSORS(ThisClass, XP);
+
+	
+#pragma endregion 
+	
 #pragma region MetaAttribute
 	UPROPERTY()
 	FGameplayAttributeData IncomingDamage;
@@ -158,6 +170,14 @@ private:
 	
 	UFUNCTION()
 	void OnRep_MagicDefensePower(const FGameplayAttributeData& OldMagicDefensePower);
+
+	UFUNCTION()
+	void OnRep_CharacterLevel(const FGameplayAttributeData& OldLevel);
+
+	UFUNCTION()
+	void OnRep_XP(const FGameplayAttributeData& OldXP);
+
+	
 #pragma endregion
 	
 };

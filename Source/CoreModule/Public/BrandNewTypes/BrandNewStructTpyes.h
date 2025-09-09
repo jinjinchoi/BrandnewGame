@@ -73,6 +73,7 @@ struct FBaseAttributePrams
 	float Intelligence = 0.f;
 	float Dexterity = 0.f;
 	float Vitality = 0.f;
+	float Level = 1.f;
 };
 
 /* Enemy의 Attribute를 저장할 데이터 테이블 Row */

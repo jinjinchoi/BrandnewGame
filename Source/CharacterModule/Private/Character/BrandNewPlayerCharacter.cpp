@@ -3,6 +3,7 @@
 
 #include "Character/BrandNewPlayerCharacter.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "CharacterFunctionLibrary.h"
 #include "DebugHelper.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
@@ -62,33 +63,16 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 		{
 			PlayerAnimInterface->ReceiveGroundDistance(HitResult.Distance);
 		}
-
-
-#if WITH_EDITOR // === 디버그 라인 ===
-		
-		FColor LineColor = bHit ? FColor::Red : FColor::Green;
-		DrawDebugLine(GetWorld(), Start, End, LineColor, false, 0.f, 0, 2.f);
-		DrawDebugSphere(GetWorld(), End, Radius, 16, LineColor, false, 0.f);
-
-		if (bHit)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName());
-			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, Radius, 16, FColor::Yellow, false, 2.f);
-		}
-		
-#endif
-		
 	}
 	
 }
-
 
 void ABrandNewPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
-	GetAttributeByTag(BrandNewGamePlayTag::Attribute_Primary_Dexterity);
+
 }
 
 void ABrandNewPlayerCharacter::InitAbilityActorInfo()
@@ -119,11 +103,26 @@ void ABrandNewPlayerCharacter::ApplyPrimaryAttribute() const
 		AttributePrams.Dexterity = FoundRow->Dexterity;
 		AttributePrams.Intelligence = FoundRow->Intelligence;
 		AttributePrams.Vitality = FoundRow->Vitality;
+		AttributePrams.Level = 1.f;
 		
 		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
 	}
 }
 
+void ABrandNewPlayerCharacter::AddToXP(const float XpToAdd) const
+{
+	check(XPAttributeEffect);
+	if (!HasAuthority() || !XPAttributeEffect || !AbilitySystemComponent) return;
+
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(XPAttributeEffect, 1.f, ContextHandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Experience_XP, XpToAdd);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	
+}
 
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -180,6 +179,8 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 		})
 	);
 }
+
+
 
 void ABrandNewPlayerCharacter::BindAttributeDelegates()
 {

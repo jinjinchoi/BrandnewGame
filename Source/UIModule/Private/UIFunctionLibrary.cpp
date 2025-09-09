@@ -11,7 +11,7 @@ UCharacterInfoWidgetController* UUIFunctionLibrary::GetCharacterInfoWidgetContro
 	{
 		if (ABrandNewHUD* HUD = Cast<ABrandNewHUD>(PlayerController->GetHUD()))
 		{
-			HUD->GetCharacterInfoWidgetController();
+			return HUD->GetCharacterInfoWidgetController();
 		}
 	}
 
