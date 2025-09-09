@@ -25,6 +25,11 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 	
 }
 
+float ABrandNewEnemyCharacter::GetXPReward() const
+{
+	return XPReward.GetValueAtLevel(EnemyLevel);
+}
+
 void ABrandNewEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();

@@ -13,6 +13,7 @@
 #include "Components/CapsuleComponent.h"
 #include "DataAssets/DataAsset_AttributeInfo.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
+#include "DataAssets/DataAsset_LevelUpInfo.h"
 #include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -109,7 +110,7 @@ void ABrandNewPlayerCharacter::ApplyPrimaryAttribute() const
 	}
 }
 
-void ABrandNewPlayerCharacter::AddToXP(const float XpToAdd) const
+void ABrandNewPlayerCharacter::ApplyAddXPEffect(const float XpToAdd) const
 {
 	check(XPAttributeEffect);
 	if (!HasAuthority() || !XPAttributeEffect || !AbilitySystemComponent) return;
@@ -123,6 +124,38 @@ void ABrandNewPlayerCharacter::AddToXP(const float XpToAdd) const
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	
 }
+
+void ABrandNewPlayerCharacter::ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint)
+{
+	check(LevelUpEffect);
+	if (!HasAuthority() || !LevelUpEffect || !AbilitySystemComponent) return;
+
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(LevelUpEffect, 1.f, ContextHandle);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Experience_Level, LevelToApply);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Experience_AttributePoint, RewardAttributePoint);
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	
+}
+
+int32 ABrandNewPlayerCharacter::FindLevelForXP(const int32 InXP) const
+{
+	if (!LevelUpInfoDataAsset) return 0;
+
+	return LevelUpInfoDataAsset->FindLevelForXP(InXP);
+	
+}
+
+int32 ABrandNewPlayerCharacter::GetAttributePointsReward(const int32 LevelToFind) const
+{
+	if (!LevelUpInfoDataAsset) return 0;
+	
+	return LevelUpInfoDataAsset->LevelUpInformation[LevelToFind].AttributePointAward;
+}
+
 
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {

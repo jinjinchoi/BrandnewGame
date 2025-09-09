@@ -47,6 +47,12 @@ public:
 	/* Vital Attribute 값을 브로드캐스트 요청 하는 함수 */
 	virtual void RequestBroadCastAttributeValue() = 0;
 
+	/* 경험치를 더하는 함수 */
+	virtual void ApplyAddXPEffect(const float XpToAdd) const = 0;
+	virtual int32 FindLevelForXP(const int32 InXP) const = 0;
+	virtual int32 GetAttributePointsReward(int32 LevelToFind) const = 0;
+	virtual void ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint) = 0;
+
 	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;

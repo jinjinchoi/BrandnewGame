@@ -10,6 +10,7 @@
 #include "Interfaces/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class UDataAsset_LevelUpInfo;
 class UDataAsset_AttributeInfo;
 class UDataAsset_DefaultPlayerAbilities;
 class USpringArmComponent;
@@ -41,6 +42,10 @@ public:
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual void RequestBroadCastAttributeValue() override;
 	virtual float GetAttributeByTag(const FGameplayTag& AttributeTag) const override;
+	virtual void ApplyAddXPEffect(const float XpToAdd) const override;
+	virtual void ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint) override;
+	virtual int32 FindLevelForXP(const int32 InXP) const override;
+	virtual int32 GetAttributePointsReward(const int32 LevelToFind) const override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -63,39 +68,47 @@ protected:
 	/* end Base Character */
 	
 	void ApplyPrimaryAttribute() const;
-	void AddToXP(const float XpToAdd) const;
 
 	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
-	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> AttributeDataTable;
 
 	/* AttributeDataTable의 Key Name */
-	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
 	FName AttributeTableKeyName;
 	
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> PrimaryAttributeEffect;
 
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
 
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
 
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
+	/* 경험치를 올리기 위한 Gameplay Effect */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> XPAttributeEffect;
 
-	/** 플레이어에게 부여할 어빌리티를 저장하는 데이터 에셋 **/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
-	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
-
+	/* 레벨을 올리며 동시에 Attribute Point를 주기 위한 Effect */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> LevelUpEffect;
+	
 	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Anim Properties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Anim Properties")
 	TMap<ECombatWeaponType, TSubclassOf<UAnimInstance>> WeaponAnimLayerMap;
 
+	/** 플레이어에게 부여할 어빌리티를 저장하는 데이터 에셋 **/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Data Asset")
+	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
+	
 	/* Attribute와 GameplayTag를 연결하는 데이터 에셋 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Gameplay Ability System")
-	TObjectPtr<UDataAsset_AttributeInfo>  AttributeInfoDataAsset;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Data Asset")
+	TObjectPtr<UDataAsset_AttributeInfo> AttributeInfoDataAsset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
+	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
+	
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수

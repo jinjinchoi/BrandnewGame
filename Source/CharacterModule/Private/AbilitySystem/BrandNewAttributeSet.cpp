@@ -9,6 +9,8 @@
 #include "GameplayEffectExtension.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/BrandNewEnemyInterface.h"
+#include "Interfaces/BrandNewPlayerInterface.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -35,6 +37,7 @@ void UBrandNewAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MagicDefensePower, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CharacterLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, XP, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, AttributePoint, COND_None, REPNOTIFY_Always);
 	
 }
 
@@ -69,7 +72,14 @@ void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffe
 	{
 		HandleIncomingDamage(Data);
 	}
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		HandleIncomingXP();
+	}
+	
 }
+
+
 
 void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data)
 {
@@ -83,35 +93,88 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 
 	if (NewHealth <= 0.f)
 	{
-		// Death Logic
-		FGameplayTagContainer DeathTagContainer;
-		DeathTagContainer.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
-		Data.Target.TryActivateAbilitiesByTag(DeathTagContainer);
+		TryActivateDeathReactAbility(Data);
+		SendXP(Data);
 	}
 	else
 	{
-		// Hit Logic
-		FGameplayEventData EventData;
-		EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTag(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
-		EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();
-		EventData.Target = GetOwningActor();
-		EventData.EventMagnitude = LocalIncomingDamage;
-
-		// Hit Ability Activate
-		Data.Target.HandleGameplayEvent(EventData.EventTag, &EventData);
-
-		// 넉백
-		const FVector KnockbackVector = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).GetKnockbackImpulse();
-		if (!KnockbackVector.IsNearlyZero())
-		{
-			if (ACharacter* TargetCharacter = Cast<ACharacter>(Data.Target.GetAvatarActor()))
-			{
-				TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
-			}
-		}
+		HandleHit(Data, LocalIncomingDamage);
 	}
+	
 	ShowDamageText(Data, LocalIncomingDamage);
 	
+}
+
+void UBrandNewAttributeSet::HandleIncomingXP()
+{
+	const float LocalIncomingXP = GetIncomingXP();
+	if (LocalIncomingXP <= 0.f) return;
+	SetIncomingXP(0.f);
+	
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(GetOwningActor());
+	if (!PlayerInterface) return;
+	SetXP(GetXP() + LocalIncomingXP); // 캐릭터 경험치 설정
+
+	// 현재 레벨과 업할 레벨을 가져와 레벨 업 횟수를 계산
+	const int32 CurrentLevel = GetCharacterLevel();
+	const int32 LevelToReach = PlayerInterface->FindLevelForXP(GetXP());
+	const int32 NumLevelUps = LevelToReach - CurrentLevel;
+
+	// 레벌업 횟수 만큼 보상 찾아오는 작업 실행
+	if (NumLevelUps > 0)
+	{
+		int32 NewLevel = CurrentLevel;
+		int32 AttributePointsReward = 0;
+		for (int32 i = 0; i < NumLevelUps; ++i)
+		{
+			++NewLevel;	
+			AttributePointsReward += PlayerInterface->GetAttributePointsReward(NewLevel);
+			
+		}
+		PlayerInterface->ApplyLevelUpGameplayEffect(LevelToReach, AttributePointsReward);
+	}
+	
+}
+
+void UBrandNewAttributeSet::TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const
+{
+	FGameplayTagContainer DeathTagContainer;
+	DeathTagContainer.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+	Data.Target.TryActivateAbilitiesByTag(DeathTagContainer);
+	
+}
+
+void UBrandNewAttributeSet::SendXP(const struct FGameplayEffectModCallbackData& Data) const
+{
+	const IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(Data.EffectSpec.GetContext().GetOriginalInstigator());
+	const IBrandNewEnemyInterface* EnemyInterface = Cast<IBrandNewEnemyInterface>(GetOwningActor());
+
+	if (PlayerInterface && EnemyInterface)
+	{
+		PlayerInterface->ApplyAddXPEffect(EnemyInterface->GetXPReward());
+	}
+}
+
+void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
+{
+	FGameplayEventData EventData;
+	EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTag(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
+	EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();
+	EventData.Target = GetOwningActor();
+	EventData.EventMagnitude = LocalIncomingDamage;
+
+	// Hit Ability Activate
+	Data.Target.HandleGameplayEvent(EventData.EventTag, &EventData);
+
+	// 넉백
+	const FVector KnockbackVector = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).GetKnockbackImpulse();
+	if (!KnockbackVector.IsNearlyZero())
+	{
+		if (ACharacter* TargetCharacter = Cast<ACharacter>(GetOwningActor()))
+		{
+			TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
+		}
+	}
 }
 
 void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const
@@ -212,5 +275,10 @@ void UBrandNewAttributeSet::OnRep_XP(const FGameplayAttributeData& OldXP)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, XP, OldXP);
 	
+}
+
+void UBrandNewAttributeSet::OnRep_AttributePoint(const FGameplayAttributeData& OldAttributePoint)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, AttributePoint, OldAttributePoint);
 }
 #pragma endregion 

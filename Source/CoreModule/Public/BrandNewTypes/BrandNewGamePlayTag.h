@@ -15,6 +15,7 @@ namespace BrandNewGamePlayTag
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Experience_Level);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Experience_XP);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Experience_AttributePoint);
 
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MaxHealth);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Vital_CurrentHealth);

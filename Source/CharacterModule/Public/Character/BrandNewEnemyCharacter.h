@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Character/BrandNewBaseCharacter.h"
+#include "Interfaces/BrandNewEnemyInterface.h"
 #include "BrandNewEnemyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeValueChangedDelegate, const float, NewValue);
@@ -15,34 +16,43 @@ class UDataAsset_EnemyAbilities;
  * 
  */
 UCLASS()
-class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacter
+class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacter, public IBrandNewEnemyInterface
 {
 	GENERATED_BODY()
 
 public:
 	ABrandNewEnemyCharacter();
 
+	/* begin IBrandNewEnemyInterface */
+	virtual float GetXPReward() const override;
+	/* end IBrandNewEnemyInterface */
+
 protected:
 	virtual void BeginPlay() override;
-
-	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 필요함 */
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Enemy Data")
-	FName EnemyName = NAME_None;
 	
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Enemy Data")
-	int32 EnemyLevel = 1;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|DataTable")
-	TObjectPtr<UDataTable> SecondaryAttributeDataTable;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
-
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Gameplay Ability System")
-	TSoftObjectPtr<UDataAsset_EnemyAbilities> EnemyAbilitiesDataAsset;
-
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
+
+	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 필요함 */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
+	FName EnemyName = NAME_None;
+	
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
+	int32 EnemyLevel = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
+	FScalableFloat XPReward;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
+	TObjectPtr<UDataTable> SecondaryAttributeDataTable;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Data Asset")
+	TSoftObjectPtr<UDataAsset_EnemyAbilities> EnemyAbilitiesDataAsset;
+
+
 
 private:
 	FSecondaryAttributeDataRow* FindEnemyDataRow() const;
@@ -50,10 +60,10 @@ private:
 	void GiveAbilitiesToEnemy();
 	void BindAttributeChanged();
 
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate HealthChangedDelegate;
 	
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
 	
 };

@@ -24,17 +24,18 @@ class CHARACTERMODULE_API UBrandNewAttributeSet : public UAttributeSet
 public:
 	UBrandNewAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
-
 private:
 	void HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data);
+	void HandleIncomingXP();
 	void ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const;
+	void HandleHit(const struct FGameplayEffectModCallbackData& Data, float LocalIncomingDamage) const;
+	void TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const;
+	void SendXP(const struct FGameplayEffectModCallbackData& Data) const;
 
 
-	
 public:
 	////////////////////////////////////
 	////////// Attributes//////////////
@@ -117,6 +118,9 @@ public:
 	FGameplayAttributeData XP; // 레벨
 	ATTRIBUTE_ACCESSORS(ThisClass, XP);
 
+	UPROPERTY(ReplicatedUsing = OnRep_AttributePoint)
+	FGameplayAttributeData AttributePoint; // 스탯을 찍을 수 있는 포인트
+	ATTRIBUTE_ACCESSORS(ThisClass, AttributePoint);
 	
 #pragma endregion 
 	
@@ -124,6 +128,10 @@ public:
 	UPROPERTY()
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage);
+
+	UPROPERTY()
+	FGameplayAttributeData IncomingXP;
+	ATTRIBUTE_ACCESSORS(ThisClass, IncomingXP);
 	
 #pragma endregion 
 
@@ -176,7 +184,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_XP(const FGameplayAttributeData& OldXP);
-
+	
+	UFUNCTION()
+	void OnRep_AttributePoint(const FGameplayAttributeData& OldAttributePoint);
 	
 #pragma endregion
 	

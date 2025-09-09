@@ -62,17 +62,17 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UBrandNewAttributeSet> AttributeSet;
 	
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
 
 	UPROPERTY(Replicated)
 	TObjectPtr<ABrandNewWeapon> CombatWeapon;
 
 	/* 무기를 부착할 소켓 이름 */
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	FName CombatSocketName = FName("CombatSocket");
 
-	UPROPERTY(EditAnywhere, Category = "BrandNew|Combat")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	bool bCanLaunch = true;
 	
 	bool bIsHitReacting = false;
