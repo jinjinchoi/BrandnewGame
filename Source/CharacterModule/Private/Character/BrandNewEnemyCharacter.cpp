@@ -6,6 +6,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
+#include "AI/BrandNewAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/WidgetComponent.h"
 #include "DataAssets/DataAsset_EnemyAbilities.h"
@@ -28,6 +30,31 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 float ABrandNewEnemyCharacter::GetXPReward() const
 {
 	return XPReward.GetValueAtLevel(EnemyLevel);
+}
+
+void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
+{
+	Super::OnCharacterDied_Implementation();
+
+	if (AController* AIController = GetController())
+	{
+		AIController->UnPossess();
+	}
+	
+}
+
+void ABrandNewEnemyCharacter::OnCharacterHit_Implementation(const bool bIsHit)
+{
+	Super::OnCharacterHit_Implementation(bIsHit);
+
+	if (ABrandNewAIController* AIController = Cast<ABrandNewAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIController->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool("IsHit", bIsHit);
+		}
+	}
+	
 }
 
 void ABrandNewEnemyCharacter::BeginPlay()

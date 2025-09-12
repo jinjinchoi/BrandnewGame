@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/BrandNewEnemyInterface.h"
 #include "Interfaces/BrandNewPlayerInterface.h"
+#include "Perception/AISense_Damage.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()
 {
@@ -79,32 +80,6 @@ void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffe
 	
 }
 
-
-
-void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data)
-{
-	const float LocalIncomingDamage = GetIncomingDamage();
-	SetIncomingDamage(0.f);
-	if (LocalIncomingDamage <= 0.f) return;
-	if (GetHealth() <= 0.f) return;
-
-	const float NewHealth = FMath::Clamp(GetHealth() - LocalIncomingDamage, 0.f, GetMaxHealth());
-	SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-
-	if (NewHealth <= 0.f)
-	{
-		TryActivateDeathReactAbility(Data);
-		SendXP(Data);
-	}
-	else
-	{
-		HandleHit(Data, LocalIncomingDamage);
-	}
-	
-	ShowDamageText(Data, LocalIncomingDamage);
-	
-}
-
 void UBrandNewAttributeSet::HandleIncomingXP()
 {
 	const float LocalIncomingXP = GetIncomingXP();
@@ -133,8 +108,33 @@ void UBrandNewAttributeSet::HandleIncomingXP()
 		}
 		PlayerInterface->ApplyLevelUpGameplayEffect(LevelToReach, AttributePointsReward);
 	}
+}
+
+void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectModCallbackData& Data)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+	if (LocalIncomingDamage <= 0.f) return;
+	if (GetHealth() <= 0.f) return;
+
+	const float NewHealth = FMath::Clamp(GetHealth() - LocalIncomingDamage, 0.f, GetMaxHealth());
+	SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+	if (NewHealth <= 0.f)
+	{
+		TryActivateDeathReactAbility(Data);
+		SendXP(Data);
+	}
+	else
+	{
+		HandleHit(Data, LocalIncomingDamage);
+		HitReportToEnemy(Data, LocalIncomingDamage);
+	}
+	
+	ShowDamageText(Data, LocalIncomingDamage);
 	
 }
+
 
 void UBrandNewAttributeSet::TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const
 {
@@ -175,6 +175,22 @@ void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackDat
 			TargetCharacter->LaunchCharacter(KnockbackVector, true, true);
 		}
 	}
+}
+
+void UBrandNewAttributeSet::HitReportToEnemy(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
+{
+	if (!GetOwningActor()->Implements<UBrandNewEnemyInterface>() || !IsValid(Data.EffectSpec.GetContext().GetOriginalInstigator())) return;
+
+	UAISense_Damage::ReportDamageEvent(
+		GetOwningActor(),
+		GetOwningActor(),
+		Data.EffectSpec.GetContext().GetOriginalInstigator(),
+		LocalIncomingDamage,
+		Data.EffectSpec.GetContext().GetOriginalInstigator()->GetActorLocation(),
+		GetOwningActor()->GetActorLocation()
+	);
+	
+	
 }
 
 void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const

@@ -32,6 +32,7 @@ private:
 	void HandleIncomingXP();
 	void ShowDamageText(const struct FGameplayEffectModCallbackData& Data, const float DamageAmount) const;
 	void HandleHit(const struct FGameplayEffectModCallbackData& Data, float LocalIncomingDamage) const;
+	void HitReportToEnemy(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const;
 	void TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const;
 	void SendXP(const struct FGameplayEffectModCallbackData& Data) const;
 

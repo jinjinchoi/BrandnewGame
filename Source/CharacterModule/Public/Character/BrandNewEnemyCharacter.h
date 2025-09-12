@@ -27,6 +27,11 @@ public:
 	virtual float GetXPReward() const override;
 	/* end IBrandNewEnemyInterface */
 
+	/* begin IBrandNewCharacterInterface */
+	virtual void OnCharacterDied_Implementation() override;
+	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
+	/* end IBrandNewCharacterInterface*/
+
 protected:
 	virtual void BeginPlay() override;
 	

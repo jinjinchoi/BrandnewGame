@@ -118,8 +118,6 @@ void ABrandNewBaseCharacter::SetupWeapon()
 	
 }
 
-
-
 UAbilitySystemComponent* ABrandNewBaseCharacter::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
