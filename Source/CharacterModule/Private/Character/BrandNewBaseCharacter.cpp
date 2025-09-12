@@ -26,7 +26,6 @@ ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
-
 	AbilitySystemComponent = CreateDefaultSubobject<UBrandNewAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 

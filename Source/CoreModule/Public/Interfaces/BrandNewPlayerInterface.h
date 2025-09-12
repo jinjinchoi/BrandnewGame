@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewTypes/BrandNewEnumTypes.h"
+#include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "UObject/Interface.h"
 #include "BrandNewPlayerInterface.generated.h"
 
@@ -58,5 +59,7 @@ public:
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
 
-	virtual float GetAttributeByTag(const FGameplayTag& AttributeTag) const = 0;
+	// 태그를 통해 Attribute의 value를 가져오는 함수
+	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const = 0;
+	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) = 0;
 };

@@ -2,8 +2,6 @@
 
 
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
-
-#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
 
 void UBrandNewAbilitySystemComponent::GrantAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AbilitiesToGrant,
@@ -96,4 +94,3 @@ FGameplayAbilitySpec* UBrandNewAbilitySystemComponent::FindAbilitySpecFromAbilit
 
 	return nullptr;
 }
-

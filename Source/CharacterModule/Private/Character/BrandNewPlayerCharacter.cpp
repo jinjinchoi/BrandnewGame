@@ -65,7 +65,6 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 			PlayerAnimInterface->ReceiveGroundDistance(HitResult.Distance);
 		}
 	}
-	
 }
 
 void ABrandNewPlayerCharacter::BeginPlay()
@@ -156,6 +155,39 @@ int32 ABrandNewPlayerCharacter::GetAttributePointsReward(const int32 LevelToFind
 	return LevelUpInfoDataAsset->LevelUpInformation[LevelToFind].AttributePointAward;
 }
 
+void ABrandNewPlayerCharacter::UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams)
+{
+	check(AttributeUpgradeEffect)
+	if (!AttributeUpgradeEffect || !AbilitySystemComponent) return;
+
+	Server_RequestUpgradeAttribute(AttributeUpgradePrams);
+	
+}
+
+void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams)
+{
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(AttributeUpgradeEffect, 1.f, ContextHandle);
+
+	int32 ConsumedStatPoint = 0;
+	
+	for (const FAttributeUpgradePrams& UpgradePrams : AttributeUpgradePrams)
+	{
+		if (!UpgradePrams.TagToUpgrade.IsValid()) continue;
+
+		ConsumedStatPoint += UpgradePrams.UpgradeAmount;
+		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,UpgradePrams.TagToUpgrade, UpgradePrams.UpgradeAmount);
+	}
+
+	if (GetAttributeValueByTag(BrandNewGamePlayTag::Attribute_Experience_AttributePoint) < ConsumedStatPoint) return;
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Experience_AttributePoint, -ConsumedStatPoint);
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	
+}
 
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -321,10 +353,13 @@ void ABrandNewPlayerCharacter::OnWeaponUnequipped_Implementation()
 	OnEquippedWeaponChanged();
 }
 
+
 void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
 {
 	OnEquippedWeaponChanged();
 }
+
+
 
 void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 {
@@ -357,6 +392,25 @@ void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 	
 }
 
+float ABrandNewPlayerCharacter::GetAttributeValueByTag(const FGameplayTag& AttributeTag) const
+{
+	check(AttributeInfoDataAsset)
+	if (!AttributeInfoDataAsset || !AttributeSet) return 0.0f;
+
+	const FGameplayAttribute AttributeGetter = AttributeInfoDataAsset->FindAttributeGetter(AttributeTag);
+	
+	return AttributeGetter.GetNumericValue(AttributeSet);
+	
+}
+
+void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
+{
+	MaxHealthChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxHealth());
+	HealthChangedDelegate.ExecuteIfBound(AttributeSet->GetHealth());
+	MaxManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxMana());
+	ManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMana());
+}
+
 FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetHealthChangedDelegate()
 {
 	return HealthChangedDelegate;
@@ -375,25 +429,6 @@ FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetManaChangedDelegate()
 FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxManaChangedDelegate()
 {
 	return MaxManaChangedDelegate;
-}
-
-void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
-{
-	MaxHealthChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxHealth());
-	HealthChangedDelegate.ExecuteIfBound(AttributeSet->GetHealth());
-	MaxManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxMana());
-	ManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMana());
-}
-
-float ABrandNewPlayerCharacter::GetAttributeByTag(const FGameplayTag& AttributeTag) const
-{
-	check(AttributeInfoDataAsset)
-	if (!AttributeInfoDataAsset || !AttributeSet) return 0.0f;
-
-	const FGameplayAttribute AttributeGetter = AttributeInfoDataAsset->FindAttributeGetter(AttributeTag);
-	
-	return AttributeGetter.GetNumericValue(AttributeSet);
-	
 }
 
 
@@ -437,7 +472,6 @@ void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
 }
-#pragma endregion
 
 void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 {
@@ -445,3 +479,4 @@ void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 	NewRot.Yaw += DeltaYaw;
 	SetActorRotation(NewRot);
 }
+#pragma endregion

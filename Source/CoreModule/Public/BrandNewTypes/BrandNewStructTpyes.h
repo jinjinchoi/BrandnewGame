@@ -158,3 +158,20 @@ struct FDamageEffectParams
 	}
 };
 
+/* Attribute를 강화할때 어떤 Attribute를 얼마만큼 할지 저장하는 구조체 */
+USTRUCT(BlueprintType)
+struct FAttributeUpgradePrams
+{
+	GENERATED_BODY()
+	
+	FAttributeUpgradePrams() {}
+	FAttributeUpgradePrams(const FGameplayTag& InTag, const int32 Value)
+		: TagToUpgrade(InTag), UpgradeAmount(Value) {}
+
+	UPROPERTY()
+	FGameplayTag TagToUpgrade = FGameplayTag();
+	
+	UPROPERTY()
+	int32 UpgradeAmount = 0;
+	
+};

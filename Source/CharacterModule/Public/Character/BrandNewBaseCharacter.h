@@ -41,8 +41,6 @@ public:
 	virtual UMotionWarpingComponent* GetMotionWarpingComponent_Implementation() override;
 	/* end IBrandNewCharacterInterface */
 
-
-
 protected:
 	/* begin Actor Class */
 	virtual void BeginPlay() override;
@@ -84,5 +82,5 @@ private:
 
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }
-	
+
 };

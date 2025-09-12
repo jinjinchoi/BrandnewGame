@@ -33,19 +33,20 @@ public:
 	/* begin Player Interface */
 	virtual ECombatWeaponType GetCurrentEquippedWeaponType() const override;
 	virtual void AddYawRotation(const float DeltaYaw) override;
-	virtual AActor*GetCombatWeaponActor_Implementation() const override;
+	virtual AActor* GetCombatWeaponActor_Implementation() const override;
 	virtual void OnWeaponEquipped_Implementation() override;
 	virtual void OnWeaponUnequipped_Implementation() override;
-	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual void RequestBroadCastAttributeValue() override;
-	virtual float GetAttributeByTag(const FGameplayTag& AttributeTag) const override;
+	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const override;
 	virtual void ApplyAddXPEffect(const float XpToAdd) const override;
 	virtual void ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint) override;
 	virtual int32 FindLevelForXP(const int32 InXP) const override;
 	virtual int32 GetAttributePointsReward(const int32 LevelToFind) const override;
+	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) override;
+	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
+	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -93,6 +94,9 @@ protected:
 	/* 레벨을 올리며 동시에 Attribute Point를 주기 위한 Effect */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> LevelUpEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> AttributeUpgradeEffect;
 	
 	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Anim Properties")
@@ -128,11 +132,14 @@ private:
 	UFUNCTION()
 	void OnRep_CurrentEquippedWeaponType();
 
+	UFUNCTION(Server, Reliable)
+	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
+
 	FOnAttributeChangedDelegate HealthChangedDelegate;
 	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
 	FOnAttributeChangedDelegate ManaChangedDelegate;
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
-	
+
 	
 #pragma region Movement
 	

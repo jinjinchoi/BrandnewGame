@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewWidgetControllerBase.h"
+#include "GameplayTagContainer.h"
 #include "CharacterInfoWidgetController.generated.h"
 
 struct FGameplayTag;
@@ -18,5 +19,8 @@ class UIMODULE_API UCharacterInfoWidgetController : public UBrandNewWidgetContro
 public:
 	UFUNCTION(BlueprintCallable, Category = "BrandNew|Attribute")
 	float GetAttributeByTag(const FGameplayTag& AttributeTag) const;
+
+	UFUNCTION(BlueprintCallable, Category = "BrandNew|Attribute")
+	void UpgradeAttribute(const TMap<FGameplayTag, float>& AttributeUpgradeMap);
 	
 };
