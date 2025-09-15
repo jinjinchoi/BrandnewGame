@@ -199,7 +199,7 @@ void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallba
 	GameplayCueParams.RawMagnitude = DamageAmount;
 	GameplayCueParams.Instigator = Data.EffectSpec.GetContext().GetInstigator();
 	GameplayCueParams.Location = GetOwningActor()->GetActorLocation();
-	GameplayCueParams.OriginalTag = UCharacterFunctionLibrary::GetDamageElementTagToContext(Data.EffectSpec.GetContext());
+	GameplayCueParams.EffectContext = Data.EffectSpec.GetContext();
 
 	const bool bIsCritical = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).IsCriticalHit();
 	const FGameplayTag CueTag =

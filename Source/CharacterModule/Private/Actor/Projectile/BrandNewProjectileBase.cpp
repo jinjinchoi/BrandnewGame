@@ -78,6 +78,8 @@ void ABrandNewProjectileBase::InitProjectile(AActor* ProjectileOwner, const FDam
 
 	ProjectileMovementComponent->InitialSpeed =InitSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitSpeed;
+
+	DamageEffectParams = InDamageEffectParams;
 	
 }
 
@@ -164,9 +166,10 @@ void ABrandNewProjectileBase::OnHit(const FVector& LocationOverride) const
 
 void ABrandNewProjectileBase::ApplyDamageToTarget(AActor* DamagedActor)
 {
+	if (!HasAuthority()) return;
 	if (!DamagedActor) return;
 	if (!DamagedActor->Implements<UBrandNewCharacterInterface>() || IBrandNewCharacterInterface::Execute_IsDead(DamagedActor)) return;
-	if (!UCharacterFunctionLibrary::IsTargetActorHostile(this, DamagedActor)) return;
+	if (!UCharacterFunctionLibrary::IsTargetActorHostile(GetOwner(), DamagedActor)) return;
 
 	DamageEffectParams.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(DamagedActor);
 	DamageEffectParams.HitDirection = UCharacterFunctionLibrary::ComputeHitReactDirection(this, DamagedActor);
@@ -249,6 +252,7 @@ void ABrandNewProjectileBase::OnTargetDestroyed()
 void ABrandNewProjectileBase::OnRep_IsActivated()
 {
 	SetActorHiddenInGame(!IsActivated);
+	SetActorEnableCollision(IsActivated);
 	if (NiagaraComponent && IsActivated)
 	{
 		NiagaraComponent->Activate();

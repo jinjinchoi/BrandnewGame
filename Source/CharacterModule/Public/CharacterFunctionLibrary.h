@@ -25,7 +25,9 @@ public:
 	static void SetDamageTypeTagToContext(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InTypeTag);
 	static void SetDamageElementTagToContext(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InElemTag);
 	static void SetHitDirectionTag(FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InHitDirectionTag);
+	
 	static FGameplayTag GetDamageTypeTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
+	UFUNCTION(BlueprintPure)
 	static FGameplayTag GetDamageElementTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
 	static FGameplayTag GetHitDirectionTag(const FGameplayEffectContextHandle& EffectContextHandle);
 	
