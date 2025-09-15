@@ -8,6 +8,7 @@
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericTeamAgentInterface.h"
+#include "Interfaces/BrandNewCharacterInterface.h"
 
 FBrandNewEffectContext& UCharacterFunctionLibrary::GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle)
 {
@@ -218,5 +219,145 @@ bool UCharacterFunctionLibrary::IsTargetActorHostile(const AActor* QueryActor, c
 	}
 
 	return false;
+}
+
+void UCharacterFunctionLibrary::GetLiveActorWithinRadius(const UObject* WorldContextObject,
+	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius,
+	const FVector& SphereOrigin)
+{
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		TArray<FOverlapResult> OverlapResults;
+		
+		World->OverlapMultiByObjectType(
+			OverlapResults,
+			SphereOrigin,
+			FQuat::Identity,
+			FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects),
+			FCollisionShape::MakeSphere(Radius),
+			SphereParams
+		);
+
+	
+		for (FOverlapResult& Overlap : OverlapResults)
+		{
+			if (Overlap.GetActor()->Implements<UBrandNewCharacterInterface>() && IBrandNewCharacterInterface::Execute_IsDead(Overlap.GetActor()))
+			{
+				OutOverlappingActors.AddUnique(Overlap.GetActor());
+			}
+		}
+		
+	}
+}
+
+void UCharacterFunctionLibrary::GetHostileActorsWithinRadius(const UObject* WorldContextObject,
+	const AActor* InstigatorActor, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
+	float Radius, const FVector& SphereOrigin, bool bDrawDebugSphere)
+{
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+	
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		if (bDrawDebugSphere)
+		{
+			// Origin 위치 메세지로 표시
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				2.f,
+				FColor::Cyan,
+				FString::Printf(TEXT("SphereOrigin: %s"), *SphereOrigin.ToString())
+			);
+
+			// 범위 구형으로 표시
+			DrawDebugSphere(
+				World,
+				SphereOrigin,
+				Radius,
+				16, // 세그먼트 (선의 부드러움)
+				FColor::Green, // 색상
+				false, // 영구 여부 (false면 일정 시간 후 사라짐)
+				2.0f, // 지속 시간
+				0, // Depth Priority
+				1.f // 선 두께
+			);
+
+			// Origin 위치 포인트로 표시
+			DrawDebugPoint(
+				World,
+				SphereOrigin,
+				10.0f,
+				FColor::Yellow,
+				false,
+				1.0f
+			);
+		}
+
+		
+		TArray<FOverlapResult> OverlapResults;
+		
+		World->OverlapMultiByObjectType(
+			OverlapResults,
+			SphereOrigin,
+			FQuat::Identity,
+			FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects),
+			FCollisionShape::MakeSphere(Radius),
+			SphereParams
+		);
+	
+		for (FOverlapResult& Overlap : OverlapResults)
+		{
+			if (!Overlap.GetActor()->Implements<UBrandNewCharacterInterface>() || IBrandNewCharacterInterface::Execute_IsDead(Overlap.GetActor())) continue;
+			
+			if (IsTargetActorHostile(Overlap.GetActor(), InstigatorActor))
+			{
+				OutOverlappingActors.AddUnique(Overlap.GetActor());
+			}
+		}
+	}
+}
+
+AActor* UCharacterFunctionLibrary::GetClosestActor(const TArray<AActor*>& TargetActors, const FVector& Origin)
+{
+	if (TargetActors.Num() == 0)
+	{
+		return nullptr;
+	}
+	
+	AActor* ClosestTarget = nullptr;
+	float MinDistSq = TNumericLimits<float>::Max();
+
+	for (AActor* Target : TargetActors)
+	{
+		if (!IsValid(Target)) continue;
+
+		float DistSq = FVector::DistSquared(Target->GetActorLocation(), Origin);
+
+		if (DistSq < MinDistSq)
+		{
+			MinDistSq = DistSq;
+			ClosestTarget = Target;
+		}
+	}
+
+	return ClosestTarget;
+}
+
+FVector UCharacterFunctionLibrary::GetClosestActorLocation(const TArray<AActor*>& TargetActors, const FVector& Origin)
+{
+	if (TargetActors.Num() == 0)
+	{
+		return FVector::ZeroVector;
+	}
+	
+	if (const AActor* ClosestTarget = GetClosestActor(TargetActors, Origin))
+	{
+		return ClosestTarget->GetActorLocation();
+	}
+
+	return FVector::ZeroVector;
 }
 

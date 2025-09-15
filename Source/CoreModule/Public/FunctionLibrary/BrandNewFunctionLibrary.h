@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BrandNewFunctionLibrary.generated.h"
 
+class UBrandNewObjectPoolManager;
 /**
  * 
  */
@@ -15,7 +16,7 @@ class COREMODULE_API UBrandNewFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-
+	static UBrandNewObjectPoolManager* GetObjectPoolManager(const UObject* WorldContextObject); 
 	
 	
 };

@@ -20,6 +20,9 @@ class CHARACTERMODULE_API UBandNewDamageAbilityBase : public UBandNewBaseGamepla
 protected:
 	UFUNCTION(BlueprintCallable)
 	FDamageEffectParams MakeDamageEffectParams(AActor* TargetActor) const;
+
+	UFUNCTION(BlueprintCallable)
+	FDamageEffectParams MakeNonTargetEffectParams() const;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> DamageEffectClass;

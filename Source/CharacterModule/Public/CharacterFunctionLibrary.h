@@ -47,5 +47,14 @@ public:
 	static FGameplayTag ComputeHitReactDirection(const AActor* InAttacker, const AActor* InVictim);
 
 	static bool IsTargetActorHostile(const AActor* QueryActor, const AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable, Category="UCharacterFunctionLibrary|Gameplay Mechanics")
+	static void GetLiveActorWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin);
+
+	static void GetHostileActorsWithinRadius(const UObject* WorldContextObject, const AActor* InstigatorActor, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
+	float Radius, const FVector& SphereOrigin, bool bDrawDebugSphere = false);
+
+	static AActor* GetClosestActor(const TArray<AActor*>& TargetActors, const FVector& Origin);
+	static FVector GetClosestActorLocation(const TArray<AActor*>& TargetActors, const FVector& Origin);
 	
 };

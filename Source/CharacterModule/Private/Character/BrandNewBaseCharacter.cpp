@@ -138,6 +138,7 @@ void ABrandNewBaseCharacter::OnCharacterHit_Implementation(const bool bIsHit)
 
 void ABrandNewBaseCharacter::OnCharacterDied_Implementation()
 {
+	OnCharacterDiedDelegate.Broadcast();
 	bIsDead = true;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
@@ -152,7 +153,22 @@ bool ABrandNewBaseCharacter::IsHitReacting() const
 	return bIsHitReacting;
 }
 
+FOnCharacterDied& ABrandNewBaseCharacter::GetOnCharacterDiedDelegate()
+{
+	return OnCharacterDiedDelegate;
+}
+
 UMotionWarpingComponent* ABrandNewBaseCharacter::GetMotionWarpingComponent_Implementation()
 {
 	return MotionWarpingComponent;
+}
+
+FVector ABrandNewBaseCharacter::GetProjectileSpawnLocation_Implementation(const FName& SocketName) const
+{
+	return GetMesh()->GetSocketLocation(SocketName);
+}
+
+bool ABrandNewBaseCharacter::IsDead_Implementation() const
+{
+	return bIsDead;
 }

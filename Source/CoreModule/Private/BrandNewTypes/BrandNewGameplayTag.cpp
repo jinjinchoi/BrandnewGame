@@ -42,6 +42,7 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo, "Input.Ability.Combo");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo_NormalAttack, "Input.Ability.Combo.NormalAttack");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_SpawnMagicSphere, "Input.Ability.SpawnMagicSphere");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_UI_OpenInGameMenu, "Input.UI.OpenInGameMenu")
 	
@@ -52,6 +53,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_EquipWeapon, "Ability.Player.Combat.EquipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_UnequipWeapon, "Ability.Player.Combat.UnequipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_NormalAttack, "Ability.Player.Combat.NormalAttack")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_SpawnMagicSphere, "Ability.Player.Combat.SpawnMagicSphere")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_MeleeAttack, "Ability.Enemy.Combat.MeleeAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_RangeAttack, "Ability.Enemy.Combat.RangeAttack")
@@ -66,6 +68,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Event_UnequipWeapon, "Event.UnequipWeapon")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Attack_End, "Event.Attack.End")
+	UE_DEFINE_GAMEPLAY_TAG(Event_ProjectileSpawn, "Event.ProjectileSpawn")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Event_Hit_Melee, "Event.Hit.Melee")
 

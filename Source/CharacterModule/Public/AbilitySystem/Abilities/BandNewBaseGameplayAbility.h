@@ -14,4 +14,6 @@ class CHARACTERMODULE_API UBandNewBaseGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
+	
+	
 };

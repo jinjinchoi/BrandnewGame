@@ -29,7 +29,9 @@ public class CharacterModule : ModuleRules
                 "AnimGraphRuntime",
                 "GameplayTasks",
                 "UMG",
-                "MotionWarping"
+                "MotionWarping",
+                "Niagara",
+                "NavigationSystem"
             }
         );
     }

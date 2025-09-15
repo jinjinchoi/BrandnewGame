@@ -36,12 +36,12 @@ class COREMODULE_API UDataAsset_DefaultPlayerAbilities : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities")
+	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities", meta = (TitleProperty = "InputTag"))
 	TArray<FPlayerAbilitySet> InputAbilities;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities")
+	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities", meta = (TitleProperty = "InputTag"))
 	TArray<TSubclassOf<UGameplayAbility>> PassiveAbilities;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities")
+	UPROPERTY(EditDefaultsOnly, Category = "PlayerAbilities", meta = (TitleProperty = "InputTag"))
 	TArray<TSubclassOf<UGameplayAbility>> ReactAbilities;
 };

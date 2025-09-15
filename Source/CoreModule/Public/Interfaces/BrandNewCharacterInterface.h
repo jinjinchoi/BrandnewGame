@@ -8,6 +8,9 @@
 
 class UMotionWarpingComponent;
 
+DECLARE_MULTICAST_DELEGATE(FOnCharacterDied);
+
+
 // This class does not need to be modified.
 UINTERFACE()
 class UBrandNewCharacterInterface : public UInterface
@@ -35,7 +38,16 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UMotionWarpingComponent* GetMotionWarpingComponent();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetProjectileSpawnLocation(const FName& SocketName) const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsDead() const;
 	
 	virtual bool IsHitReacting() const = 0;
+	virtual FOnCharacterDied& GetOnCharacterDiedDelegate() = 0;
+	
+
 	
 };
