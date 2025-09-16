@@ -182,7 +182,6 @@ void ABrandNewProjectileBase::ApplyDamageToTarget(AActor* DamagedActor)
 
 void ABrandNewProjectileBase::RemoveProjectile()
 {
-
 	if (DestructionEffect)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, DestructionEffect, GetActorLocation(), GetActorRotation());
@@ -239,9 +238,11 @@ void ABrandNewProjectileBase::OnTargetDestroyed()
 		{
 			HomingTargetActor = UCharacterFunctionLibrary::GetClosestActor(OverlappedActors, GetActorLocation());
 			ProjectileMovementComponent->HomingTargetComponent = HomingTargetActor->GetRootComponent();
-
+			if (IBrandNewCharacterInterface* CombatInterface = Cast<IBrandNewCharacterInterface>(HomingTargetActor))
+			{
+				CombatInterface->GetOnCharacterDiedDelegate().AddUObject(this, &ThisClass::OnTargetDestroyed);
+			}
 			return;
-			
 		}
 	}
 	

@@ -56,9 +56,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="UCharacterFunctionLibrary|Gameplay Mechanics")
 	static void GetLiveActorWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin);
 
+	UFUNCTION(BlueprintCallable, Category="UCharacterFunctionLibrary|Gameplay Mechanics")
 	static void GetHostileActorsWithinRadius(const UObject* WorldContextObject, const AActor* InstigatorActor, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
 	float Radius, const FVector& SphereOrigin, bool bDrawDebugSphere = false);
-
+	
 	static AActor* GetClosestActor(const TArray<AActor*>& TargetActors, const FVector& Origin);
 	static FVector GetClosestActorLocation(const TArray<AActor*>& TargetActors, const FVector& Origin);
 	

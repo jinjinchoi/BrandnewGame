@@ -22,6 +22,7 @@ public:
 	ABrandNewProjectileBase();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/* 아래 세개의 함수는 서버에서만 실행됨. */
 	virtual void InitProjectile(AActor* ProjectileOwner, const FDamageEffectParams& InDamageEffectParams);
 	virtual void SetHomingTarget(AActor* Target, const bool bRotationFollowsVelocity);
 	virtual void LaunchProjectile(const FVector& SpawnLocation, const FVector& TargetLocation);
@@ -41,7 +42,7 @@ protected:
 	
 	void OnHit(const FVector& LocationOverride = FVector::ZeroVector) const;
 	void ApplyDamageToTarget(AActor* DamagedActor);
-	void RemoveProjectile();
+	virtual void RemoveProjectile();
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> NiagaraComponent;
@@ -99,9 +100,7 @@ private:
 	TObjectPtr<AActor> HomingTargetActor;
 	
 	FTimerHandle ProjectileLifeSpanTimer;
-	/**
-	 * Target ASC와 Hit 방향을 직접 설정해야함.
-	 */
+	/* Target ASC와 Hit 방향을 직접 설정해야함.*/
 	FDamageEffectParams DamageEffectParams;
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsActivated)

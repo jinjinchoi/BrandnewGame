@@ -138,8 +138,8 @@ void ABrandNewBaseCharacter::OnCharacterHit_Implementation(const bool bIsHit)
 
 void ABrandNewBaseCharacter::OnCharacterDied_Implementation()
 {
-	OnCharacterDiedDelegate.Broadcast();
 	bIsDead = true;
+	OnCharacterDiedDelegate.Broadcast();
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	

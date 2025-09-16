@@ -102,7 +102,6 @@ namespace BrandNewGamePlayTag
 	 * Gameplay Cue Tags
 	 */
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Normal, "GameplayCue.Widget.Damage.Normal")
-	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Critical, "GameplayCue.Widget.Damage.Critical")
 
 	/**
 	 * Block Tags

@@ -22,7 +22,7 @@ void UBrandNewProjectileAbility::SpawnProjectile(const FVector& SpawnLocation, c
 	ABrandNewProjectileBase* Projectile = CastChecked<ABrandNewProjectileBase>(PooledObject);
 	Projectile->InitProjectile(GetAvatarActorFromActorInfo(), MakeNonTargetEffectParams());
 
-	if (bIsHomingProjectile)
+	if (bIsHomingProjectile && TargetActor)
 	{
 		Projectile->SetHomingTarget(TargetActor, bRotationFollowsVelocity);
 	}

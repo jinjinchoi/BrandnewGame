@@ -105,7 +105,6 @@ namespace BrandNewGamePlayTag
 	 * Gameplay Cue Tags
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Widget_Damage_Normal);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Widget_Damage_Critical);
 
 	/**
 	 * Block Tags
