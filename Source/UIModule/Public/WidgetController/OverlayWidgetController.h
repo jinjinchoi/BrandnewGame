@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewWidgetControllerBase.h"
+#include "DataAssets/DataAsset_AbilityInfo.h"
 #include "OverlayWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, float, NewValue);
@@ -23,16 +24,26 @@ public:
 	virtual void BindCallbacksToDependencies(APawn* InControlledPawn) const override;
 	virtual void BroadCastInitialValue() override;
 
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UFUNCTION(BlueprintPure, Category = "Brandnew|UtilityFunction")
+	FAbilityInfoParams FindAbilityInfoByTag(const FGameplayTag& AbilityTagToFind) const;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerAttributeChanged OnHealthChangedDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerAttributeChanged OnMaxHealthChangedDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerAttributeChanged OnManaChangedDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "BrandNew|Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerAttributeChanged OnMaxManaChangedDelegate;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|DataAssets")
+	TObjectPtr<UDataAsset_AbilityInfo> AbilityInfoDataAsset;
+
+	
+
 	
 };

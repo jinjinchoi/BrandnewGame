@@ -45,3 +45,11 @@ void UOverlayWidgetController::BroadCastInitialValue()
 	PlayerInterface->RequestBroadCastAttributeValue();
 	
 }
+
+FAbilityInfoParams UOverlayWidgetController::FindAbilityInfoByTag(const FGameplayTag& AbilityTagToFind) const
+{
+	check(AbilityInfoDataAsset)
+
+	return AbilityInfoDataAsset->FindAbilityInfoByAbilityTag(AbilityTagToFind);
+	
+}
