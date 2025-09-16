@@ -158,7 +158,7 @@ void UBrandNewAttributeSet::SendXP(const struct FGameplayEffectModCallbackData& 
 void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
 {
 	FGameplayEventData EventData;
-	EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTag(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
+	EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTagToContext(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
 	EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();
 	EventData.Target = GetOwningActor();
 	EventData.EventMagnitude = LocalIncomingDamage;
@@ -200,10 +200,8 @@ void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallba
 	GameplayCueParams.Instigator = Data.EffectSpec.GetContext().GetInstigator();
 	GameplayCueParams.Location = GetOwningActor()->GetActorLocation();
 	GameplayCueParams.EffectContext = Data.EffectSpec.GetContext();
-
-	const bool bIsCritical = UCharacterFunctionLibrary::GetBrandNewEffectContext(Data.EffectSpec.GetContext()).IsCriticalHit();
-	const FGameplayTag CueTag =
-		bIsCritical ? BrandNewGamePlayTag::GameplayCue_Widget_Damage_Critical : BrandNewGamePlayTag::GameplayCue_Widget_Damage_Normal;
+	
+	const FGameplayTag CueTag = BrandNewGamePlayTag::GameplayCue_Widget_Damage_Normal;
 	
 	Data.Target.ExecuteGameplayCue(CueTag, GameplayCueParams);
 	

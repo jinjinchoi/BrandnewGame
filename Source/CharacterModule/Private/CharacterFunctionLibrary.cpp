@@ -74,7 +74,7 @@ FGameplayTag UCharacterFunctionLibrary::GetDamageElementTagToContext( const FGam
 	return FGameplayTag();
 }
 
-FGameplayTag UCharacterFunctionLibrary::GetHitDirectionTag(const FGameplayEffectContextHandle& EffectContextHandle)
+FGameplayTag UCharacterFunctionLibrary::GetHitDirectionTagToContext(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	const TSharedPtr<FGameplayTag>& HitDirectionTag = GetBrandNewEffectContext(EffectContextHandle).GetHitDirectionTag();
 	if (HitDirectionTag.IsValid())
@@ -82,6 +82,11 @@ FGameplayTag UCharacterFunctionLibrary::GetHitDirectionTag(const FGameplayEffect
 		return *HitDirectionTag;
 	}
 	return FGameplayTag();
+}
+
+bool UCharacterFunctionLibrary::GetIsCriticalHitToContext(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	return GetBrandNewEffectContext(EffectContextHandle).IsCriticalHit();
 }
 
 

@@ -19,6 +19,7 @@ class CHARACTERMODULE_API UCharacterFunctionLibrary : public UBlueprintFunctionL
 public:
 	/* custom context 가져오는 함수로 읽기/쓰기 가능 */
 	static FBrandNewEffectContext& GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle);
+	
 	/* custom context 가져오는 함수로 읽기만 가능 */
 	static const FBrandNewEffectContext& GetBrandNewEffectContext(const FGameplayEffectContextHandle& ContextHandle);
 
@@ -29,7 +30,9 @@ public:
 	static FGameplayTag GetDamageTypeTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
 	UFUNCTION(BlueprintPure)
 	static FGameplayTag GetDamageElementTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
-	static FGameplayTag GetHitDirectionTag(const FGameplayEffectContextHandle& EffectContextHandle);
+	static FGameplayTag GetHitDirectionTagToContext(const FGameplayEffectContextHandle& EffectContextHandle);
+	UFUNCTION(BlueprintPure)
+	static bool GetIsCriticalHitToContext(const FGameplayEffectContextHandle& EffectContextHandle);
 	
 	static void ApplyPrimaryAttributesSetByCaller(
 		const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
