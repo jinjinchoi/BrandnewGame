@@ -22,7 +22,6 @@ public class UIModule : ModuleRules
                 "Engine",
                 "Slate",
                 "SlateCore",
-                "CharacterModule",
                 "GameplayTags"
             }
         );
