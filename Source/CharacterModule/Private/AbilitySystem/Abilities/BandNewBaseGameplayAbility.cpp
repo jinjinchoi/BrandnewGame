@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
 
+#include "AbilitySystem/BrandNewAttributeSet.h"
+
 FGameplayTagContainer* UBandNewBaseGameplayAbility::GetCooldownTags() const
 {
 	FGameplayTagContainer* MutableTags = const_cast<FGameplayTagContainer*>(&TempCooldownTags);
@@ -25,4 +27,28 @@ void UBandNewBaseGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle
 		SpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Cooldown.Duration")), CooldownDuration.GetValueAtLevel(GetAbilityLevel()));
 		ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 	}
+}
+
+float UBandNewBaseGameplayAbility::GetManaCost(const float AbilityLevel) const
+{
+	float ManaCost = 0.0f;
+	if (const UGameplayEffect* CostEffect = GetCostGameplayEffect())
+	{
+		for (const FGameplayModifierInfo& Mod : CostEffect->Modifiers)
+		{
+			if (Mod.Attribute == UBrandNewAttributeSet::GetManaAttribute())
+			{
+				Mod.ModifierMagnitude.GetStaticMagnitudeIfPossible(AbilityLevel, ManaCost);
+				break;
+			}
+		}
+	}
+	return ManaCost;
+	
+	
+}
+
+float UBandNewBaseGameplayAbility::GetManaCost() const
+{
+	return GetManaCost(GetAbilityLevel());
 }

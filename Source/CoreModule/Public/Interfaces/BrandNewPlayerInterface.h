@@ -10,6 +10,7 @@
 
 struct FGameplayTag;
 DECLARE_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float);
+DECLARE_DELEGATE_OneParam(FOnWeaponChangedDelegate, const ECombatWeaponType);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -58,8 +59,12 @@ public:
 	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
+	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() = 0;
 
 	// 태그를 통해 Attribute의 value를 가져오는 함수
 	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const = 0;
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) = 0;
+
+	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const = 0;
+	
 };

@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "BrandNewBaseCharacter.h"
 #include "GameplayTagContainer.h"
-#include "BrandNewTypes/BrandNewEnumTypes.h"
-#include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Interfaces/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
@@ -47,6 +45,8 @@ public:
 	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() override;
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
+	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
+	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -139,6 +139,7 @@ private:
 	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
 	FOnAttributeChangedDelegate ManaChangedDelegate;
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
+	FOnWeaponChangedDelegate WeaponChangedDelegate;
 
 	
 #pragma region Movement

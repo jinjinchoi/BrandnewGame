@@ -72,25 +72,34 @@ void UBrandNewAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag&
 		if (AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
-			InvokeReplicatedEvent(
-				EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+
+			if (const UGameplayAbility* AbilityInstance = AbilitySpec.GetPrimaryInstance())
+			{
+				const FGameplayAbilityActivationInfo& Info = AbilityInstance->GetCurrentActivationInfo();
+
+				InvokeReplicatedEvent(
+					EAbilityGenericReplicatedEvent::InputReleased,
+					AbilitySpec.Handle,
+					Info.GetActivationPredictionKey());
+			}
 		}
 	}
 }
 
-FGameplayAbilitySpec* UBrandNewAbilitySystemComponent::FindAbilitySpecFromAbilityTag(const FGameplayTag& AbilityTag)
+FGameplayAbilitySpecHandle UBrandNewAbilitySystemComponent::FindAbilitySpecHandleFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock ActiveScopeLock(*this);
+	
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		for (const FGameplayTag& Tag : AbilitySpec.Ability.Get()->GetAssetTags())
+		if (const UGameplayAbility* Ability = AbilitySpec.Ability.Get())
 		{
-			if (Tag.MatchesTagExact(AbilityTag))
+			if (Ability->GetAssetTags().HasTagExact(AbilityTag))
 			{
-				return &AbilitySpec;
+				return AbilitySpec.Handle;
 			}
 		}
 	}
 
-	return nullptr;
+	return FGameplayAbilitySpecHandle();
 }

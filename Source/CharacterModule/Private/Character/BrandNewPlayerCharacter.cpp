@@ -23,6 +23,7 @@
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
+#include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
@@ -196,7 +197,6 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	Server_SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
 	BindAttributeDelegates();
-	InitHUDAndBroadCastInitialValue();
 	AddCharacterAbilities();
 }
 
@@ -240,6 +240,8 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 				PlayerCharacter->AbilitySystemComponent->GrantAbilities(LoadedData->ReactAbilities, false);
 				PlayerCharacter->AbilitySystemComponent->GrantPlayerInputAbilities(LoadedData->InputAbilities);
 			}
+			
+			PlayerCharacter->InitHUDAndBroadCastInitialValue();
 			
 		})
 	);
@@ -369,7 +371,7 @@ void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
 	}
 
-	// 인풋 매핑 컨텍스트를 변경. 매핑 컨텍스트는 로컬 컨트롤러에서만 바꾸는 것이 의미 있기 때문에 확인해야함. (이 함수는 서버 클라이언트 모두에게 실행됨)
+	// 인풋 매핑 컨텍스트를 변경. 매핑 컨텍스트는 로컬 컨트롤러에서만 바꾸는 것이 의미 있음. (이 함수는 서버 클라이언트 모두에게 실행됨)
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (PC && PC->IsLocalController())
 	{
@@ -385,6 +387,8 @@ void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
 		{
 			PlayerControllerInterface->AddInputMappingForWeapon(EquippedWeaponType);
 		}
+
+		WeaponChangedDelegate.ExecuteIfBound(EquippedWeaponType);
 		
 	}
 
@@ -429,6 +433,31 @@ FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetManaChangedDelegate()
 FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxManaChangedDelegate()
 {
 	return MaxManaChangedDelegate;
+}
+
+FOnWeaponChangedDelegate& ABrandNewPlayerCharacter::GetWeaponChangedDelegate()
+{
+	return WeaponChangedDelegate;
+}
+
+float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const
+{
+	if (!AbilitySystemComponent) return 0;
+	
+	const FGameplayAbilitySpecHandle FoundSpecHandle = AbilitySystemComponent->FindAbilitySpecHandleFromAbilityTag(AbilityTag);
+	if (!FoundSpecHandle.IsValid()) return 0;
+	
+	const FGameplayAbilitySpec* AbilitySpec = AbilitySystemComponent->FindAbilitySpecFromHandle(FoundSpecHandle);
+	if (!AbilitySpec) return 0.f;
+	
+	if (const UBandNewBaseGameplayAbility* Ability = Cast<UBandNewBaseGameplayAbility>(AbilitySpec->Ability))
+	{
+		return Ability->GetManaCost();
+	}
+	
+
+	return 0;
+	
 }
 
 

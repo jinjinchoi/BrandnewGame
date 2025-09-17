@@ -32,6 +32,11 @@ void UOverlayWidgetController::BindCallbacksToDependencies(APawn* InControlledPa
 	{
 		OnMaxManaChangedDelegate.Broadcast(NewValue);
 	});
+
+	PlayerInterface->GetWeaponChangedDelegate().BindLambda([this](const ECombatWeaponType ChangedWeaponType)
+	{
+		OnWeaponChangedDelegate.Broadcast(ChangedWeaponType);
+	});
 	
 }
 
@@ -49,7 +54,14 @@ void UOverlayWidgetController::BroadCastInitialValue()
 FAbilityInfoParams UOverlayWidgetController::FindAbilityInfoByTag(const FGameplayTag& AbilityTagToFind) const
 {
 	check(AbilityInfoDataAsset)
+	
+	FAbilityInfoParams FoundAbilityInfoParams = AbilityInfoDataAsset->FindAbilityInfoByAbilityTag(AbilityTagToFind);
 
-	return AbilityInfoDataAsset->FindAbilityInfoByAbilityTag(AbilityTagToFind);
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
+	if (!PlayerInterface) return FoundAbilityInfoParams;
+
+	FoundAbilityInfoParams.RequiredMana = PlayerInterface->GetRequiredAbilityMana(AbilityTagToFind);
+	return FoundAbilityInfoParams;
+	
 	
 }

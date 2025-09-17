@@ -16,6 +16,9 @@ class CHARACTERMODULE_API UBandNewBaseGameplayAbility : public UGameplayAbility
 public:
 	virtual FGameplayTagContainer* GetCooldownTags() const override;
 	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+	float GetManaCost(const float AbilityLevel) const;
+	float GetManaCost() const;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Brandnew|Cooldown", meta=(Categories = "Cooldown"))
 	FGameplayTagContainer CooldownTags;

@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewWidgetControllerBase.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "DataAssets/DataAsset_AbilityInfo.h"
 #include "OverlayWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, const float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponChanged, const ECombatWeaponType, ChangedWeaponType);
 
 class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
@@ -38,6 +40,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerAttributeChanged OnMaxManaChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
+	FWeaponChanged OnWeaponChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|DataAssets")

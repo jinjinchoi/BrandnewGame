@@ -24,21 +24,21 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FDamageEffectParams MakeNonTargetEffectParams() const;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly,  Category="Brandnew|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	// 물리공격, 마법공격을 구분하는 태그
-	UPROPERTY(EditDefaultsOnly, Category="Damage", meta = (Categories = "Damage.Type"))
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Damage", meta = (Categories = "Damage.Type"))
 	FGameplayTag DamageType;
 
 	// 공격의 속성을 구분하는 태그
-	UPROPERTY(EditDefaultsOnly, Category="Damage", meta = (Categories = "Damage.Element"))
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Damage", meta = (Categories = "Damage.Element"))
 	FGameplayTag DamageElement;
 
-	UPROPERTY(EditDefaultsOnly, Category="Damage", meta=(ClampMin="0.0"))
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Damage", meta=(ClampMin="0.0"))
 	FScalableFloat DamageCoefficient;
 
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Damage")
 	float KnockbackForce = 200.f;
 	
 };

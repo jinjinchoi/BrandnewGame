@@ -51,14 +51,12 @@ EBTNodeResult::Type UBTTask_ActiveAbilityByTag::ExecuteTask(UBehaviorTreeCompone
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	FGameplayAbilitySpec* Spec = OwningASC->FindAbilitySpecFromAbilityTag(AbilityTag);
-	if (!Spec)
+	
+	const FGameplayAbilitySpecHandle SpecHandle = OwningASC->FindAbilitySpecHandleFromAbilityTag(AbilityTag);;
+	if (!SpecHandle.IsValid())
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	FGameplayAbilitySpecHandle SpecHandle = Spec->Handle;
 
 	if (OwningASC->TryActivateAbility(SpecHandle))
 	{
