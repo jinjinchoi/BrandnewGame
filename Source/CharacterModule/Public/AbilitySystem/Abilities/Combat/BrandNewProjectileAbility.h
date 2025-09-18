@@ -19,16 +19,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void SpawnProjectile(const FVector& SpawnLocation, const FVector& TargetLocation, AActor* TargetActor = nullptr);
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|UserProperties", meta = (MustImplement = "PoolableActorInterface"))
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Proejctile", meta = (MustImplement = "PoolableActorInterface"))
 	TSubclassOf<ABrandNewProjectileBase> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|UserProperties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BrandNew|Proejctile")
 	FName ProjectileSpawnSocketName = TEXT("ProjectileSocket");
 
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|UserProperties")
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Proejctile")
 	bool bIsHomingProjectile;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|UserProperties", meta = (EditCondition = "bIsHomingProjectile"))
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Proejctile", meta = (EditCondition = "bIsHomingProjectile"))
 	bool bRotationFollowsVelocity = true;
 	
 };

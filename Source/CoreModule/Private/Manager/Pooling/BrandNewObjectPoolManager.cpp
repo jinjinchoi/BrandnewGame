@@ -12,6 +12,36 @@ void UBrandNewObjectPoolManager::InitPoolManager()
 	CreatePool(CharacterClasses);
 }
 
+
+void UBrandNewObjectPoolManager::CreatePool(const TArray<TSubclassOf<AActor>>& InObjectClasses)
+{
+	for (const TSubclassOf<AActor>& ObjClass : InObjectClasses)
+	{
+		TArray<AActor*>& Pool = ObjectPools.FindOrAdd(ObjClass);
+		for (int32 i = 0; i < PoolSizePerType; ++i)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			
+			if (AActor* PoolActor = GetWorld()->SpawnActor<AActor>(ObjClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams))
+			{
+				PoolActor->SetActorHiddenInGame(true);
+				PoolActor->SetActorEnableCollision(false);
+				PoolActor->SetActorTickEnabled(false);
+
+				if (const ACharacter* Character = Cast<ACharacter>(PoolActor))
+				{
+					Character->GetCharacterMovement()->StopMovementImmediately();
+					Character->GetCharacterMovement()->GravityScale = 0.f;
+				}
+				
+				Pool.Add(PoolActor);
+			}
+		}
+	}
+}
+
+
 AActor* UBrandNewObjectPoolManager::GetPooledObject(const TSubclassOf<AActor>& ActorClass)
 {
 	if (ActorClass == nullptr) return nullptr;
@@ -62,34 +92,6 @@ void UBrandNewObjectPoolManager::ReturnObject(AActor* ActorToReturn)
 		if (OwningAnimInstance && OwningAnimInstance->IsAnyMontagePlaying())
 		{
 			OwningAnimInstance->StopAllMontages(0.1f);
-		}
-	}
-}
-
-void UBrandNewObjectPoolManager::CreatePool(const TArray<TSubclassOf<AActor>>& InObjectClasses)
-{
-	for (const TSubclassOf<AActor>& ObjClass : InObjectClasses)
-	{
-		TArray<AActor*>& Pool = ObjectPools.FindOrAdd(ObjClass);
-		for (int32 i = 0; i < PoolSizePerType; ++i)
-		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-			
-			if (AActor* PoolActor = GetWorld()->SpawnActor<AActor>(ObjClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams))
-			{
-				PoolActor->SetActorHiddenInGame(true);
-				PoolActor->SetActorEnableCollision(false);
-				PoolActor->SetActorTickEnabled(false);
-
-				if (const ACharacter* Character = Cast<ACharacter>(PoolActor))
-				{
-					Character->GetCharacterMovement()->StopMovementImmediately();
-					Character->GetCharacterMovement()->GravityScale = 0.f;
-				}
-				
-				Pool.Add(PoolActor);
-			}
 		}
 	}
 }

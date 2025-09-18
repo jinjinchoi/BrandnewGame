@@ -34,6 +34,8 @@ public:
 	virtual AActor* GetCombatWeaponActor_Implementation() const override;
 	virtual void OnWeaponEquipped_Implementation() override;
 	virtual void OnWeaponUnequipped_Implementation() override;
+	virtual void SetStrafeState_Implementation() override;
+	virtual void SetFireMode_Implementation(const bool IsFiring) override;
 	virtual void RequestBroadCastAttributeValue() override;
 	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const override;
 	virtual void ApplyAddXPEffect(const float XpToAdd) const override;
@@ -51,7 +53,7 @@ public:
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
 	UFUNCTION(Server, Reliable)
-	void Server_SetMovementMode(const EGate NewGate);
+	void Server_RequestUpdateMovementMode(const EGate NewGate);
 
 	/** 현재 장착중인 무기가 변경되면 호출하는 함수. **/
 	void OnEquippedWeaponChanged();
@@ -146,6 +148,8 @@ private:
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentGate)
 	EGate CurrentGate = EGate::Jogging;
+	
+	EGate LastGate = EGate::Jogging;
 
 	UFUNCTION()
 	void OnRep_CurrentGate();
@@ -155,6 +159,7 @@ private:
 	TMap<EGate, FGateSettings> GateSettings;
 
 	void UpdateMovementComponentPrams();
+	void SetMovementMode(const EGate NewGate);
 
 #pragma endregion Movement
 

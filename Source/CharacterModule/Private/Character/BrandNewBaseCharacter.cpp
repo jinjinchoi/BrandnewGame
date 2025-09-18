@@ -5,12 +5,10 @@
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
-#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "Interfaces/BnBaseAnimInstanceInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
 
@@ -73,16 +71,7 @@ void ABrandNewBaseCharacter::InitAbilityActorInfo()
 
 void ABrandNewBaseCharacter::BindGameplayTagDelegates()
 {
-	AbilitySystemComponent->RegisterGameplayTagEvent(
-		BrandNewGamePlayTag::Status_Shared_Strafing, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnStrafingTagChanged);
-}
 
-void ABrandNewBaseCharacter::OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
-{
-	if (IBnBaseAnimInstanceInterface* AnimInterface = Cast<IBnBaseAnimInstanceInterface>(GetMesh()->GetAnimInstance()))
-	{
-		AnimInterface->SetIsStrafing(NewCount > 0);
-	}
 }
 
 void ABrandNewBaseCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const

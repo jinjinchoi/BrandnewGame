@@ -81,7 +81,6 @@ protected:
 
 private:
 	void SetupWeapon();
-	void OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	FOnCharacterDied OnCharacterDiedDelegate;
 

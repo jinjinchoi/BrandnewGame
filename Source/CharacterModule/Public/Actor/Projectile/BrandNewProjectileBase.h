@@ -80,9 +80,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Proejctile")		
 	float InitSpeed = 250.f;
 
+	/* 발사할때 각도 없이 Owner와 동일한 일직선으로 발사할지 여부 */
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Projectile")
+	bool bIsFlatLaunch = true;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Homing")
 	float HomingAccelerationMagnitude = 5000.f;
-
+	
 	/* 호밍 중 타겟이 사라지면 자동으로 새로운 타겟 설정할지 설정하는 불리언 변수 */
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Homing", meta=(EditConditionToggle))
 	bool bAutoRetarget = true;

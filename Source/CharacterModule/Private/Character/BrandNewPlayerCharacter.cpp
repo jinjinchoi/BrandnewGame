@@ -24,6 +24,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
+#include "Interfaces/BnBaseAnimInstanceInterface.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
@@ -66,6 +67,35 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 			PlayerAnimInterface->ReceiveGroundDistance(HitResult.Distance);
 		}
 	}
+}
+
+void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, CurrentGate);
+	DOREPLIFETIME(ThisClass, EquippedWeaponType);
+	
+}
+
+void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	Server_RequestUpdateMovementMode(CurrentGate);
+	InitAbilityActorInfo();
+	BindAttributeDelegates();
+	AddCharacterAbilities();
+}
+
+void ABrandNewPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	UpdateMovementComponentPrams();
+	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
+	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
+	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
 }
 
 void ABrandNewPlayerCharacter::BeginPlay()
@@ -190,34 +220,6 @@ void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(con
 	
 }
 
-void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	Server_SetMovementMode(CurrentGate);
-	InitAbilityActorInfo();
-	BindAttributeDelegates();
-	AddCharacterAbilities();
-}
-
-void ABrandNewPlayerCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	UpdateMovementComponentPrams();
-	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
-	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
-	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
-}
-
-void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, CurrentGate);
-	DOREPLIFETIME(ThisClass, EquippedWeaponType);
-	
-}
 
 void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 {
@@ -355,6 +357,36 @@ void ABrandNewPlayerCharacter::OnWeaponUnequipped_Implementation()
 	OnEquippedWeaponChanged();
 }
 
+void ABrandNewPlayerCharacter::SetStrafeState_Implementation()
+{
+	const bool bIsStrafing =
+		UCharacterFunctionLibrary::DoseActorHasTag(this, BrandNewGamePlayTag::Status_Player_Fire) ||
+		UCharacterFunctionLibrary::DoseActorHasTag(this, BrandNewGamePlayTag::Status_Player_LockOn);
+
+	if (IBnBaseAnimInstanceInterface* BaseAnimInterface = Cast<IBnBaseAnimInstanceInterface>(GetMesh()->GetAnimInstance()))
+	{
+		BaseAnimInterface->SetIsStrafing(bIsStrafing);
+	}
+}
+
+void ABrandNewPlayerCharacter::SetFireMode_Implementation(const bool IsFiring)
+{
+	if (IsFiring)
+	{
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		LastGate = CurrentGate;
+		SetMovementMode(EGate::Walking);
+	}
+	else
+	{
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		SetMovementMode(LastGate);
+	}
+	
+}
+
 
 void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
 {
@@ -462,18 +494,16 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 
 
 #pragma region Movement
-void ABrandNewPlayerCharacter::Server_SetMovementMode_Implementation(const EGate NewGate)
+void ABrandNewPlayerCharacter::Server_RequestUpdateMovementMode_Implementation(const EGate NewGate)
 {
-	if (!HasAuthority()) return;
-	
+	SetMovementMode(NewGate);
+}
+
+void ABrandNewPlayerCharacter::SetMovementMode(const EGate NewGate)
+{
 	CurrentGate = (CurrentGate == NewGate) ? EGate::Jogging : NewGate;
 	
 	UpdateMovementComponentPrams();
-
-	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
-	{
-		AnimInterface->UpdateCurrentGate(CurrentGate);
-	}
 	
 }
 
@@ -481,14 +511,15 @@ void ABrandNewPlayerCharacter::OnRep_CurrentGate()
 {
 	UpdateMovementComponentPrams();
 	
-	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
-	{
-		AnimInterface->UpdateCurrentGate(CurrentGate);
-	}
 }
 
 void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 {
+	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInterface->UpdateCurrentGate(CurrentGate);
+	}
+	
 	if (GateSettings.Contains(CurrentGate))
 	{
 		const FGateSettings GateSettingsToApply = GateSettings[CurrentGate];
@@ -501,6 +532,8 @@ void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
 }
+
+
 
 void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 {

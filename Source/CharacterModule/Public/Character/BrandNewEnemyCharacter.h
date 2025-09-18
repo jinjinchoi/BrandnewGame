@@ -34,6 +34,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void BindGameplayTagDelegates() override;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
@@ -64,6 +66,7 @@ private:
 	void ApplyEnemyAttribute() const;
 	void GiveAbilitiesToEnemy();
 	void BindAttributeChanged();
+	void OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate HealthChangedDelegate;

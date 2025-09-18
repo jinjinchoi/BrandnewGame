@@ -46,6 +46,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnWeaponUnequipped();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetStrafeState();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetFireMode(const bool IsFiring);
+
 	/* Vital Attribute 값을 브로드캐스트 요청 하는 함수 */
 	virtual void RequestBroadCastAttributeValue() = 0;
 

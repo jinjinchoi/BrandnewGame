@@ -37,7 +37,7 @@ class COREMODULE_API UDataAsset_AbilityInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Information")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Information", meta = (TitleProperty = "AbilityTag"))
 	TArray<FAbilityInfoParams> AbilityInformation;
 	
 	FAbilityInfoParams FindAbilityInfoByAbilityTag(const FGameplayTag& AbilityTagToFind);

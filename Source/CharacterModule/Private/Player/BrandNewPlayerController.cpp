@@ -2,6 +2,8 @@
 
 
 #include "Player/BrandNewPlayerController.h"
+
+#include "CharacterFunctionLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/BrandNewInputComponent.h"
@@ -181,18 +183,22 @@ void ABrandNewPlayerController::Input_Jump()
 
 void ABrandNewPlayerController::Input_Walk()
 {
+	if (UCharacterFunctionLibrary::DoseActorHasTag(GetPawn(), BrandNewGamePlayTag::Block_Player_GageChange)) return;
+	
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
-		ControlledCharacter->Server_SetMovementMode(EGate::Walking);
+		ControlledCharacter->Server_RequestUpdateMovementMode(EGate::Walking);
 	}
 }
 
 
 void ABrandNewPlayerController::Input_Run()
 {
+	if (UCharacterFunctionLibrary::DoseActorHasTag(GetPawn(), BrandNewGamePlayTag::Block_Player_GageChange)) return;
+	
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
-		ControlledCharacter->Server_SetMovementMode(EGate::Running);
+		ControlledCharacter->Server_RequestUpdateMovementMode(EGate::Running);
 	}
 }
 

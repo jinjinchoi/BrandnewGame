@@ -13,6 +13,7 @@
 #include "DataAssets/DataAsset_EnemyAbilities.h"
 #include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Interfaces/BnBaseAnimInstanceInterface.h"
 #include "Interfaces/BnWidgetInterface.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
@@ -106,6 +107,20 @@ void ABrandNewEnemyCharacter::BindAttributeChanged()
 	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
 	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
 	
+}
+
+void ABrandNewEnemyCharacter::BindGameplayTagDelegates()
+{
+	AbilitySystemComponent->RegisterGameplayTagEvent(
+		BrandNewGamePlayTag::Status_Shared_Strafing, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnStrafingTagChanged);
+}
+
+void ABrandNewEnemyCharacter::OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (IBnBaseAnimInstanceInterface* AnimInterface = Cast<IBnBaseAnimInstanceInterface>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInterface->SetIsStrafing(NewCount > 0);
+	}
 }
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const

@@ -39,10 +39,12 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Equip, "Input.Ability.Equip")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Unequip, "Input.Ability.Unequip")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_LockOn, "Input.Ability.LockOn")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo, "Input.Ability.Combo");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Combo_NormalAttack, "Input.Ability.Combo.NormalAttack");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_SpawnMagicSphere, "Input.Ability.SpawnMagicSphere");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_FireBall, "Input.Ability.FireBall");
 
 	UE_DEFINE_GAMEPLAY_TAG(Input_UI_OpenInGameMenu, "Input.UI.OpenInGameMenu")
 	
@@ -54,6 +56,8 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_UnequipWeapon, "Ability.Player.Combat.UnequipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_NormalAttack, "Ability.Player.Combat.NormalAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_SpawnMagicSphere, "Ability.Player.Combat.SpawnMagicSphere")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_FireBall, "Ability.Player.Combat.FireBall")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Utility_LockOn, "Ability.Player.Utility.LockOn")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_MeleeAttack, "Ability.Enemy.Combat.MeleeAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_RangeAttack, "Ability.Enemy.Combat.RangeAttack")
@@ -97,6 +101,10 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Hit, "Status.Shared.Hit")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Dead, "Status.Shared.Dead")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Strafing, "Status.Shared.Strafing")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Status_Player_LockOn, "Status.Player.LockOn")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Player_Fire, "Status.Player.Fire")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Player_Dodging, "Status.Player.Dodging")
 
 	/**
 	 * Gameplay Cue Tags
@@ -107,5 +115,6 @@ namespace BrandNewGamePlayTag
 	 * Block Tags
 	 */
 	UE_DEFINE_GAMEPLAY_TAG(Block_Player_Movement, "Block.Player.Movement");
+	UE_DEFINE_GAMEPLAY_TAG(Block_Player_GageChange, "Block.Player.GageChange");
 	
 }

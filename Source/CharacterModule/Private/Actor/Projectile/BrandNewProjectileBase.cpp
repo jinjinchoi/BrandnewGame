@@ -13,7 +13,6 @@
 #include "Interfaces/BrandNewCharacterInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "DebugHelper.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
 #include "Net/UnrealNetwork.h"
@@ -103,7 +102,10 @@ void ABrandNewProjectileBase::LaunchProjectile(const FVector& SpawnLocation, con
 	GetWorldTimerManager().SetTimer(ProjectileLifeSpanTimer, this, &ThisClass::RemoveProjectile, MaxFlightTime, false);
 	
 	FVector FlatTargetLocation = TargetLocation;
-	FlatTargetLocation.Z = SpawnLocation.Z;
+	if (bIsFlatLaunch)
+	{
+		FlatTargetLocation.Z = SpawnLocation.Z;
+	}
 	const FVector Direction = (FlatTargetLocation - SpawnLocation).GetSafeNormal();
 
 	if (NiagaraComponent)
