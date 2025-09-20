@@ -37,7 +37,7 @@ public:
 	virtual void ToggleWeaponCollision_Implementation(bool bEnable) override;
 	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
 	virtual void OnCharacterDied_Implementation() override;
-	virtual UMotionWarpingComponent* GetMotionWarpingComponent_Implementation() override;
+	virtual UMotionWarpingComponent* GetMotionWarpingComponent_Implementation() const override;
 	virtual FVector GetProjectileSpawnLocation_Implementation(const FName& SocketName) const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual bool IsHitReacting() const override;

@@ -37,7 +37,7 @@ public:
 	void OnCharacterDied();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UMotionWarpingComponent* GetMotionWarpingComponent();
+	UMotionWarpingComponent* GetMotionWarpingComponent() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetProjectileSpawnLocation(const FName& SocketName) const;

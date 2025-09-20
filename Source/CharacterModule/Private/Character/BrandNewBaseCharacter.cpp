@@ -147,7 +147,7 @@ FOnCharacterDied& ABrandNewBaseCharacter::GetOnCharacterDiedDelegate()
 	return OnCharacterDiedDelegate;
 }
 
-UMotionWarpingComponent* ABrandNewBaseCharacter::GetMotionWarpingComponent_Implementation()
+UMotionWarpingComponent* ABrandNewBaseCharacter::GetMotionWarpingComponent_Implementation() const
 {
 	return MotionWarpingComponent;
 }

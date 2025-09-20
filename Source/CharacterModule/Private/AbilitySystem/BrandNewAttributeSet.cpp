@@ -116,6 +116,7 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	SetIncomingDamage(0.f);
 	if (LocalIncomingDamage <= 0.f) return;
 	if (GetHealth() <= 0.f) return;
+	if (UCharacterFunctionLibrary::DoseActorHasTag(GetOwningActor(), BrandNewGamePlayTag::Status_Shared_Invincible)) return;
 
 	const float NewHealth = FMath::Clamp(GetHealth() - LocalIncomingDamage, 0.f, GetMaxHealth());
 	SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
@@ -132,7 +133,6 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	}
 	
 	ShowDamageText(Data, LocalIncomingDamage);
-	
 }
 
 
