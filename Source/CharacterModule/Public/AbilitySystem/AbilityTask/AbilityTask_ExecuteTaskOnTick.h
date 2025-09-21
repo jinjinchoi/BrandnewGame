@@ -28,5 +28,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAbilityTaskTickDelegate OnAbilityTaskTick;
+
+private:
+	void RequestEndTask();
 	
 };

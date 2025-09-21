@@ -18,6 +18,12 @@ UAbilityTask_ExecuteTaskOnTick* UAbilityTask_ExecuteTaskOnTick::ExecuteTaskOnTic
 void UAbilityTask_ExecuteTaskOnTick::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
+
+	if (!Ability || !Ability->IsActive())
+	{
+		RequestEndTask();
+		return;
+	}
 	
 	if (ShouldBroadcastAbilityTaskDelegates() && OnAbilityTaskTick.IsBound())
 	{
@@ -25,7 +31,13 @@ void UAbilityTask_ExecuteTaskOnTick::TickTask(float DeltaTime)
 	}
 	else
 	{
-		EndTask();	
+		RequestEndTask();
 	}
 	
+}
+
+void UAbilityTask_ExecuteTaskOnTick::RequestEndTask()
+{
+	bTickingTask = false;
+	EndTask();
 }

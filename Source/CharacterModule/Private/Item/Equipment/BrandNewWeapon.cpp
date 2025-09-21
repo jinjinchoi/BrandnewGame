@@ -22,7 +22,7 @@ ABrandNewWeapon::ABrandNewWeapon()
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	WeaponCollisionBox->SetBoxExtent(FVector(20.f));
 
-	SetReplicates(true);
+	bReplicates = true;
 
 }
 
