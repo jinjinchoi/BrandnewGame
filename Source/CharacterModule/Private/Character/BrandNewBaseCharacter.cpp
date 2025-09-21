@@ -135,6 +135,8 @@ void ABrandNewBaseCharacter::OnCharacterDied_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
+	GetMovementComponent()->StopMovementImmediately();
+
 }
 
 bool ABrandNewBaseCharacter::IsHitReacting() const

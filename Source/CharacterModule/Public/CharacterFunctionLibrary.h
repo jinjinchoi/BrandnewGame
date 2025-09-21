@@ -37,7 +37,7 @@ public:
 	static void ApplyPrimaryAttributesSetByCaller(
 		const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
 
-	UFUNCTION(BlueprintCallable, Category = "UCharacterFunctionLibrary|Gameplay Tag")
+	UFUNCTION(BlueprintPure, Category = "UCharacterFunctionLibrary|Gameplay Tag")
 	static bool DoseActorHasTag(AActor* TargetActor, const FGameplayTag& TagToCheck);
 
 	UFUNCTION(BlueprintCallable, Category = "UCharacterFunctionLibrary|Gameplay Tag")

@@ -36,6 +36,8 @@ public:
 	virtual void OnWeaponUnequipped_Implementation() override;
 	virtual void SetStrafeState_Implementation() override;
 	virtual void SetFireMode_Implementation(const bool IsFiring) override;
+	virtual void SetCombatTargetActor_Implementation(AActor* TargetActor) override;
+	virtual AActor* GetCombatTargetActor_Implementation() override;
 	virtual void RequestBroadCastAttributeValue() override;
 	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const override;
 	virtual void ApplyAddXPEffect(const float XpToAdd) const override;
@@ -142,7 +144,8 @@ private:
 	FOnAttributeChangedDelegate ManaChangedDelegate;
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
-
+	
+	TWeakObjectPtr<AActor> CombatTargetActor;
 	
 #pragma region Movement
 	

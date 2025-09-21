@@ -52,6 +52,14 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetFireMode(const bool IsFiring);
 
+	/* 락온 시 락온 중인 대상을 저장하는 함수. 해당 데이터는 서버만 가지고 있음. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetCombatTargetActor(AActor* TargetActor);
+
+	/* 락온 시 락온 중인 대상을 가져오는 함수. 액터 포인터는 서버에서만 유효함. */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AActor* GetCombatTargetActor();
+	
 	/* Vital Attribute 값을 브로드캐스트 요청 하는 함수 */
 	virtual void RequestBroadCastAttributeValue() = 0;
 

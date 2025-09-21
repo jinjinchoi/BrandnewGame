@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Interfaces/BrandNewCharacterInterface.h"
+#include "Interfaces/BrandNewPlayerInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -68,6 +69,8 @@ void UTargetLockAbility::OnTargetLockTick(float DeltaTime)
 		TargetActors.Remove(ClosestActorToMouse);
 		if (TargetActors.IsEmpty())
 		{
+			Client_SetClosestActor(nullptr);
+			IBrandNewPlayerInterface::Execute_SetCombatTargetActor(GetOwningActorFromActorInfo(), nullptr);
 			CancelTargetLockAbility();
 			return;
 		}
@@ -75,6 +78,7 @@ void UTargetLockAbility::OnTargetLockTick(float DeltaTime)
 		{
 			ClosestActorToMouse = TargetActors.Last();
 			Client_SetClosestActor(ClosestActorToMouse);
+			IBrandNewPlayerInterface::Execute_SetCombatTargetActor(GetOwningActorFromActorInfo(), ClosestActorToMouse);
 		}
 	}
 
@@ -153,8 +157,10 @@ void UTargetLockAbility::FindClosestActorToMouse()
 			ClosestActorToMouse = TargetActor;
 		}
 	}
-	
+
 	Client_SetClosestActor(ClosestActorToMouse);
+	IBrandNewPlayerInterface::Execute_SetCombatTargetActor(GetOwningActorFromActorInfo(), ClosestActorToMouse);
+
 	
 }
 
@@ -172,6 +178,8 @@ void UTargetLockAbility::CleanUp()
 		TargetLockWidget->RemoveFromParent();
 	}
 	TargetLockWidget = nullptr;
+	IBrandNewPlayerInterface::Execute_SetCombatTargetActor(GetOwningActorFromActorInfo(), nullptr);
+	
 }
 
 
@@ -213,8 +221,11 @@ void UTargetLockAbility::SetTargetLockWidgetPosition()
 void UTargetLockAbility::Client_SetClosestActor_Implementation(AActor* NewTarget)
 {
 	ClosestActorToMouse = NewTarget;
-	DrawTargetLockWidget();
-	SetTargetLockWidgetPosition();
+	if (ClosestActorToMouse)
+	{
+		DrawTargetLockWidget();
+		SetTargetLockWidgetPosition();
+	}
 }
 
 

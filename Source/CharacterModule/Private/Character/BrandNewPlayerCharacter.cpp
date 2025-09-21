@@ -98,6 +98,7 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
 }
 
+
 void ABrandNewPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -384,6 +385,29 @@ void ABrandNewPlayerCharacter::SetFireMode_Implementation(const bool IsFiring)
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		SetMovementMode(LastGate);
 	}
+	
+}
+
+void ABrandNewPlayerCharacter::SetCombatTargetActor_Implementation(AActor* TargetActor)
+{
+	if (TargetActor)
+	{
+		CombatTargetActor = TargetActor;
+	}
+	else
+	{
+		CombatTargetActor.Reset();
+	}
+}
+
+AActor* ABrandNewPlayerCharacter::GetCombatTargetActor_Implementation()
+{
+	if (CombatTargetActor.IsValid())
+	{
+		return CombatTargetActor.Get();
+	}
+
+	return nullptr;
 	
 }
 
