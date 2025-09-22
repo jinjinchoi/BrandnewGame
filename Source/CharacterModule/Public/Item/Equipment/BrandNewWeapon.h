@@ -18,6 +18,7 @@ public:
 	ABrandNewWeapon();
 
 	void ToggleCollisionEnable(const bool bIsEnable);
+	void HideWeapon(const bool bIsHidden);
 
 protected:
 	virtual void BeginPlay() override;

@@ -6,17 +6,19 @@
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Character/BrandNewBaseCharacter.h"
 #include "Interfaces/BrandNewEnemyInterface.h"
+#include "Interfaces/PoolableActorInterface.h"
 #include "BrandNewEnemyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeValueChangedDelegate, const float, NewValue);
 
 class UWidgetComponent;
 class UDataAsset_EnemyAbilities;
+
 /**
  * 
  */
 UCLASS()
-class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacter, public IBrandNewEnemyInterface
+class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacter, public IBrandNewEnemyInterface, public IPoolableActorInterface
 {
 	GENERATED_BODY()
 
@@ -32,6 +34,12 @@ public:
 	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
 	/* end IBrandNewCharacterInterface*/
 
+	/* begin IPoolableActorInterface */
+	virtual bool IsAllocatedToWorld() override;
+	/* end IPoolableActorInterface */
+
+	void ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation = FRotator::ZeroRotator);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -45,10 +53,10 @@ protected:
 	FName EnemyName = NAME_None;
 	
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
-	int32 EnemyLevel = 1;
-
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
 	FScalableFloat XPReward;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Enemy Data")
+	float DeathWaiteDuration = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> SecondaryAttributeDataTable;
@@ -58,7 +66,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Data Asset")
 	TSoftObjectPtr<UDataAsset_EnemyAbilities> EnemyAbilitiesDataAsset;
-
 
 
 private:
@@ -73,5 +80,15 @@ private:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
+
+	UPROPERTY()
+	TObjectPtr<AController> CachedController;
+
+	int32 EnemyLevel = 1;
+	bool bIsActivated = false; // 현재 서버에서만 설정됨. 필요시 Replicate 해야함.
+	
+
+public:
+	FORCEINLINE void SetLevel(const int32 NewLevel) { EnemyLevel = NewLevel; };
 	
 };

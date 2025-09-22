@@ -8,8 +8,7 @@
 
 void UBrandNewObjectPoolManager::InitPoolManager()
 {
-	CreatePool(ProjectileActorClasses);
-	CreatePool(CharacterClasses);
+	CreatePool(ObjectClasses);
 }
 
 

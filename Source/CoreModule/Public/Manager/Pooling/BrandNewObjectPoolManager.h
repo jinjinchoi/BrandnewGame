@@ -25,11 +25,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Classes", meta = (MustImplement = "PoolableActorInterface"))
-	TArray<TSubclassOf<AActor>> ProjectileActorClasses;
-
-	/* Enemy 같은 캐릭터 액터들 */
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Classes", meta = (MustImplement = "PoolableActorInterface"))
-	TArray<TSubclassOf<AActor>> CharacterClasses;
+	TArray<TSubclassOf<AActor>> ObjectClasses;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Object")
 	int32 PoolSizePerType = 5;
