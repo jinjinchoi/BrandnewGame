@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-#include "GameplayTagContainer.h"
 #include "Interfaces/BrandNewCharacterInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 

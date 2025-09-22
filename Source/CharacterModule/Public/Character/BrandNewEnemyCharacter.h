@@ -27,6 +27,7 @@ public:
 
 	/* begin IBrandNewEnemyInterface */
 	virtual float GetXPReward() const override;
+	virtual float GetInitialMaxWalkSpeed_Implementation() const override;
 	/* end IBrandNewEnemyInterface */
 
 	/* begin IBrandNewCharacterInterface */
@@ -49,14 +50,17 @@ protected:
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
 
 	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 필요함 */
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
 	FName EnemyName = NAME_None;
 	
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Enemy Data")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
 	FScalableFloat XPReward;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Enemy Data")
+	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
 	float DeathWaiteDuration = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
+	float InitialMaxWalkSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> SecondaryAttributeDataTable;
@@ -81,12 +85,8 @@ private:
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
 
-	UPROPERTY()
-	TObjectPtr<AController> CachedController;
-
 	int32 EnemyLevel = 1;
 	bool bIsActivated = false; // 현재 서버에서만 설정됨. 필요시 Replicate 해야함.
-	
 
 public:
 	FORCEINLINE void SetLevel(const int32 NewLevel) { EnemyLevel = NewLevel; };

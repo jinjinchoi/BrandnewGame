@@ -31,7 +31,6 @@ void AMultiHitProjectile::LaunchProjectile(const FVector& SpawnLocation, const F
 void AMultiHitProjectile::RemoveProjectile()
 {
 	Super::RemoveProjectile();
-	GetWorldTimerManager().ClearTimer(DamageTimerHandle);
 	OverlappedActors.Empty();
 }
 

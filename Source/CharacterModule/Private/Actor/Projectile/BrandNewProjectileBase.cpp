@@ -184,6 +184,8 @@ void ABrandNewProjectileBase::ApplyDamageToTarget(AActor* DamagedActor)
 
 void ABrandNewProjectileBase::RemoveProjectile()
 {
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	
 	if (DestructionEffect)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, DestructionEffect, GetActorLocation(), GetActorRotation());

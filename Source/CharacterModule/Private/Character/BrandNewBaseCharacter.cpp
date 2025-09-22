@@ -139,6 +139,8 @@ void ABrandNewBaseCharacter::OnCharacterDied_Implementation()
 
 	GetMovementComponent()->StopMovementImmediately();
 
+	
+
 }
 
 bool ABrandNewBaseCharacter::IsHitReacting() const

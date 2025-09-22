@@ -9,6 +9,7 @@
 #include "AI/BrandNewAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "DataAssets/DataAsset_EnemyAbilities.h"
 #include "Engine/AssetManager.h"
@@ -29,7 +30,7 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.f);
-	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->MaxWalkSpeed = InitialMaxWalkSpeed;
 
 	Tags.AddUnique(TEXT("Enemy"));
 	
@@ -40,11 +41,15 @@ float ABrandNewEnemyCharacter::GetXPReward() const
 	return XPReward.GetValueAtLevel(EnemyLevel);
 }
 
+float ABrandNewEnemyCharacter::GetInitialMaxWalkSpeed_Implementation() const
+{
+	return InitialMaxWalkSpeed;
+}
+
 void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 {
 	Super::OnCharacterDied_Implementation();
-
-
+	
 	if (AController* AIController = GetController())
 	{
 		AIController->UnPossess();
@@ -102,6 +107,11 @@ bool ABrandNewEnemyCharacter::IsAllocatedToWorld()
 void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation)
 {
 	ApplyEnemyAttribute();
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	
 	SetActorLocation(NewLocation);
 	SetActorRotation(NewRotation);
@@ -113,17 +123,14 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	{
 		CombatWeapon->HideWeapon(false);
 	}
-	
-	if (CachedController)
-	{
-		CachedController->Possess(this);
-	}
-	else
-	{
-		SpawnDefaultController();
-		CachedController = GetController();
-	}
 
+	if (bIsDead && AbilitySystemComponent)
+	{
+		bIsDead = false;
+		FGameplayTagContainer GameplayTags;
+		GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+		AbilitySystemComponent->CancelAbilities(&GameplayTags);
+	}
 	bIsActivated = true;
 	
 }
