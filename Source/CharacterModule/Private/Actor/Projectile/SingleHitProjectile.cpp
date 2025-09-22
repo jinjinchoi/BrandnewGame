@@ -11,14 +11,12 @@ void ASingleHitProjectile::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedC
 {
 	if (!IsValid(OtherActor) || !GetOwner() || OtherActor == GetOwner()) return;
 
-	if (OtherActor->Implements<UBrandNewCharacterInterface>())
+
+	if (UCharacterFunctionLibrary::IsTargetActorHostile(GetOwner(), OtherActor))
 	{
-		if (UCharacterFunctionLibrary::IsTargetActorHostile(GetOwner(), OtherActor))
-		{
-			ApplyDamageToTarget(OtherActor);
-			OnHit();
-			RemoveProjectile();
-		}
+		ApplyDamageToTarget(OtherActor);
+		OnHit();
+		RemoveProjectile();
 	}
 	else
 	{
