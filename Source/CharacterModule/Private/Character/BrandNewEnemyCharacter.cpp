@@ -25,6 +25,8 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.f);
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+
+	Tags.AddUnique(TEXT("Enemy"));
 	
 }
 

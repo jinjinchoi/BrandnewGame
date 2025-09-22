@@ -26,10 +26,12 @@ ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UBrandNewAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-
+	
 	AttributeSet = CreateDefaultSubobject<UBrandNewAttributeSet>("AttributeSet");
-
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("MotionWarpingComponent");
+
+	Tags.AddUnique(TEXT("Player"));
+	
 }
 
 void ABrandNewBaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
