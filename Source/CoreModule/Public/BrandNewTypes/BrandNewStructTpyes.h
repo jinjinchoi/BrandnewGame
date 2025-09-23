@@ -175,3 +175,14 @@ struct FAttributeUpgradePrams
 	int32 UpgradeAmount = 0;
 	
 };
+
+/* 로딩화면에서 보여줄 팁을 저장하는 데이터 테이블을 위한 구조체 */
+USTRUCT(BlueprintType)
+struct FTipData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Tip")
+	FText TipText;
+	
+};

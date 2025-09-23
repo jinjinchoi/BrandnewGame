@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/GameInstance.h"
-#include "BrandNewGameInstance.generated.h"
+#include "GameFramework/GameModeBase.h"
+#include "BnMainMenuGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class COREMODULE_API UBrandNewGameInstance : public UGameInstance
+class COREMODULE_API ABnMainMenuGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	

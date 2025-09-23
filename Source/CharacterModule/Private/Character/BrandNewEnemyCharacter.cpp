@@ -36,6 +36,26 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 	
 }
 
+void ABrandNewEnemyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitAbilityActorInfo();
+	if (HasAuthority())
+	{
+		GiveAbilitiesToEnemy();
+	}
+
+	// 체력바표시
+	if (IBnWidgetInterface* WidgetInterface = Cast<IBnWidgetInterface>(HealthBarWidgetComponent->GetUserWidgetObject()))
+	{
+		WidgetInterface->SetUIWidgetController(this);
+	}
+	
+	BindAttributeChanged();
+
+}
+
 float ABrandNewEnemyCharacter::GetXPReward() const
 {
 	return XPReward.GetValueAtLevel(EnemyLevel);
@@ -133,26 +153,6 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	}
 	bIsActivated = true;
 	
-}
-
-void ABrandNewEnemyCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	InitAbilityActorInfo();
-	if (HasAuthority())
-	{
-		GiveAbilitiesToEnemy();
-	}
-
-	// 체력바표시
-	if (IBnWidgetInterface* WidgetInterface = Cast<IBnWidgetInterface>(HealthBarWidgetComponent->GetUserWidgetObject()))
-	{
-		WidgetInterface->SetUIWidgetController(this);
-	}
-	
-	BindAttributeChanged();
-
 }
 
 void ABrandNewEnemyCharacter::BindAttributeChanged()
