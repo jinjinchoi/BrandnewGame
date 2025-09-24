@@ -24,6 +24,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
+#include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/BnBaseAnimInstanceInterface.h"
 
 
@@ -417,6 +418,20 @@ void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
 	OnEquippedWeaponChanged();
 }
 
+FText ABrandNewPlayerCharacter::GetCurrentTimeText() const
+{
+	const FDateTime Now = FDateTime::Now();
+
+	const FString FormattedTime = FString::Printf(TEXT("%d년 %02d월 %02d일 %02d시 %02d분 %02d초"),
+		Now.GetYear(),
+		Now.GetMonth(),
+		Now.GetDay(),
+		Now.GetHour(),
+		Now.GetMinute(),
+		Now.GetSecond());
+
+	return FText::FromString(FormattedTime);
+}
 
 
 void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
@@ -513,6 +528,35 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 	
 
 	return 0;
+	
+}
+
+
+void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
+{
+	if (!AbilitySystemComponent || !AttributeSet) return;
+	
+	FAttributeSaveData AttributeParams;
+	AttributeParams.Strength = AttributeSet->GetStrength();
+	AttributeParams.Intelligence = AttributeSet->GetIntelligence();
+	AttributeParams.Dexterity = AttributeSet->GetDexterity();
+	AttributeParams.Vitality = AttributeSet->GetVitality();
+	AttributeParams.CurrentHealth = AttributeSet->GetHealth();
+	AttributeParams.CurrentMana = AttributeSet->GetMana();
+	AttributeParams.Level = AttributeSet->GetCharacterLevel();
+	AttributeParams.Experience = AttributeSet->GetXP();
+	AttributeParams.AttributePoint = AttributeSet->GetAttributePoint();
+	
+	FSaveSlotPrams SaveSlotPrams;
+	SaveSlotPrams.AttributePrams = AttributeParams;
+	SaveSlotPrams.CharacterLocation = GetActorLocation();
+	SaveSlotPrams.SavedTime = GetCurrentTimeText();
+	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
+	SaveSlotPrams.MapName = FText::FromString(TEXT("맵 이름 지정해줘야 함"));
+	SaveSlotPrams.TitleText =  FText::FromString(TEXT("퀘스트 구현시 만들어줘야 함"));
+	SaveSlotPrams.bIsValid = true;
+
+	UBrandNewSaveSubsystem::SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
 	
 }
 

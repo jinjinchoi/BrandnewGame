@@ -55,11 +55,13 @@ namespace BrandNewGamePlayTag
 	/**
 	 * Ability Tags
 	 */
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_EquipWeapon);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_UnequipWeapon);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_NormalAttack);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_SpawnMagicSphere);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Combat_FireBall);
+	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Special_Dodge);
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Player_Utility_LockOn);

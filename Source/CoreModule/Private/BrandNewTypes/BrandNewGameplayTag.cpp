@@ -53,11 +53,13 @@ namespace BrandNewGamePlayTag
 	/**
 	 * Ability Tags
 	 */
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat, "Ability.Player.Combat")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_EquipWeapon, "Ability.Player.Combat.EquipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_UnequipWeapon, "Ability.Player.Combat.UnequipWeapon")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_NormalAttack, "Ability.Player.Combat.NormalAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_SpawnMagicSphere, "Ability.Player.Combat.SpawnMagicSphere")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Combat_FireBall, "Ability.Player.Combat.FireBall")
+	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Special_Dodge, "Ability.Player.Special.Dodge")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Player_Utility_LockOn, "Ability.Player.Utility.LockOn")

@@ -186,3 +186,48 @@ struct FTipData : public FTableRowBase
 	FText TipText;
 	
 };
+
+/* 세이브 데이터 중 Attribute 데이터를 저장하는 구조체 */
+USTRUCT()
+struct FAttributeSaveData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	float Strength = 0.f;
+	UPROPERTY()
+	float Intelligence = 0.f;
+	UPROPERTY()
+	float Dexterity = 0.f;
+	UPROPERTY()
+	float Vitality = 0.f;
+	UPROPERTY()
+	float Level = 1.f;
+	UPROPERTY()
+	float Experience = 0.f;
+	UPROPERTY()
+	float AttributePoint = 0.f;
+	UPROPERTY()
+	float CurrentHealth = 0.f;
+	UPROPERTY()
+	float CurrentMana = 0.f;
+};
+
+/* 모든 세이버 데이터를 종합하는 구조체 */
+struct FSaveSlotPrams
+{
+	// Attribute 정보
+	FAttributeSaveData AttributePrams = FAttributeSaveData(); 
+	// 캐릭터 위치
+	FVector CharacterLocation = FVector::ZeroVector;
+	// Map이름
+	FText MapName = FText::GetEmpty();
+	// 어빌리티 태그와 레벨이 저장되는 Map
+	TMap<FGameplayTag, int32 > AbilityMap;
+	// 세이브 시간
+	FText SavedTime = FText::GetEmpty();
+	// 세이브 슬롯 제목에 쓰일 Text
+	FText TitleText = FText::GetEmpty();
+
+	bool bIsValid = false;
+};

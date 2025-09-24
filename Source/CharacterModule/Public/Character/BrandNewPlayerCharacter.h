@@ -51,6 +51,7 @@ public:
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
+	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -138,6 +139,8 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
+
+	FText GetCurrentTimeText() const;
 
 	FOnAttributeChangedDelegate HealthChangedDelegate;
 	FOnAttributeChangedDelegate MaxHealthChangedDelegate;

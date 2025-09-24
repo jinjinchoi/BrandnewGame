@@ -25,5 +25,6 @@ public:
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag);
 	
 	FGameplayAbilitySpecHandle FindAbilitySpecHandleFromAbilityTag(const FGameplayTag& AbilityTag);
+	TMap<FGameplayTag, int32 > GetAbilityTagLevelMap();
 	
 };

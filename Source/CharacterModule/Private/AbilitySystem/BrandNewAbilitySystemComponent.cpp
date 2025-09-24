@@ -2,6 +2,8 @@
 
 
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
+
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
 
 void UBrandNewAbilitySystemComponent::GrantAbilities(const TArray<TSubclassOf<UGameplayAbility>>& AbilitiesToGrant,
@@ -88,7 +90,7 @@ void UBrandNewAbilitySystemComponent::OnAbilityInputReleased(const FGameplayTag&
 
 FGameplayAbilitySpecHandle UBrandNewAbilitySystemComponent::FindAbilitySpecHandleFromAbilityTag(const FGameplayTag& AbilityTag)
 {
-	FScopedAbilityListLock ActiveScopeLock(*this);
+	ABILITYLIST_SCOPE_LOCK();
 	
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
@@ -102,4 +104,24 @@ FGameplayAbilitySpecHandle UBrandNewAbilitySystemComponent::FindAbilitySpecHandl
 	}
 
 	return FGameplayAbilitySpecHandle();
+}
+
+TMap<FGameplayTag, int32> UBrandNewAbilitySystemComponent::GetAbilityTagLevelMap()
+{
+	ABILITYLIST_SCOPE_LOCK();
+
+	TMap<FGameplayTag, int32> AbilityLevelMap;
+	
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (const UGameplayAbility* Ability = AbilitySpec.Ability.Get())
+		{
+			if (Ability->GetAssetTags().HasTag(BrandNewGamePlayTag::Ability_Player_Combat))
+			{
+				AbilityLevelMap.Emplace(Ability->GetAssetTags().First(), Ability->GetAbilityLevel());
+			}
+		}
+	}
+
+	return AbilityLevelMap;
 }

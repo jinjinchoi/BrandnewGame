@@ -80,5 +80,7 @@ public:
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) = 0;
 
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const = 0;
+
+	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) = 0;
 	
 };
