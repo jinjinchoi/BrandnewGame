@@ -68,12 +68,11 @@ protected:
 	/* begin Actor Interface */
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
-
-	/* begin Base Character */
-	virtual void InitAbilityActorInfo() override;
-	/* end Base Character */
 	
-	void ApplyPrimaryAttribute() const;
+	void InitializePrimaryAttribute() const;
+	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
+	void ApplyPrimaryAttributeFromDataTable() const;
+	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
 
 	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
@@ -91,6 +90,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> VitalAttributeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> VitalOverrideEffect;
 
 	/* 경험치를 올리기 위한 Gameplay Effect */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")

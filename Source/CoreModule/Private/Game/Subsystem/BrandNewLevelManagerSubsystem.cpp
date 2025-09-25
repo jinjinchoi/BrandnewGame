@@ -8,15 +8,7 @@
 
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass)
 {
-	const UWorld* World = GetWorld();
-
-	if (LevelClass.IsNull() || !World) return;
-
-	const ENetMode NetMode = World->GetNetMode();
-	if (NetMode == NM_DedicatedServer)
-	{
-		return; // 서버는 로딩하지 않음
-	}
+	if (LevelClass.IsNull()) return;
 	
 	const FSoftObjectPath& SoftObjectPath = LevelClass.ToSoftObjectPath();
 	const FString PackageName = SoftObjectPath.GetLongPackageName();
@@ -24,9 +16,21 @@ void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWo
 	TargetLevelPath = PackageFName;
 }
 
+void UBrandNewLevelManagerSubsystem::SetMapNameToTravelByString(const FString& MapName)
+{
+	if (MapName.IsEmpty()) return;
+	
+	TargetLevelPath = FName(*MapName);
+}
+
 
 void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 {
+	if (GetWorld()->GetNetMode() == NM_DedicatedServer)
+	{
+		return; // 서버는 로딩하지 않음
+	}
+	
 	if (TargetLevelPath == NAME_None)
 	{
 		DebugHelper::Print(TEXT("맵 에셋 네임이 올바르게 설정되지 않았습니다."), FColor::Red);
@@ -41,7 +45,7 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 
 	
 	// Unreal 5.5 이상 버전에서는 GetAsyncLoadPercentage 호출해도 정상적인 값을 받을 수 없다고 함.
-	GetWorld()->GetTimerManager().SetTimer(LoadingPercentTimerHandle, this, &ThisClass::OnLoadPackageUpdated, 0.2f,true, 0.2f);
+	// GetWorld()->GetTimerManager().SetTimer(LoadingPercentTimerHandle, this, &ThisClass::OnLoadPackageUpdated, 0.2f,true, 0.2f);
 }
 
 void UBrandNewLevelManagerSubsystem::TravelMap() const

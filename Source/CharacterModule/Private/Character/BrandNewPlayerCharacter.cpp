@@ -24,6 +24,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
+#include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/BnBaseAnimInstanceInterface.h"
 
@@ -85,8 +86,9 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	Server_RequestUpdateMovementMode(CurrentGate);
 	InitAbilityActorInfo();
+	InitializePrimaryAttribute();
 	BindAttributeDelegates();
-	AddCharacterAbilities();
+	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
 }
 
 void ABrandNewPlayerCharacter::OnRep_PlayerState()
@@ -105,19 +107,45 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
-
 }
 
-void ABrandNewPlayerCharacter::InitAbilityActorInfo()
+void ABrandNewPlayerCharacter::InitializePrimaryAttribute() const
 {
-	Super::InitAbilityActorInfo();
+	if (!HasAuthority()) return;
 
-	ApplyPrimaryAttribute();
-	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	// 세이브 데이터 유무에 따라 세이브 데이터 또는 데이터 테이블에서 값을 가져와 Primary Attribute 적용
+	const FSaveSlotPrams SavedData = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>()->GetLastestPlayerData();
+	if (SavedData.bIsValid)
+	{
+		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
+		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
+	}
+	else
+	{
+		ApplyPrimaryAttributeFromDataTable();
+		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	}
 }
 
-void ABrandNewPlayerCharacter::ApplyPrimaryAttribute() const
+void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const
+{
+	if (!HasAuthority() || !AbilitySystemComponent || !PrimaryAttributeEffect) return;
+
+	FBaseAttributePrams AttributePrams;
+	AttributePrams.Strength = SlotPrams.Strength;
+	AttributePrams.Dexterity = SlotPrams.Dexterity;
+	AttributePrams.Intelligence = SlotPrams.Intelligence;
+	AttributePrams.Vitality = SlotPrams.Vitality;
+	AttributePrams.Level = SlotPrams.Level;
+	AttributePrams.AttributePoint = SlotPrams.AttributePoint;
+	AttributePrams.XP = SlotPrams.Experience;
+	
+	UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
+}
+
+void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromDataTable() const
 {
 	if (!HasAuthority()) return;
 	
@@ -140,6 +168,21 @@ void ABrandNewPlayerCharacter::ApplyPrimaryAttribute() const
 		
 		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
 	}
+}
+
+void ABrandNewPlayerCharacter::OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const
+{
+	check(VitalOverrideEffect);
+	if (!HasAuthority() || !VitalOverrideEffect || !AbilitySystemComponent) return;
+
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(VitalOverrideEffect, 1.f, ContextHandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentHealth, HealthToApply);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentMana, ManaToApply);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
 void ABrandNewPlayerCharacter::ApplyAddXPEffect(const float XpToAdd) const
@@ -535,7 +578,8 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
 {
 	if (!AbilitySystemComponent || !AttributeSet) return;
-	
+
+	// Attribute를 저장하는 구조체 생성
 	FAttributeSaveData AttributeParams;
 	AttributeParams.Strength = AttributeSet->GetStrength();
 	AttributeParams.Intelligence = AttributeSet->GetIntelligence();
@@ -546,14 +590,19 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 	AttributeParams.Level = AttributeSet->GetCharacterLevel();
 	AttributeParams.Experience = AttributeSet->GetXP();
 	AttributeParams.AttributePoint = AttributeSet->GetAttributePoint();
-	
+
+	// 세이브 데이터를 저장하는 구조체 생성
 	FSaveSlotPrams SaveSlotPrams;
-	SaveSlotPrams.AttributePrams = AttributeParams;
+	SaveSlotPrams.AttributePrams = AttributeParams; // Attribute 저장
 	SaveSlotPrams.CharacterLocation = GetActorLocation();
 	SaveSlotPrams.SavedTime = GetCurrentTimeText();
 	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
-	SaveSlotPrams.MapName = FText::FromString(TEXT("맵 이름 지정해줘야 함"));
 	SaveSlotPrams.TitleText =  FText::FromString(TEXT("퀘스트 구현시 만들어줘야 함"));
+
+	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
+	SaveSlotPrams.MapPackageName = MapName;
+	SaveSlotPrams.MapName = GetGameInstance<UBrandNewGameInstance>()->GetMapName(MapName);
+	
 	SaveSlotPrams.bIsValid = true;
 
 	UBrandNewSaveSubsystem::SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);

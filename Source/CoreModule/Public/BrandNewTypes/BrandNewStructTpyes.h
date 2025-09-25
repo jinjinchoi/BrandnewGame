@@ -74,6 +74,8 @@ struct FBaseAttributePrams
 	float Dexterity = 0.f;
 	float Vitality = 0.f;
 	float Level = 1.f;
+	float AttributePoint = 0.f;
+	float XP = 0.f;
 };
 
 /* Enemy의 Attribute를 저장할 데이터 테이블 Row */
@@ -216,18 +218,27 @@ struct FAttributeSaveData
 /* 모든 세이버 데이터를 종합하는 구조체 */
 struct FSaveSlotPrams
 {
-	// Attribute 정보
-	FAttributeSaveData AttributePrams = FAttributeSaveData(); 
-	// 캐릭터 위치
+	
+	/* Attribute 정보 */
+	FAttributeSaveData AttributePrams = FAttributeSaveData();
+	
+	/* 캐릭터 위치 */
 	FVector CharacterLocation = FVector::ZeroVector;
-	// Map이름
+	
+	/* Map이름 */
 	FText MapName = FText::GetEmpty();
-	// 어빌리티 태그와 레벨이 저장되는 Map
+	
+	/* 어빌리티 태그와 레벨이 저장되는 Map */
 	TMap<FGameplayTag, int32 > AbilityMap;
-	// 세이브 시간
+	
+	/* 세이브 시간 */
 	FText SavedTime = FText::GetEmpty();
-	// 세이브 슬롯 제목에 쓰일 Text
+	
+	/*세이브 슬롯 제목에 쓰일 Text*/
 	FText TitleText = FText::GetEmpty();
+
+	/* Open World에서 사용할 Map Name */
+	FString MapPackageName = FString(); 
 
 	bool bIsValid = false;
 };

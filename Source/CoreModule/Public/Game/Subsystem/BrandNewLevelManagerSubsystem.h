@@ -22,6 +22,9 @@ public:
 	void SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass);
 
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
+	void SetMapNameToTravelByString(const FString& MapName);
+
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
 	void StartAsyncLoading();
 
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")

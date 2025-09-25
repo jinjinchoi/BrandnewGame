@@ -31,6 +31,9 @@ public:
 	FText TitleText;
 
 	UPROPERTY()
+	FString MapPackageName;
+
+	UPROPERTY()
 	TMap<FGameplayTag /* 어빌리티 태그 */, int32 /* 어빌티리 레빌 */> AbilityDataMap;
 
 	UPROPERTY()

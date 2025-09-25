@@ -34,8 +34,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool GetIsCriticalHitToContext(const FGameplayEffectContextHandle& EffectContextHandle);
 	
-	static void ApplyPrimaryAttributesSetByCaller(
-		const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
+	static void ApplyPrimaryAttributesSetByCaller(const FBaseAttributePrams& InAttributePrams, UAbilitySystemComponent* InASC, const TSubclassOf<UGameplayEffect>& EffectToApply);
 
 	UFUNCTION(BlueprintPure, Category = "UCharacterFunctionLibrary|Gameplay Tag")
 	static bool DoseActorHasTag(AActor* TargetActor, const FGameplayTag& TagToCheck);
