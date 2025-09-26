@@ -58,9 +58,6 @@ void ABrandNewProjectileBase::BeginPlay()
 		LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
 		LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
 	}
-	
-	SphereCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
-	SphereCollision->OnComponentEndOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereEndOverlap);
 
 }
 

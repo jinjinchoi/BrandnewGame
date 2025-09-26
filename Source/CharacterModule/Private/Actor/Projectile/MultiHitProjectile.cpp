@@ -4,23 +4,9 @@
 #include "Actor/Projectile/MultiHitProjectile.h"
 
 #include "CharacterFunctionLibrary.h"
+#include "Components/SphereComponent.h"
 #include "Interfaces/BrandNewCharacterInterface.h"
 
-
-void AMultiHitProjectile::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor->Implements<UBrandNewCharacterInterface>() && UCharacterFunctionLibrary::IsTargetActorHostile(OtherActor, GetOwner()))
-	{
-		OverlappedActors.Add(OtherActor); 
-	}
-}
-
-void AMultiHitProjectile::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	OverlappedActors.Remove(OtherActor);
-}
 
 void AMultiHitProjectile::LaunchProjectile(const FVector& SpawnLocation, const FVector& TargetLocation)
 {
@@ -37,18 +23,39 @@ void AMultiHitProjectile::RemoveProjectile()
 void AMultiHitProjectile::ApplyPeriodicDamage()
 {
 	if (!GetOwner()) return;
+
+	SyncOverlaps();
 	
-	for (TSet<TWeakObjectPtr<AActor>>::TIterator It = OverlappedActors.CreateIterator(); It; ++It)
+	for (TSet<AActor*>::TIterator It = OverlappedActors.CreateIterator(); It; ++It)
 	{
-		if (!It->IsValid())
+		AActor* Target = *It;
+		if (!IsValid(Target))
 		{
 			It.RemoveCurrent();
 			continue;
 		}
-		
-		AActor* Target = It->Get();
+
 		NetMulticast_GenerateHitEffect(Target->GetActorLocation());
 		ApplyDamageToTarget(Target);
+	}
+}
+
+void AMultiHitProjectile::SyncOverlaps()
+{
+	TArray<AActor*> CurrentOverlaps;
+	SphereCollision->GetOverlappingActors(CurrentOverlaps, AActor::StaticClass());
+	
+	OverlappedActors.Empty();
+
+	for (AActor* Actor : CurrentOverlaps)
+	{
+		if (!Actor) continue;
+
+		if (Actor->Implements<UBrandNewCharacterInterface>() &&
+			UCharacterFunctionLibrary::IsTargetActorHostile(Actor, GetOwner()))
+		{
+			OverlappedActors.Add(Actor);
+		}
 	}
 }
 

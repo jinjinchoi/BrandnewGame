@@ -4,7 +4,17 @@
 #include "Actor/Projectile/SingleHitProjectile.h"
 
 #include "CharacterFunctionLibrary.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
+#include "Components/SphereComponent.h"
+
+void ASingleHitProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+
+	
+	SphereCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
+	SphereCollision->OnComponentEndOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereEndOverlap);
+	
+}
 
 void ASingleHitProjectile::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

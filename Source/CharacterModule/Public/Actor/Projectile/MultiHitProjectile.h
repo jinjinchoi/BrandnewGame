@@ -16,8 +16,6 @@ class CHARACTERMODULE_API AMultiHitProjectile : public ABrandNewProjectileBase
 
 protected:
 	/* begin AVNProjectileBase */
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	virtual void LaunchProjectile(const FVector& SpawnLocation, const FVector& TargetLocation) override;
 	virtual void RemoveProjectile() override;
 	/* end AVNProjectileBase */
@@ -30,8 +28,11 @@ protected:
 private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void NetMulticast_GenerateHitEffect(const FVector_NetQuantize10& HitLocation);
+
+	void SyncOverlaps();
 	
 	FTimerHandle DamageTimerHandle;
-	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
+	UPROPERTY()
+	TSet<AActor*> OverlappedActors;
 	
 };
