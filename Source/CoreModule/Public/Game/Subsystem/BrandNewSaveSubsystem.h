@@ -30,6 +30,7 @@ public:
 	FSaveSlotPrams GetLastestPlayerData();
 	
 	/* 서브시스템에 있는 데이터를 초기화하는 함수 */
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
 	void ResetPlayerData();
 
 	/*

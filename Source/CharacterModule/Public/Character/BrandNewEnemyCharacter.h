@@ -86,6 +86,7 @@ private:
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
 
 	int32 EnemyLevel = 1;
+	/* Pool에서 나와 활성화 되어 있는지 확인하는 변수 */
 	bool bIsActivated = false; // 현재 서버에서만 설정됨. 필요시 Replicate 해야함.
 
 public:

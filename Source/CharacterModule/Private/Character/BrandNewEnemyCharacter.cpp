@@ -30,7 +30,6 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.f);
-	GetCharacterMovement()->MaxWalkSpeed = InitialMaxWalkSpeed;
 
 	Tags.AddUnique(TEXT("Enemy"));
 	
@@ -39,6 +38,8 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 void ABrandNewEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetCharacterMovement()->MaxWalkSpeed = InitialMaxWalkSpeed;
 
 	InitAbilityActorInfo();
 	if (HasAuthority())

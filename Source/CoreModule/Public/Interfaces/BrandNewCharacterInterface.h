@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "UObject/Interface.h"
 #include "BrandNewCharacterInterface.generated.h"
 
@@ -28,7 +29,10 @@ class COREMODULE_API IBrandNewCharacterInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void ToggleWeaponCollision(bool bEnable);
+	void ToggleWeaponCollision(const bool bEnable);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ToggleCharacterCombatCollision(const bool bEnable, const ECombatCollisionPosition CollisionPosition);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OnCharacterHit(const bool bIsHit);

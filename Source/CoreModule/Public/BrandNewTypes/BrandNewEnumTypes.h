@@ -34,3 +34,13 @@ enum class ERootYawOffsetMode : uint8
 	BlendOut,
 	Hold
 };
+
+UENUM(BlueprintType)
+enum class ECombatCollisionPosition : uint8
+{
+	None,
+	RightHand,
+	LeftHand,
+	RightFoot,
+	LeftFoot,
+};

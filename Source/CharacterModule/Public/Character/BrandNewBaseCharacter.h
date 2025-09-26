@@ -8,6 +8,7 @@
 #include "Interfaces/BrandNewCharacterInterface.h"
 #include "BrandNewBaseCharacter.generated.h"
 
+class UBoxComponent;
 class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
 class ABrandNewWeapon;
@@ -33,7 +34,8 @@ public:
 	/* end IAbilitySystemInterface */
 
 	/* begin IBrandNewCharacterInterface */
-	virtual void ToggleWeaponCollision_Implementation(bool bEnable) override;
+	virtual void ToggleWeaponCollision_Implementation(const bool bEnable) override;
+	virtual void ToggleCharacterCombatCollision_Implementation(const bool bEnable, const ECombatCollisionPosition CollisionPosition) override;
 	virtual void OnCharacterHit_Implementation(const bool bIsHit) override;
 	virtual void OnCharacterDied_Implementation() override;
 	virtual UMotionWarpingComponent* GetMotionWarpingComponent_Implementation() const override;
@@ -52,6 +54,15 @@ protected:
 	virtual void BindGameplayTagDelegates();
 	
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
+
+#if WITH_EDITOR
+	/* Begin UObject */
+	virtual void PostEditChangeChainProperty(struct FPropertyChangedChainEvent& PropertyChangedEvent) override;
+	/* End UObject */
+#endif
+
+	UFUNCTION()
+	virtual void OnBodyCollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Motion Warping")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
@@ -72,6 +83,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	FName CombatSocketName = FName("CombatSocket");
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBoxComponent> LeftHandCollisionBox;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBoxComponent> RightHandCollisionBox;
+
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Combat")
+	FName LeftHandCollisionBoxAttachBoneName;
+
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Combat")
+	FName RightHandCollisionBoxAttachBoneName;
+
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	bool bCanLaunch = true;
 	
@@ -82,6 +105,9 @@ private:
 	void SetupWeapon();
 
 	FOnCharacterDied OnCharacterDiedDelegate;
+	
+	UPROPERTY()
+	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
 
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }

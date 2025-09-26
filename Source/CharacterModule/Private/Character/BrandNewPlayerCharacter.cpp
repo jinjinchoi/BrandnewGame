@@ -46,6 +46,8 @@ ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 	
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	Tags.AddUnique(TEXT("Player"));
 	
 }
 
