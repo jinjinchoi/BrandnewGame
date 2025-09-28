@@ -22,7 +22,7 @@ void AMultiHitProjectile::RemoveProjectile()
 
 void AMultiHitProjectile::ApplyPeriodicDamage()
 {
-	if (!GetOwner()) return;
+	if (!GetOwner() || !HasAuthority()) return;
 
 	SyncOverlaps();
 	
