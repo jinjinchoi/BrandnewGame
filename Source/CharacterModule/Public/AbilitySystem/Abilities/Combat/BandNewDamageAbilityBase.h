@@ -23,6 +23,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	FDamageEffectParams MakeNonTargetEffectParams() const;
+
+	UFUNCTION(BlueprintCallable)
+	FDamageEffectParams MakeLocationDamageAbilityDamageParams(AActor* TargetActor, const FVector& AttackLocation) const;
+	
 	
 	UPROPERTY(EditDefaultsOnly,  Category="Brandnew|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;

@@ -634,11 +634,6 @@ void ABrandNewPlayerCharacter::OnRep_CurrentGate()
 
 void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 {
-	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
-	{
-		AnimInterface->UpdateCurrentGate(CurrentGate);
-	}
-	
 	if (GateSettings.Contains(CurrentGate))
 	{
 		const FGateSettings GateSettingsToApply = GateSettings[CurrentGate];
@@ -650,6 +645,12 @@ void ABrandNewPlayerCharacter::UpdateMovementComponentPrams()
 		GetCharacterMovement()->BrakingFriction = GateSettingsToApply.BrakingFriction;
 		GetCharacterMovement()->bUseSeparateBrakingFriction = GateSettingsToApply.bUseSeparateBrakingFriction;
 	}
+
+	if (IBrandNewPlayerAnimInterface* AnimInterface = Cast<IBrandNewPlayerAnimInterface>(GetMesh()->GetAnimInstance()))
+	{
+		AnimInterface->UpdateCurrentGate(CurrentGate);
+	}
+	
 }
 
 

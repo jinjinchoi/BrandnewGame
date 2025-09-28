@@ -49,6 +49,7 @@ public:
 	static FActiveGameplayEffectHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams);
 
 	static FGameplayTag ComputeHitReactDirection(const AActor* InAttacker, const AActor* InVictim);
+	static FGameplayTag ComputeHitReactDirectionFromLocation(const FVector& AttackerLocation, const FVector& VictimLocation, const FVector& VictimForward);
 
 	static bool IsTargetActorHostile(const AActor* QueryActor, const AActor* TargetActor);
 

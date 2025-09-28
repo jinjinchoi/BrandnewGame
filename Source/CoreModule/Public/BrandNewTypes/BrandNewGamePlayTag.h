@@ -68,6 +68,7 @@ namespace BrandNewGamePlayTag
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy_Combat_MeleeAttack);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy_Combat_RangeAttack);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Enemy_Combat_TrackingShard);
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Shared_React_Hit);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Shared_React_Death);
@@ -80,8 +81,8 @@ namespace BrandNewGamePlayTag
 	
 	// 애니메이션에서 공격 종료 지점을 알리는 태그 (이후 나머지 애니메이션 재생)
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Attack_End);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_ProjectileSpawn);
 	
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_ProjectileSpawn);
 	
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_Hit_Melee);
 
@@ -119,6 +120,9 @@ namespace BrandNewGamePlayTag
 	 * Gameplay Cue Tags
 	 */
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Widget_Damage_Normal);
+	
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_GroundWarning);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_ArcaneShard);
 
 	/**
 	 * Block Tags

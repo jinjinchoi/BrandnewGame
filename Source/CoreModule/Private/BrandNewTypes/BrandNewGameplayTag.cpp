@@ -66,6 +66,7 @@ namespace BrandNewGamePlayTag
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_MeleeAttack, "Ability.Enemy.Combat.MeleeAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_RangeAttack, "Ability.Enemy.Combat.RangeAttack")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_TrackingShard, "Ability.Enemy.Combat.TrackingShard")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Hit, "Ability.Shared.React.Hit")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Death, "Ability.Shared.React.Death")
@@ -116,6 +117,8 @@ namespace BrandNewGamePlayTag
 	 * Gameplay Cue Tags
 	 */
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Widget_Damage_Normal, "GameplayCue.Widget.Damage.Normal")
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_GroundWarning, "GameplayCue.Effect.GroundWarning")
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_ArcaneShard, "GameplayCue.Effect.ArcaneShard")
 
 	/**
 	 * Block Tags

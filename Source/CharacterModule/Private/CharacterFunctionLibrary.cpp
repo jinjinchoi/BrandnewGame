@@ -181,13 +181,16 @@ FGameplayTag UCharacterFunctionLibrary::ComputeHitReactDirection(const AActor* I
 	{
 		return BrandNewGamePlayTag::Event_HitReact_Front;
 	}
+	
+	return ComputeHitReactDirectionFromLocation(InAttacker->GetActorLocation(), InVictim->GetActorLocation(), InVictim->GetActorForwardVector());
+}
 
-	const FVector VictimForward = InVictim->GetActorForwardVector();
-	const FVector VictimToAttackerNormalized = (InAttacker->GetActorLocation() - InVictim->GetActorLocation()).GetSafeNormal();
+FGameplayTag UCharacterFunctionLibrary::ComputeHitReactDirectionFromLocation(const FVector& AttackerLocation, const FVector& VictimLocation, const FVector& VictimForward)
+{
+	const FVector VictimToAttackerNormalized = (AttackerLocation - VictimLocation).GetSafeNormal();
 
 	const float DotResult = FVector::DotProduct(VictimForward, VictimToAttackerNormalized);
 	float AngleDifference = UKismetMathLibrary::DegAcos(DotResult);
-
 	const FVector CrossResult = FVector::CrossProduct(VictimForward, VictimToAttackerNormalized);
 
 	if (CrossResult.Z < 0.f)

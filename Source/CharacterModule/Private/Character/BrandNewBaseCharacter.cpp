@@ -9,6 +9,7 @@
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "BrandNewTypes/BrandNewMacro.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,6 +45,10 @@ ABrandNewBaseCharacter::ABrandNewBaseCharacter()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Ground, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Ground, ECR_Ignore);
+	
 	
 }
 
