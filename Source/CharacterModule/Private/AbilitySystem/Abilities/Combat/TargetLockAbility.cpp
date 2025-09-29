@@ -7,8 +7,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 
 

@@ -9,8 +9,8 @@
 #include "GameplayEffectExtension.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/BrandNewEnemyInterface.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewEnemyInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Perception/AISense_Damage.h"
 
 UBrandNewAttributeSet::UBrandNewAttributeSet()

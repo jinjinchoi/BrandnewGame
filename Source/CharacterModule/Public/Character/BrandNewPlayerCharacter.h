@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "BrandNewBaseCharacter.h"
 #include "GameplayTagContainer.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
 class UDataAsset_LevelUpInfo;

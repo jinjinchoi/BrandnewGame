@@ -3,10 +3,10 @@
 
 #include "AnimNotify/TurnNotifyState.h"
 
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 
 void UTurnNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration,
-	const FAnimNotifyEventReference& EventReference)
+                                   const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	LastCurveValue = 0.f;

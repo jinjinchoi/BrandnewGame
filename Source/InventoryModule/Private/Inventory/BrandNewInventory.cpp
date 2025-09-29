@@ -46,6 +46,7 @@ void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 			break;
 		
 		default:
+			break;
 	}
 		
 	

@@ -4,7 +4,7 @@
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Interfaces/PoolableActorInterface.h"
+#include "Interfaces/Actor/PoolableActorInterface.h"
 
 void UBrandNewObjectPoolManager::InitPoolManager()
 {

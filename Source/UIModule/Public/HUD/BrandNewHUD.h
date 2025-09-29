@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "Interfaces/BrandNewHUDInterface.h"
+#include "Interfaces/UI/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
 class UCharacterInfoWidgetController;

@@ -3,7 +3,7 @@
 
 #include "WidgetController/OverlayWidgetController.h"
 
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 
 
 void UOverlayWidgetController::BindCallbacksToDependencies(APawn* InControlledPawn) const

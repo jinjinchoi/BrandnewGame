@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Character/BrandNewBaseCharacter.h"
-#include "DataTableStruct/DataTableParams.h"
-#include "Interfaces/BrandNewEnemyInterface.h"
-#include "Interfaces/PoolableActorInterface.h"
+#include "DataTableStruct/DataTableRowStruct.h"
+#include "Interfaces/Character/BrandNewEnemyInterface.h"
+#include "Interfaces/Actor/PoolableActorInterface.h"
 #include "BrandNewEnemyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeValueChangedDelegate, const float, NewValue);

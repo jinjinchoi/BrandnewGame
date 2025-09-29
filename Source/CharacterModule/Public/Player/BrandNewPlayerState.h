@@ -16,4 +16,7 @@ class CHARACTERMODULE_API ABrandNewPlayerState : public APlayerState
 
 public:
 	ABrandNewPlayerState();
+
+protected:
+	
 };

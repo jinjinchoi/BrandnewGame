@@ -17,17 +17,17 @@
 #include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Interfaces/BnPlayerControllerInterface.h"
-#include "Interfaces/BrandNewHUDInterface.h"
-#include "Interfaces/BrandNewPlayerAnimInterface.h"
+#include "Interfaces/Player/BnPlayerControllerInterface.h"
+#include "Interfaces/UI/BrandNewHUDInterface.h"
+#include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
-#include "DataTableStruct/DataTableParams.h"
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
-#include "Interfaces/BnBaseAnimInstanceInterface.h"
+#include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()

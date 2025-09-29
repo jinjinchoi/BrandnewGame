@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/Combat/BandNewDamageAbilityBase.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/PoolableActorInterface.h"
+#include "Interfaces/Actor/PoolableActorInterface.h"
 #include "BrandNewProjectileBase.generated.h"
 
 class UProjectileMovementComponent;

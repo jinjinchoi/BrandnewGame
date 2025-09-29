@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "DataTableStruct/DataTableParams.h"
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "UObject/Object.h"
 #include "BrandNewInventory.generated.h"
 

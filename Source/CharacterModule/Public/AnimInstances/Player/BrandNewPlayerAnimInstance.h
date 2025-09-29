@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AnimInstances/BrandNewCharacterAnimInstance.h"
-#include "Interfaces/BrandNewPlayerAnimInterface.h"
+#include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
 #include "BrandNewPlayerAnimInstance.generated.h"
 
 /**

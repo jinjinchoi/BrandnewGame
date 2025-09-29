@@ -10,7 +10,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"

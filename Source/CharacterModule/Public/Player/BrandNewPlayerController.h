@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "GenericTeamAgentInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "Interfaces/BnPlayerControllerInterface.h"
+#include "Interfaces/Player/BnPlayerControllerInterface.h"
 #include "BrandNewPlayerController.generated.h"
 
 class IBrandNewCharacterInterface;

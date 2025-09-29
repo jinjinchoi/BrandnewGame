@@ -5,7 +5,7 @@
 
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "HUD/BrandNewHUD.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "GameFramework/Character.h"
 
 UCharacterInfoWidgetController* UUIFunctionLibrary::GetCharacterInfoWidgetController(const UObject* WorldContextObject)

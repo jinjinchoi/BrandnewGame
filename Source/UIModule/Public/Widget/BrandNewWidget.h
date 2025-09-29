@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Interfaces/BnWidgetInterface.h"
+#include "Interfaces/UI/BnWidgetInterface.h"
 #include "BrandNewWidget.generated.h"
 
 /**

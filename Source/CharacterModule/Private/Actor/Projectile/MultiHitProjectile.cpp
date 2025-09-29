@@ -5,7 +5,7 @@
 
 #include "CharacterFunctionLibrary.h"
 #include "Components/SphereComponent.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
 
 
 void AMultiHitProjectile::LaunchProjectile(const FVector& SpawnLocation, const FVector& TargetLocation)

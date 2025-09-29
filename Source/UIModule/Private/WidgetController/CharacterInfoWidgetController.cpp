@@ -4,7 +4,7 @@
 #include "WidgetController/CharacterInfoWidgetController.h"
 
 #include "GameplayTagContainer.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 
 float UCharacterInfoWidgetController::GetAttributeByTag(const FGameplayTag& AttributeTag) const
 {

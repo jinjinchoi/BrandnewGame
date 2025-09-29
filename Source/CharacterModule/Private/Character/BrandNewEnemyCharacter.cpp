@@ -15,8 +15,8 @@
 #include "Engine/AssetManager.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Interfaces/BnBaseAnimInstanceInterface.h"
-#include "Interfaces/BnWidgetInterface.h"
+#include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
+#include "Interfaces/UI/BnWidgetInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
 

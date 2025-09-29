@@ -7,7 +7,7 @@
 #include "Actor/Projectile/BrandNewProjectileBase.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
-#include "Interfaces/BrandNewPlayerInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
 
 void UBrandNewProjectileAbility::SpawnProjectile(const FVector& SpawnLocation, const FVector& TargetLocation, AActor* TargetActor)

@@ -8,7 +8,7 @@
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericTeamAgentInterface.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
 
 FBrandNewEffectContext& UCharacterFunctionLibrary::GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle)
 {

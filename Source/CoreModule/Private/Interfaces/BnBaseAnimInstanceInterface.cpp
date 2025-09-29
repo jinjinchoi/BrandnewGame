@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Interfaces/BnBaseAnimInstanceInterface.h"
+#include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
 
 
 // Add default functionality here for any IBnBaseAnimInstance functions that are not pure virtual.

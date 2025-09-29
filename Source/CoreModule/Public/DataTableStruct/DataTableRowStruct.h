@@ -2,7 +2,7 @@
 #pragma once
 #include "BrandNewTypes/BrandNewEnumTypes.h"
 
-#include "DataTableParams.generated.h"
+#include "DataTableRowStruct.generated.h"
 
 
 /* 캐릭터 Attribute를 설정하기 위한 데이터 테이블을 구성할 row 구조체 */

@@ -12,7 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "BrandNewTypes/BrandNewMacro.h"
 #include "Character/BrandNewPlayerCharacter.h"
-#include "Interfaces/BrandNewPlayerAnimInterface.h"
+#include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
 
 ABrandNewPlayerController::ABrandNewPlayerController()
 {

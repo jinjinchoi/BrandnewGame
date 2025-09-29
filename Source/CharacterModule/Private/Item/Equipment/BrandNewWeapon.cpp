@@ -7,7 +7,7 @@
 #include "CharacterFunctionLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Components/BoxComponent.h"
-#include "Interfaces/BrandNewCharacterInterface.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
 
 ABrandNewWeapon::ABrandNewWeapon()
 {
