@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "BrandNewInventoryInterface.generated.h"
+#include "PickupItemInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE()
-class UBrandNewInventoryInterface : public UInterface
+class UPickupItemInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,12 +16,14 @@ class UBrandNewInventoryInterface : public UInterface
 /**
  * 
  */
-class COREMODULE_API IBrandNewInventoryInterface
+class COREMODULE_API IPickupItemInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	
+	virtual int32 GetId() const = 0;
+	virtual int32 GetQuantity() = 0;
+	virtual FGuid GetUniqueId() = 0;
 	
 };

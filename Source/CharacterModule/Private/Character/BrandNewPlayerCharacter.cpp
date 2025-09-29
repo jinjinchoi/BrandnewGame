@@ -269,6 +269,8 @@ void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(con
 }
 
 
+
+
 void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 {
 	if (!HasAuthority() || DefaultAbilitiesDataAsset.IsNull() || !AbilitySystemComponent) return;
@@ -360,6 +362,7 @@ void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
 	BrandNewHUD->RequestInitHUD();
 	
 }
+
 
 void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInputTag) const
 {
@@ -557,6 +560,11 @@ FOnWeaponChangedDelegate& ABrandNewPlayerCharacter::GetWeaponChangedDelegate()
 	return WeaponChangedDelegate;
 }
 
+FOnOverlappedItemChangedDelegate& ABrandNewPlayerCharacter::GetOnOverlapChangedDelegate()
+{
+	return OnOverlappedItemChangedDelegate;
+}
+
 float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const
 {
 	if (!AbilitySystemComponent) return 0;
@@ -610,6 +618,31 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 
 	UBrandNewSaveSubsystem::SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
 	
+}
+
+void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
+{
+	OverlappedItems.Add(OverlappedItem);
+	SendPickupInfoToUi(OverlappedItem, true);
+	
+}
+
+void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
+{
+	OverlappedItems.RemoveSingle(OverlappedItem);
+	SendPickupInfoToUi(OverlappedItem, false);
+	
+}
+
+void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const
+{
+	IPickupItemInterface* PickupItemInterface = CastChecked<IPickupItemInterface>(ItemToSend);
+	FPickupsUiInfo PickupUiInfo;
+	PickupUiInfo.ItemId = PickupItemInterface->GetId();
+	PickupUiInfo.Quantity = PickupItemInterface->GetQuantity();
+	PickupUiInfo.UniqueId = PickupItemInterface->GetUniqueId();
+
+	OnOverlappedItemChangedDelegate.ExecuteIfBound(bIsBeginOverlap, PickupUiInfo);
 }
 
 

@@ -37,6 +37,10 @@ void UOverlayWidgetController::BindCallbacksToDependencies(APawn* InControlledPa
 	{
 		OnWeaponChangedDelegate.Broadcast(ChangedWeaponType);
 	});
+	PlayerInterface->GetOnOverlapChangedDelegate().BindLambda([this]( const bool bIsBeginOverlap, const FPickupsUiInfo& PickupsUiInfo)
+	{
+		OnOverlappedItemChangedDelegate.Broadcast(bIsBeginOverlap, PickupsUiInfo);
+	});
 	
 }
 

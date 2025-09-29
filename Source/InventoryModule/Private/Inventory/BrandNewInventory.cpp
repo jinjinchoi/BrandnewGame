@@ -3,32 +3,14 @@
 
 #include "Inventory/BrandNewInventory.h"
 
-void UBrandNewInventory::Init()
-{
-	check(ItemDataTable)
-	if (!ItemDataTable) return;
+#include "FunctionLibrary/BrandNewFunctionLibrary.h"
 
-	// 데이터 테이블의 Row 구조체가 설정한 구조체와 맞는지 확인
-	if (ItemDataTable->GetRowStruct() == FItemDataRow::StaticStruct())
-	{
-		for (const TPair<FName, unsigned char*>& RowMap : ItemDataTable->GetRowMap()) // 데이터 테이블을 순회하여 아이디와 아이템 정보를 저장
-		{
-			const FItemDataRow* ItemData = reinterpret_cast<FItemDataRow*>(RowMap.Value);
-			check(ItemData)
-			ItemIDMap.Add(ItemData->ID, *ItemData);
-		}
-	}
-		
-}
 
 void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 {
-	check(!ItemIDMap.IsEmpty())
+	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, NewItem.ItemID);
 
-	const FItemDataRow* ItemInfo = ItemIDMap.Find(NewItem.ItemID);
-	check(ItemInfo)
-
-	switch (ItemInfo->ItemType)
+	switch (ItemInfo.ItemType)
 	{
 		case EItemType::None:
 			return;
@@ -55,8 +37,8 @@ void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 
 void UBrandNewInventory::StackItemIntoInventory(const FInventorySlotData& NewItem)
 {
-	const FItemDataRow* ItemInfo = ItemIDMap.Find(NewItem.ItemID);
-	const int32 MaxStack = ItemInfo->StackSize;
+	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, NewItem.ItemID);
+	const int32 MaxStack = ItemInfo.StackSize;
 	int32 RemainingItemCount = NewItem.Quantity;
 
 	// 슬롯에 동일한 아이템이 있는지 확인하고 존재하면 남은 Stack Size에 맞게 아이템 쌓기

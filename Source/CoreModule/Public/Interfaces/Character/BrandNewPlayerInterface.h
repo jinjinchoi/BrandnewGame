@@ -11,6 +11,7 @@
 struct FGameplayTag;
 DECLARE_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float);
 DECLARE_DELEGATE_OneParam(FOnWeaponChangedDelegate, const ECombatWeaponType);
+DECLARE_DELEGATE_TwoParams(FOnOverlappedItemChangedDelegate, const bool /* Is Begin Overlap? */, const FPickupsUiInfo&)
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -74,7 +75,8 @@ public:
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() = 0;
-
+	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() = 0;
+	
 	// 태그를 통해 Attribute의 value를 가져오는 함수
 	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const = 0;
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) = 0;
@@ -83,4 +85,7 @@ public:
 
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) = 0;
 	
+	virtual void AddOverlappedItem(AActor* OverlappedItem) = 0;
+	virtual void RemoveOverlappedItem(AActor* OverlappedItem) = 0;
+
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "DataTableStruct/DataTableRowStruct.h"
+#include "Interfaces/InventorySystem/BrandNewInventoryInterface.h"
 #include "UObject/Object.h"
 #include "BrandNewInventory.generated.h"
 
@@ -44,12 +45,11 @@ struct FInventoryContents
  * 
  */
 UCLASS(Blueprintable, BlueprintType)
-class INVENTORYMODULE_API UBrandNewInventory : public UObject
+class INVENTORYMODULE_API UBrandNewInventory : public UObject, public IBrandNewInventoryInterface
 {
 	GENERATED_BODY()
 
 public:
-	void Init();
 	void AddItemToSlot(const FInventorySlotData& NewItem);
 
 protected:
@@ -62,8 +62,6 @@ protected:
 private:
 	void StackItemIntoInventory(const FInventorySlotData& NewItem);
 	
-	/* 아이템의 아이디를 기반으로 아이템 정보를 저장하는 TMap */
-	TMap<int32, FItemDataRow> ItemIDMap;
 	
 	
 };

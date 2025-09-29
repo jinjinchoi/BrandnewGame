@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BrandNewFunctionLibrary.generated.h"
 
@@ -16,7 +17,9 @@ class COREMODULE_API UBrandNewFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static UBrandNewObjectPoolManager* GetObjectPoolManager(const UObject* WorldContextObject); 
+	static UBrandNewObjectPoolManager* GetObjectPoolManager(const UObject* WorldContextObject);
 	
+	UFUNCTION(BlueprintCallable, Category="BrandNewFunctionLibrary|InventorySystem", meta=(WorldContext="WorldContextObject"))
+	static FItemDataRow GetItemData(const UObject* WorldContextObject, const int32 ItemId); 
 	
 };

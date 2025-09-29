@@ -120,17 +120,6 @@ struct FAttributeUpgradePrams
 	
 };
 
-/* 로딩화면에서 보여줄 팁을 저장하는 데이터 테이블을 위한 구조체 */
-USTRUCT(BlueprintType)
-struct FTipData : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Tip")
-	FText TipText;
-	
-};
-
 /* 세이브 데이터 중 Attribute 데이터를 저장하는 구조체 */
 USTRUCT()
 struct FAttributeSaveData
@@ -157,10 +146,9 @@ struct FAttributeSaveData
 	float CurrentMana = 0.f;
 };
 
-/* 모든 세이버 데이터를 종합하는 구조체 */
+/* 모든 세이브 데이터를 종합하는 구조체 */
 struct FSaveSlotPrams
 {
-	
 	/* Attribute 정보 */
 	FAttributeSaveData AttributePrams = FAttributeSaveData();
 	
@@ -183,4 +171,21 @@ struct FSaveSlotPrams
 	FString MapPackageName = FString(); 
 
 	bool bIsValid = false;
+};
+
+/* 픽업 아이템과 오버랩시 아이템의 정보를 보낼때 사용할 구조체 */
+USTRUCT(BlueprintType)
+struct FPickupsUiInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 ItemId = INDEX_NONE;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FGuid UniqueId;
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 Quantity = 0;
+	
 };

@@ -3,6 +3,7 @@
 
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 
+#include "Game/GameInstance/BrandNewGameInstance.h"
 #include "GameMode/BrandNewGameModeBase.h"
 
 UBrandNewObjectPoolManager* UBrandNewFunctionLibrary::GetObjectPoolManager(const UObject* WorldContextObject)
@@ -17,4 +18,19 @@ UBrandNewObjectPoolManager* UBrandNewFunctionLibrary::GetObjectPoolManager(const
 
 	return GameModeBase->GetObjectPoolManager();
 	
+}
+
+FItemDataRow UBrandNewFunctionLibrary::GetItemData(const UObject* WorldContextObject, const int32 ItemId)
+{
+	if (WorldContextObject == nullptr) return FItemDataRow();
+
+	const UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+	if (!World) return FItemDataRow();
+
+	if (UBrandNewGameInstance* BrandNewGameInstance =  Cast<UBrandNewGameInstance>(World->GetGameInstance()))
+	{
+		BrandNewGameInstance->GetItemData(ItemId);
+	}
+
+	return FItemDataRow();
 }

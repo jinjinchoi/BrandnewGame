@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BrandNewBaseCharacter.h"
 #include "GameplayTagContainer.h"
+#include "Interfaces/Actor/PickupItemInterface.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
@@ -50,8 +51,11 @@ public:
 	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
 	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
+	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
+	virtual void AddOverlappedItem(AActor* OverlappedItem ) override;
+	virtual void RemoveOverlappedItem(AActor* OverlappedItem) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -119,7 +123,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
-	
+
+	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
+	TArray<TScriptInterface<IPickupItemInterface>> OverlappedItems;
+
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
@@ -128,6 +135,8 @@ private:
 	void BindAttributeDelegates();
 	/* HUD 초기화 하고 초기 값 브로드캐스트 하는 함수 */
 	void InitHUDAndBroadCastInitialValue() const;
+
+	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
 
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)
@@ -149,6 +158,7 @@ private:
 	FOnAttributeChangedDelegate ManaChangedDelegate;
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
+	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
 	
 	TWeakObjectPtr<AActor> CombatTargetActor;
 	

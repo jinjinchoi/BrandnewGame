@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "BrandNewWidgetControllerBase.h"
 #include "BrandNewTypes/BrandNewEnumTypes.h"
+#include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "DataAssets/DataAsset_AbilityInfo.h"
 #include "OverlayWidgetController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, const float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponChanged, const ECombatWeaponType, ChangedWeaponType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOverlappedItemChanged, const bool, bIsOverlapped, const FPickupsUiInfo&, PickupsUiInfo);
+
 
 class UBrandNewAttributeSet;
 class UBrandNewAbilitySystemComponent;
@@ -43,6 +46,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FWeaponChanged OnWeaponChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
+	FOnOverlappedItemChanged OnOverlappedItemChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|DataAssets")

@@ -19,7 +19,8 @@ public class InventoryModule : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore"
+                "SlateCore",
+                "Niagara"
             }
         );
     }
