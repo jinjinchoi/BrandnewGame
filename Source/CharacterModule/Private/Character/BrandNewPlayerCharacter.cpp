@@ -24,6 +24,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
+#include "DataTableStruct/DataTableParams.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/BnBaseAnimInstanceInterface.h"

@@ -38,7 +38,7 @@ protected:
 	TObjectPtr<UAISenseConfig_Damage> AISenseConfig_Damage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|AI Perception")
-	float LostTargetDelay = 5.f;
+	float LostTargetDelay = 10.f;
 
 private:
 	void HandleLostTarget(AActor* LostActor);

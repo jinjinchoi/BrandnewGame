@@ -43,29 +43,6 @@ struct FGateSettings
 };
 
 
-/* 캐릭터 Attribute를 설정하기 위한 데이터 테이블을 구성할 row 구조체 */
-USTRUCT(BlueprintType)
-struct FPrimaryAttributeDataRow : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	FName ID = NAME_None;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
-	float Strength = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
-	float Intelligence = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
-	float Dexterity = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Primary Attribute")
-	float Vitality = 0.f;
-	
-};
-
 /* 캐릭터 1차 속성을 설정하기 위한 구조체 */
 struct FBaseAttributePrams
 {
@@ -76,41 +53,6 @@ struct FBaseAttributePrams
 	float Level = 1.f;
 	float AttributePoint = 0.f;
 	float XP = 0.f;
-};
-
-/* Enemy의 Attribute를 저장할 데이터 테이블 Row */
-USTRUCT(BlueprintType)
-struct FSecondaryAttributeDataRow : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	FName ID = NAME_None;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float PhysicalAttackPower = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float MagicAttackPower = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float PhysicalDefensePower = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float MagicDefensePower = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float CriticalChance = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float CriticalMagnitude = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float MaxHealth = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Secondary Attribute")
-	float MaxMana = 0.f;
-	
 };
 
 

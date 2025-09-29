@@ -1,0 +1,101 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Inventory/BrandNewInventory.h"
+
+void UBrandNewInventory::Init()
+{
+	check(ItemDataTable)
+	if (!ItemDataTable) return;
+
+	// 데이터 테이블의 Row 구조체가 설정한 구조체와 맞는지 확인
+	if (ItemDataTable->GetRowStruct() == FItemDataRow::StaticStruct())
+	{
+		for (const TPair<FName, unsigned char*>& RowMap : ItemDataTable->GetRowMap()) // 데이터 테이블을 순회하여 아이디와 아이템 정보를 저장
+		{
+			const FItemDataRow* ItemData = reinterpret_cast<FItemDataRow*>(RowMap.Value);
+			check(ItemData)
+			ItemIDMap.Add(ItemData->ID, *ItemData);
+		}
+	}
+		
+}
+
+void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
+{
+	check(!ItemIDMap.IsEmpty())
+
+	const FItemDataRow* ItemInfo = ItemIDMap.Find(NewItem.ItemID);
+	check(ItemInfo)
+
+	switch (ItemInfo->ItemType)
+	{
+		case EItemType::None:
+			return;
+		
+		case EItemType::Weapon:
+			ItemInventory.WeaponSlots.Add(NewItem);
+			break;
+		
+		case EItemType::Armor:
+			ItemInventory.ArmorSlots.Add(NewItem);
+			break;
+		
+		case EItemType::Eatable:
+			StackItemIntoInventory(NewItem);
+			break;
+		
+		default:
+	}
+		
+	
+	
+}
+
+void UBrandNewInventory::StackItemIntoInventory(const FInventorySlotData& NewItem)
+{
+	const FItemDataRow* ItemInfo = ItemIDMap.Find(NewItem.ItemID);
+	const int32 MaxStack = ItemInfo->StackSize;
+	int32 RemainingItemCount = NewItem.Quantity;
+
+	// 슬롯에 동일한 아이템이 있는지 확인하고 존재하면 남은 Stack Size에 맞게 아이템 쌓기
+	for (FInventorySlotData& EatableSlot :  ItemInventory.EatablesSlots)
+	{
+		// 동일 아이템이 아니면 다음 슬롯으로 이동.
+		if (EatableSlot.ItemID != NewItem.ItemID) continue;
+
+		// 남은 공간이 없으면 다음 슬롯으로 이동.
+		const int32 AvailableSpace = MaxStack - EatableSlot.Quantity;
+		if (AvailableSpace <= 0) continue;
+
+		// 남은 공간과 남은 아이템 중 더 적은 양을 슬롯에 추가.
+		const int32 ToAdd = FMath::Min(RemainingItemCount, AvailableSpace);
+		EatableSlot.Quantity += ToAdd;
+		RemainingItemCount -= ToAdd;
+
+		// 슬롯에 추가하고 남은 아이템이 없으면 함수 종료
+		if (RemainingItemCount <= 0)
+		{
+			return;
+		}
+	}
+	// 남은 수량이 있다면 새 슬롯에 나눠서 추가
+	while (RemainingItemCount > 0)
+	{
+		// 추가할 아이템 수 계산.
+		// 남은 아이템 수보다 슬롯의 스택 사이즈가 적으면 스택 사이즈만큼 추가. 그 외에는 남은 아이템 전부 추가
+		const int32 ToAdd = FMath::Min(RemainingItemCount, MaxStack); 
+		
+		FInventorySlotData NewSlot;
+		NewSlot.ItemID = NewItem.ItemID;
+		NewSlot.Quantity = ToAdd;
+
+		// 새로운 슬롯에 아이템 추가
+		ItemInventory.EatablesSlots.Add(NewSlot);
+		// 남은 아이템 수 갱신
+		RemainingItemCount -= ToAdd;
+	}
+	
+	
+}
+

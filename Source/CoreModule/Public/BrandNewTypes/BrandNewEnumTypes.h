@@ -44,3 +44,13 @@ enum class ECombatCollisionPosition : uint8
 	RightFoot,
 	LeftFoot,
 };
+
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	None,
+	Weapon,
+	Armor,
+	Eatable
+	
+};

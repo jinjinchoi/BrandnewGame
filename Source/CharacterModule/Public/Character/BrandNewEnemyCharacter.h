@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "Character/BrandNewBaseCharacter.h"
+#include "DataTableStruct/DataTableParams.h"
 #include "Interfaces/BrandNewEnemyInterface.h"
 #include "Interfaces/PoolableActorInterface.h"
 #include "BrandNewEnemyCharacter.generated.h"

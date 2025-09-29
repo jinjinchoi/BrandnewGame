@@ -36,6 +36,11 @@
 				"CoreUObject",
 				"Engine"
 			]
+		},
+		{
+			"Name": "InventoryModule",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
