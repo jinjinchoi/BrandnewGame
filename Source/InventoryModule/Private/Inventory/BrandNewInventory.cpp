@@ -4,7 +4,22 @@
 #include "Inventory/BrandNewInventory.h"
 
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
+#include "Net/UnrealNetwork.h"
 
+
+UBrandNewInventory::UBrandNewInventory()
+{
+	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
+}
+
+void UBrandNewInventory::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ThisClass, ItemInventory, COND_OwnerOnly);
+	
+}
 
 void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 {

@@ -18,6 +18,9 @@ ABrandNewPickupItem::ABrandNewPickupItem()
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Item Effect"));
 	NiagaraComponent->SetupAttachment(GetRootComponent());
 	NiagaraComponent->bAutoActivate = true;
+
+	bReplicates = true;
+	
 }
 
 void ABrandNewPickupItem::BeginPlay()
@@ -61,12 +64,12 @@ int32 ABrandNewPickupItem::GetId() const
 	return ItemId;
 }
 
-int32 ABrandNewPickupItem::GetQuantity()
+int32 ABrandNewPickupItem::GetQuantity() const
 {
 	return Quantity;
 }
 
-FGuid ABrandNewPickupItem::GetUniqueId()
+FGuid ABrandNewPickupItem::GetUniqueId() const
 {
 	return ItemUniqueId;
 }

@@ -23,7 +23,7 @@ class COREMODULE_API IPickupItemInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual int32 GetId() const = 0;
-	virtual int32 GetQuantity() = 0;
-	virtual FGuid GetUniqueId() = 0;
+	virtual int32 GetQuantity() const = 0;
+	virtual FGuid GetUniqueId() const = 0;
 	
 };

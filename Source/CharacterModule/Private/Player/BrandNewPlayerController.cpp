@@ -60,6 +60,9 @@ void ABrandNewPlayerController::SetupInputComponent()
 			InputConfig, this, BrandNewGamePlayTag::Input_Walk, ETriggerEvent::Started, &ThisClass::Input_Walk);
 		BrandNewInputComponent->BindLocomotionInputAction(
 			InputConfig, this, BrandNewGamePlayTag::Input_Jump, ETriggerEvent::Triggered, &ThisClass::Input_Jump);
+		
+		BrandNewInputComponent->BindLocomotionInputAction(
+			InputConfig, this, BrandNewGamePlayTag::Input_Interact, ETriggerEvent::Triggered, &ThisClass::Input_Interact);
 
 		BrandNewInputComponent->BindLocomotionInputAction(
 			InputConfig, this, BrandNewGamePlayTag::Input_UI_OpenInGameMenu, ETriggerEvent::Triggered, &ThisClass::Input_OpenInGameMenu);
@@ -199,6 +202,14 @@ void ABrandNewPlayerController::Input_Run()
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
 		ControlledCharacter->Server_RequestUpdateMovementMode(EGate::Running);
+	}
+}
+
+void ABrandNewPlayerController::Input_Interact()
+{
+	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
+	{
+		ControlledCharacter->InteractIfPossible();
 	}
 }
 

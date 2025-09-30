@@ -20,8 +20,8 @@ public:
 
 	/* begin IPickupItemInterface */
 	virtual int32 GetId() const override;
-	virtual int32 GetQuantity() override;
-	virtual FGuid GetUniqueId() override;
+	virtual int32 GetQuantity() const override;
+	virtual FGuid GetUniqueId() const override;
 	/* end IPickupItemInterface */
 	
 

@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "BrandNewInventoryInterface.generated.h"
 
+struct FInventorySlotData;
+
 // This class does not need to be modified.
 UINTERFACE()
 class UBrandNewInventoryInterface : public UInterface
@@ -22,6 +24,7 @@ class COREMODULE_API IBrandNewInventoryInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void AddItemToSlot(const FInventorySlotData& NewItem) = 0;
 	
 	
 };

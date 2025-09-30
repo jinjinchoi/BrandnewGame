@@ -28,6 +28,9 @@
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
+#include "Inventory/BrandNewInventory.h"
+#include "PickupItems/BrandNewPickupItem.h"
+#include "Player/BrandNewPlayerState.h"
 
 
 ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
@@ -380,6 +383,7 @@ void ABrandNewPlayerCharacter::OnAbilityInputReleased(const FGameplayTag& InInpu
 }
 
 
+
 AActor* ABrandNewPlayerCharacter::GetCombatWeaponActor_Implementation() const
 {
 	return CombatWeapon;
@@ -622,21 +626,37 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 
 void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
 {
-	OverlappedItems.Add(OverlappedItem);
+	if (HasAuthority())
+	{
+		OverlappedItems.Add(OverlappedItem);
+	}
+	else
+	{
+		OverlappedItemsForUI.Add(OverlappedItem);
+	}
 	SendPickupInfoToUi(OverlappedItem, true);
 	
 }
 
 void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
 {
-	OverlappedItems.RemoveSingle(OverlappedItem);
+	if (HasAuthority())
+	{
+		OverlappedItems.RemoveSingle(OverlappedItem);
+	}
+	else
+	{
+		OverlappedItemsForUI.RemoveSingle(OverlappedItem);
+	}
 	SendPickupInfoToUi(OverlappedItem, false);
 	
 }
 
 void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const
 {
-	IPickupItemInterface* PickupItemInterface = CastChecked<IPickupItemInterface>(ItemToSend);
+	if (!IsLocallyControlled()) return;
+	
+	const IPickupItemInterface* PickupItemInterface = CastChecked<IPickupItemInterface>(ItemToSend);
 	FPickupsUiInfo PickupUiInfo;
 	PickupUiInfo.ItemId = PickupItemInterface->GetId();
 	PickupUiInfo.Quantity = PickupItemInterface->GetQuantity();
@@ -645,6 +665,74 @@ void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool
 	OnOverlappedItemChangedDelegate.ExecuteIfBound(bIsBeginOverlap, PickupUiInfo);
 }
 
+
+
+void ABrandNewPlayerCharacter::InteractIfPossible()
+{
+
+	if (HasAuthority())
+	{
+		if (!OverlappedItems.IsEmpty())
+		{
+			for (const TWeakObjectPtr<AActor>& Item : OverlappedItems)
+			{
+				if (Item.IsValid())
+				{
+					SendPickupInfoToUi(Item.Get(), false);
+				}
+			}
+			AcquireItem();
+		}
+	}
+	else
+	{
+		if (!OverlappedItemsForUI.IsEmpty())
+		{
+			for (const TWeakObjectPtr<AActor>& Item : OverlappedItemsForUI)
+			{
+				if (Item.IsValid())
+				{
+					SendPickupInfoToUi(Item.Get(), false);
+				}
+			}
+			OverlappedItemsForUI.Empty();
+			Server_AcquireItem();
+		}
+	}
+	
+}
+
+void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
+{
+	AcquireItem();
+}
+
+void ABrandNewPlayerCharacter::AcquireItem()
+{
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	check(BrandNewPlayerState);
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventoryInterfaceClass();
+	check(Inventory);
+	
+	for (int32 i = OverlappedItems.Num() - 1; i >= 0; --i)
+	{
+		if (!OverlappedItems[i].IsValid()) continue;
+
+		ABrandNewPickupItem* BrandNewItem = Cast<ABrandNewPickupItem>(OverlappedItems[i].Get());
+		if (!BrandNewItem) continue;
+		
+		FInventorySlotData ItemData;
+		ItemData.ItemID = BrandNewItem->GetId();
+		ItemData.Quantity = BrandNewItem->GetQuantity();
+
+		Inventory->AddItemToSlot(ItemData);
+
+		OverlappedItems.RemoveAt(i);
+		BrandNewItem->Destroy();
+	}
+	
+	
+}
 
 #pragma region Movement
 void ABrandNewPlayerCharacter::Server_RequestUpdateMovementMode_Implementation(const EGate NewGate)

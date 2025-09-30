@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "BrandNewPlayerState.generated.h"
 
+class UBrandNewInventory;
+class IBrandNewInventoryInterface;
 /**
  * 
  */
@@ -16,18 +18,10 @@ class CHARACTERMODULE_API ABrandNewPlayerState : public APlayerState
 
 public:
 	ABrandNewPlayerState();
-	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-
-protected:
-	virtual void BeginPlay() override;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|SubClass", meta = (MustImplement = "BrandNewInventoryInterface"))
-	TSubclassOf<UObject> InventoryClass;
+	UBrandNewInventory* GetInventoryInterfaceClass() const; 
 
 private:
-	void SetupInventory();
-	
-	UPROPERTY(Replicated)
-	TObjectPtr<UObject> Inventory;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBrandNewInventory> Inventory;
 	
 };

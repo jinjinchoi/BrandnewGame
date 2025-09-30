@@ -58,6 +58,8 @@ private:
 	void Input_Walk();
 	void Input_Run();
 
+	void Input_Interact();
+
 	FGenericTeamId PlayerTeamID;
 
 	

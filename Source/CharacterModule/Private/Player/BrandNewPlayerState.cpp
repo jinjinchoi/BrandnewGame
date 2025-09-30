@@ -2,34 +2,19 @@
 
 
 #include "Player/BrandNewPlayerState.h"
-#include "Net/UnrealNetwork.h"
+#include "InventoryModule/Public/Inventory/BrandNewInventory.h"
 
 ABrandNewPlayerState::ABrandNewPlayerState()
 {
 	SetNetUpdateFrequency(100.f);
+	
+	Inventory = CreateDefaultSubobject<UBrandNewInventory>(TEXT("Inventory"));
+	
 }
 
-void ABrandNewPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+
+UBrandNewInventory* ABrandNewPlayerState::GetInventoryInterfaceClass() const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ThisClass, Inventory, COND_OwnerOnly);
-	
+	return Inventory;
 }
 
-void ABrandNewPlayerState::BeginPlay()
-{
-	Super::BeginPlay();
-	
-	SetupInventory();
-	
-}
-
-void ABrandNewPlayerState::SetupInventory()
-{
-	check(InventoryClass);
-	if (Inventory || !HasAuthority() || !InventoryClass) return;
-	
-	Inventory = NewObject<UObject>(this, InventoryClass);
-	
-}

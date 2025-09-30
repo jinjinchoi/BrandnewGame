@@ -9,6 +9,7 @@
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class ABrandNewPickupItem;
 class UDataAsset_LevelUpInfo;
 class UDataAsset_AttributeInfo;
 class UDataAsset_DefaultPlayerAbilities;
@@ -68,6 +69,8 @@ public:
 	void OnAbilityInputPressed(const FGameplayTag& InInputTag) const;
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag) const;
 
+	void InteractIfPossible();
+
 protected:
 	/* begin Actor Interface */
 	virtual void BeginPlay() override;
@@ -125,8 +128,10 @@ protected:
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
 
 	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
-	TArray<TScriptInterface<IPickupItemInterface>> OverlappedItems;
-
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
+	
+	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
 
 private:
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
@@ -137,6 +142,10 @@ private:
 	void InitHUDAndBroadCastInitialValue() const;
 
 	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
+
+	UFUNCTION(Server, Reliable)
+	void Server_AcquireItem();
+	void AcquireItem();
 
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)

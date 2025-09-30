@@ -31,7 +31,8 @@ public class CharacterModule : ModuleRules
                 "UMG",
                 "MotionWarping",
                 "Niagara",
-                "NavigationSystem"
+                "NavigationSystem",
+                "InventoryModule"
             }
         );
     }
