@@ -61,7 +61,7 @@ FAbilityInfoParams UOverlayWidgetController::FindAbilityInfoByTag(const FGamepla
 	
 	FAbilityInfoParams FoundAbilityInfoParams = AbilityInfoDataAsset->FindAbilityInfoByAbilityTag(AbilityTagToFind);
 
-	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
+	const IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
 	if (!PlayerInterface) return FoundAbilityInfoParams;
 
 	FoundAbilityInfoParams.RequiredMana = PlayerInterface->GetRequiredAbilityMana(AbilityTagToFind);

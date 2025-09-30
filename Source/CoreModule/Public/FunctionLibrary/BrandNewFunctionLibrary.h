@@ -19,7 +19,7 @@ class COREMODULE_API UBrandNewFunctionLibrary : public UBlueprintFunctionLibrary
 public:
 	static UBrandNewObjectPoolManager* GetObjectPoolManager(const UObject* WorldContextObject);
 	
-	UFUNCTION(BlueprintCallable, Category="BrandNewFunctionLibrary|InventorySystem", meta=(WorldContext="WorldContextObject"))
+	UFUNCTION(BlueprintPure, Category="BrandNewFunctionLibrary|InventorySystem", meta=(WorldContext="WorldContextObject"))
 	static FItemDataRow GetItemData(const UObject* WorldContextObject, const int32 ItemId); 
 	
 };

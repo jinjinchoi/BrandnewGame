@@ -74,9 +74,14 @@ struct FItemDataRow : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, Category = "Information")
 	EItemType ItemType = EItemType::None;
 
+	/* 슬롯 하나에 최대 보관 가능한 아이템의 수 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Information")
+	int32 StackSize = 1;
+
+
 	/* UI에서 보여줄 아이템의 이름 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	FName ItemName = FName();
+	FText ItemName = FText();
 
 	/* UI에서 보여줄 아이템 설명 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
@@ -85,11 +90,7 @@ struct FItemDataRow : public FTableRowBase
 	/* UI에서 보여줄 아이템 이미지 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSoftObjectPtr<UTexture2D> Thumbnail = nullptr;
-
-	/* 슬롯 하나에 최대 보관 가능한 아이템의 수 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 StackSize = 1;
-
+	
 	/**
 	 * 아이템  사용시 증가시킬 Attribute
 	 */

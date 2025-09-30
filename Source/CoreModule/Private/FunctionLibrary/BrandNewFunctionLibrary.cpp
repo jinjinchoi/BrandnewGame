@@ -29,7 +29,7 @@ FItemDataRow UBrandNewFunctionLibrary::GetItemData(const UObject* WorldContextOb
 
 	if (UBrandNewGameInstance* BrandNewGameInstance =  Cast<UBrandNewGameInstance>(World->GetGameInstance()))
 	{
-		BrandNewGameInstance->GetItemData(ItemId);
+		return BrandNewGameInstance->GetItemData(ItemId);
 	}
 
 	return FItemDataRow();

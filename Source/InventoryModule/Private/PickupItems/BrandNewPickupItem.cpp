@@ -18,14 +18,13 @@ ABrandNewPickupItem::ABrandNewPickupItem()
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Item Effect"));
 	NiagaraComponent->SetupAttachment(GetRootComponent());
 	NiagaraComponent->bAutoActivate = true;
-
-	ItemUniqueId = FGuid::NewGuid();
-	
 }
 
 void ABrandNewPickupItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ItemUniqueId = FGuid::NewGuid();
 	
 	SphereCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	SphereCollision->OnComponentEndOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereEndOverlap);
