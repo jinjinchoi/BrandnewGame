@@ -12,8 +12,13 @@ ABrandNewPlayerState::ABrandNewPlayerState()
 	
 }
 
+FInventoryContents ABrandNewPlayerState::GetInventoryContents() const
+{
+	return Inventory->GetInventory();
+}
 
-UBrandNewInventory* ABrandNewPlayerState::GetInventoryInterfaceClass() const
+
+UBrandNewInventory* ABrandNewPlayerState::GetInventory() const
 {
 	return Inventory;
 }

@@ -7,6 +7,7 @@
 #include "Interfaces/UI/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
+class UInventoryWidgetController;
 class UCharacterInfoWidgetController;
 class UOverlayWidgetController;
 class UBrandNewWidget;
@@ -26,24 +27,34 @@ public:
 	/* end IBrandNewHUDInterface */
 
 	UCharacterInfoWidgetController* GetCharacterInfoWidgetController();
+	UInventoryWidgetController* GetInventoryWidgetController();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
 	TSubclassOf<UBrandNewWidget> OverlayWidgetClass;
 	
-	UPROPERTY()
-	TObjectPtr<UBrandNewWidget> OverlayWidget;
-
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 
-	UPROPERTY()
-	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UCharacterInfoWidgetController> CharacterInfoWidgetControllerClass;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	TSubclassOf<UInventoryWidgetController> InventoryWidgetControllerClass;
+
+private:
+	UPROPERTY()
+	TObjectPtr<UBrandNewWidget> OverlayWidget;
+
+	UPROPERTY()
+	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
+	
 	UPROPERTY()
 	TObjectPtr<UCharacterInfoWidgetController> CharacterInfoWidgetController;
+
+	UPROPERTY()
+	TObjectPtr<UInventoryWidgetController> InventoryWidgetController;
 	
 };

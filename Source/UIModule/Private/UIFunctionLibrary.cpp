@@ -3,6 +3,7 @@
 
 #include "UIFunctionLibrary.h"
 
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "HUD/BrandNewHUD.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
@@ -19,6 +20,20 @@ UCharacterInfoWidgetController* UUIFunctionLibrary::GetCharacterInfoWidgetContro
 	}
 
 	return nullptr;
+}
+
+UInventoryWidgetController* UUIFunctionLibrary::GetInventoryWidgetController(const UObject* WorldContextObject)
+{
+	if (const APlayerController* PlayerController = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	{
+		if (ABrandNewHUD* HUD = Cast<ABrandNewHUD>(PlayerController->GetHUD()))
+		{
+			return HUD->GetInventoryWidgetController();
+		}
+	}
+
+	return nullptr;
+	
 }
 
 FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const FString& SlotName, const int32 SlotIndex)
@@ -47,4 +62,11 @@ void UUIFunctionLibrary::RequestSave(ACharacter* PlayerCharacter, const FString&
 	{
 		PlayerInterface->RequestSave(SlotName, SlotIndex);
 	}
+}
+
+FText UUIFunctionLibrary::GetFormattedItemDescription(const FText& OriginalDescription, const FItemDataRow& ItemData)
+{
+	const FFormatNamedArguments Args = MakeFormatArgsFromDataTableRow(ItemData);
+	
+	return FText::Format(OriginalDescription, Args);
 }

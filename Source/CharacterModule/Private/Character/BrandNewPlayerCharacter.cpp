@@ -711,7 +711,7 @@ void ABrandNewPlayerCharacter::AcquireItem()
 {
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
-	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventoryInterfaceClass();
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
 	check(Inventory);
 	
 	for (int32 i = OverlappedItems.Num() - 1; i >= 0; --i)

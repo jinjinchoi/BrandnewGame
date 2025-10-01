@@ -5,6 +5,7 @@
 
 #include "Widget/BrandNewWidget.h"
 #include "WidgetController/CharacterInfoWidgetController.h"
+#include "WidgetController/InventoryWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
 
 void ABrandNewHUD::InitHUD()
@@ -44,5 +45,21 @@ UCharacterInfoWidgetController* ABrandNewHUD::GetCharacterInfoWidgetController()
 	}
 
 	return CharacterInfoWidgetController;
+	
+}
+
+UInventoryWidgetController* ABrandNewHUD::GetInventoryWidgetController()
+{
+	check(InventoryWidgetControllerClass)
+
+	if (!InventoryWidgetController)
+	{
+		InventoryWidgetController = NewObject<UInventoryWidgetController>(this, InventoryWidgetControllerClass);
+		InventoryWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+		InventoryWidgetController->SetPlayerState(GetOwningPlayerController()->PlayerState);
+		
+	}
+
+	return InventoryWidgetController;
 	
 }

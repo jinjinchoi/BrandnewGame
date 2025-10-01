@@ -77,11 +77,13 @@ struct FItemDataRow : public FTableRowBase
 	/* 슬롯 하나에 최대 보관 가능한 아이템의 수 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Information")
 	int32 StackSize = 1;
-
-
+	
 	/* UI에서 보여줄 아이템의 이름 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	FText ItemName = FText();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	FText EffectDescription = FText();
 
 	/* UI에서 보여줄 아이템 설명 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
