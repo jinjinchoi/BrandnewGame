@@ -45,7 +45,40 @@ void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 		default:
 			break;
 	}
-		
+	
+}
+
+void UBrandNewInventory::ConsumeItemAtSlot(const EItemType ItemType, const int32 SlotIndex, const int32 NumOfRemoval)
+{
+	TArray<FInventorySlotData>* Slots = nullptr;
+
+	switch (ItemType)
+	{
+	case EItemType::None:
+		return;
+	case EItemType::Weapon:
+		Slots = &ItemInventory.WeaponSlots;
+		break;
+	case EItemType::Armor:
+		Slots = &ItemInventory.ArmorSlots;
+		break;
+	case EItemType::Eatable:
+		Slots = &ItemInventory.EatablesSlots;
+		break;
+	default:
+		return;
+	}
+
+	if (!Slots || !Slots->IsValidIndex(SlotIndex)) return;
+
+	FInventorySlotData& SlotData = (*Slots)[SlotIndex];
+	
+	SlotData.Quantity = FMath::Max(0, SlotData.Quantity - NumOfRemoval);
+
+	if (SlotData.Quantity <= 0)
+	{
+		Slots->RemoveAt(SlotIndex);
+	}
 	
 	
 }

@@ -25,6 +25,7 @@
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
 #include "DataTableStruct/DataTableRowStruct.h"
+#include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
@@ -652,6 +653,54 @@ void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
 	
 }
 
+void ABrandNewPlayerCharacter::UseConsumptionItem(const int32 SlotIndex)
+{
+	if (!AllAttributeInstanceEffect || !AbilitySystemComponent) return;
+
+	HasAuthority() ? ConsumeItem(SlotIndex) : Server_ConsumeItem(SlotIndex);
+	
+}
+
+void ABrandNewPlayerCharacter::Server_ConsumeItem_Implementation(const int32 SlotIndex)
+{
+	ConsumeItem(SlotIndex);
+}
+
+void ABrandNewPlayerCharacter::ConsumeItem(const int32 SlotIndex) const
+{
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	check(BrandNewPlayerState);
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
+	if (Inventory->GetInventory().EatablesSlots[SlotIndex].Quantity <= 0)
+	{
+		return;
+	}
+
+	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, Inventory->GetInventory().EatablesSlots[SlotIndex].ItemID);
+	
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(AllAttributeInstanceEffect, 1.f, ContextHandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Strength, ItemInfo.Strength);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Intelligence, ItemInfo.Intelligence);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Dexterity, ItemInfo.Dexterity);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Vitality, ItemInfo.Vitality);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_MaxHealth, ItemInfo.MaxHealth);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_MaxMana, ItemInfo.MaxMana);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentHealth, ItemInfo.CurrentHealth);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentMana, ItemInfo.CurrentMana);
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	
+	
+	Inventory->ConsumeItemAtSlot(EItemType::Eatable, SlotIndex);
+}
+
+
+
 void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const
 {
 	if (!IsLocallyControlled()) return;
@@ -733,6 +782,7 @@ void ABrandNewPlayerCharacter::AcquireItem()
 	
 	
 }
+
 
 #pragma region Movement
 void ABrandNewPlayerCharacter::Server_RequestUpdateMovementMode_Implementation(const EGate NewGate)

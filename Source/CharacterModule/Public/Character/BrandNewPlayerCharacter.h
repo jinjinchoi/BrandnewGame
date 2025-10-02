@@ -57,6 +57,7 @@ public:
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
 	virtual void AddOverlappedItem(AActor* OverlappedItem ) override;
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) override;
+	virtual void UseConsumptionItem(const int32 SlotIndex) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -111,6 +112,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> AttributeUpgradeEffect;
+
+	/* 모든 Attribute에 Set By Caller로 Instance 효과를 주는 이펙트 */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> AllAttributeInstanceEffect;
 	
 	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Anim Properties")
@@ -146,6 +151,10 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_AcquireItem();
 	void AcquireItem();
+
+	UFUNCTION(Server, Reliable)
+	void Server_ConsumeItem(const int32 SlotIndex);
+	void ConsumeItem(const int32 SlotIndex) const;
 
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)

@@ -88,4 +88,7 @@ public:
 	virtual void AddOverlappedItem(AActor* OverlappedItem) = 0;
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) = 0;
 
+	/* Instance Gameplay Effect를 사용하여 아이템 효과에 해당하는 Attribute를 영구적으로 증가 시킴 */
+	virtual void UseConsumptionItem(const int32 SlotIndex) = 0;
+
 };
