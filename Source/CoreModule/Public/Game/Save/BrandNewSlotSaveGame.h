@@ -38,5 +38,8 @@ public:
 
 	UPROPERTY()
 	FText SavedTime;
+
+	UPROPERTY()
+	FInventoryContents Inventory;
 	
 };

@@ -22,6 +22,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void AddItemToSlot(const FInventorySlotData& NewItem) override;
+	void SetInventoryContents(const FInventoryContents& NewContents);
 
 	/*
 	 * 아이템을 소비하는 함수. 여기서 소비란 배열에서 아이템을 제거하는 것을 말함.
@@ -34,10 +35,6 @@ public:
 protected:
 	UPROPERTY(Replicated)
 	FInventoryContents ItemInventory;
-
-	/* 아이템의 정보를 담고 있는 데이터 테이블 */
-	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|DataTable")
-	TObjectPtr<UDataTable> ItemDataTable;
 	
 	UPROPERTY(Replicated)
 	int32 LastEquippedWeaponSlotIndex = INDEX_NONE;
@@ -49,6 +46,7 @@ private:
 	void StackItemIntoInventory(const FInventorySlotData& NewItem);
 	
 public:
-	FORCEINLINE FInventoryContents GetInventory() const { return ItemInventory; }
-	
+	FORCEINLINE FInventoryContents GetInventoryContents() const { return ItemInventory; }
+	FORCEINLINE int32 GetLastWeaponSlotIndex() const { return LastEquippedWeaponSlotIndex; } 
+	FORCEINLINE int32 GetLastArmorSlotIndex() const { return LastEquippedArmorSlotIndex; } 
 };

@@ -77,11 +77,15 @@ protected:
 	/* begin Actor Interface */
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
-	
-	void InitializePrimaryAttribute() const;
+
+	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
+	void InitializeCharacterInfo();
 	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
 	void ApplyPrimaryAttributeFromDataTable() const;
 	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
+
+	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
+	void LoadInventory(const FInventoryContents& InventoryData);
 
 	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
@@ -170,12 +174,7 @@ private:
 	/* 적용된 장비 효과를 담은 핸들 */
 	FActiveGameplayEffectHandle ActiveWeaponEffect;
 	FActiveGameplayEffectHandle ActiveArmorEffect;
-
-	/* 적용된 장비 Id 담은 핸들 (세이브 로드시 사용) */
-	int32 EquippedWeaponId = -1;
-	int32 EquippedArmorId = -1;
 	
-
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)
 	ECombatWeaponType EquippedWeaponType = ECombatWeaponType::Unequipped;

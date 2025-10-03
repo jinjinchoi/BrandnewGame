@@ -146,33 +146,6 @@ struct FAttributeSaveData
 	float CurrentMana = 0.f;
 };
 
-/* 모든 세이브 데이터를 종합하는 구조체 */
-struct FSaveSlotPrams
-{
-	/* Attribute 정보 */
-	FAttributeSaveData AttributePrams = FAttributeSaveData();
-	
-	/* 캐릭터 위치 */
-	FVector CharacterLocation = FVector::ZeroVector;
-	
-	/* Map이름 */
-	FText MapName = FText::GetEmpty();
-	
-	/* 어빌리티 태그와 레벨이 저장되는 Map */
-	TMap<FGameplayTag, int32 > AbilityMap;
-	
-	/* 세이브 시간 */
-	FText SavedTime = FText::GetEmpty();
-	
-	/*세이브 슬롯 제목에 쓰일 Text*/
-	FText TitleText = FText::GetEmpty();
-
-	/* Open World에서 사용할 Map Name */
-	FString MapPackageName = FString(); 
-
-	bool bIsValid = false;
-};
-
 /* 픽업 아이템과 오버랩시 아이템의 정보를 보낼때 사용할 구조체 */
 USTRUCT(BlueprintType)
 struct FPickupsUiInfo
@@ -204,7 +177,7 @@ struct FInventorySlotData
 	int32 Quantity = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool bIsEquipped = false;	
+	bool bIsEquipped = false;
 	
 };
 
@@ -215,12 +188,42 @@ struct FInventoryContents
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FInventorySlotData> WeaponSlots;
+	TArray<FInventorySlotData> WeaponSlots = TArray<FInventorySlotData>();
 	
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FInventorySlotData> ArmorSlots;
+	TArray<FInventorySlotData> ArmorSlots = TArray<FInventorySlotData>();
 	
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FInventorySlotData> EatablesSlots;
+	TArray<FInventorySlotData> EatablesSlots = TArray<FInventorySlotData>();
 	
+};
+
+
+/* 모든 세이브 데이터를 종합하는 구조체 */
+struct FSaveSlotPrams
+{
+	/* Attribute 정보 */
+	FAttributeSaveData AttributePrams = FAttributeSaveData();
+	
+	/* 캐릭터 위치 */
+	FVector CharacterLocation = FVector::ZeroVector;
+	
+	/* Map이름 */
+	FText MapName = FText::GetEmpty();
+	
+	/* 어빌리티 태그와 레벨이 저장되는 Map */
+	TMap<FGameplayTag, int32 > AbilityMap;
+	
+	/* 세이브 시간 */
+	FText SavedTime = FText::GetEmpty();
+	
+	/*세이브 슬롯 제목에 쓰일 Text*/
+	FText TitleText = FText::GetEmpty();
+
+	/* Open World에서 사용할 Map Name */
+	FString MapPackageName = FString(); 
+
+	FInventoryContents InventoryContents = FInventoryContents();
+	
+	bool bIsValid = false;
 };

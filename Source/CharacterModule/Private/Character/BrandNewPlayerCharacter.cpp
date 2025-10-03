@@ -93,7 +93,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	Server_RequestUpdateMovementMode(CurrentGate);
 	InitAbilityActorInfo();
-	InitializePrimaryAttribute();
+	InitializeCharacterInfo();
 	BindAttributeDelegates();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
 }
@@ -116,17 +116,17 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	OnEquippedWeaponChanged();
 }
 
-void ABrandNewPlayerCharacter::InitializePrimaryAttribute() const
+void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 {
 	if (!HasAuthority()) return;
 
-	// 세이브 데이터 유무에 따라 세이브 데이터 또는 데이터 테이블에서 값을 가져와 Primary Attribute 적용
 	const FSaveSlotPrams SavedData = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>()->GetLastestPlayerData();
 	if (SavedData.bIsValid)
 	{
 		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
+		LoadInventory(SavedData.InventoryContents); // 인벤토리 로드
 	}
 	else
 	{
@@ -190,6 +190,26 @@ void ABrandNewPlayerCharacter::OverrideVitalAttribute(const float HealthToApply,
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentHealth, HealthToApply);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentMana, ManaToApply);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+}
+
+void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& InventoryData)
+{
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	if (!BrandNewPlayerState) return;
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
+	if (!Inventory) return;
+	
+	Inventory->SetInventoryContents(InventoryData);
+	
+	if (Inventory->GetLastWeaponSlotIndex() != INDEX_NONE)
+	{
+		EquipItem(Inventory->GetLastWeaponSlotIndex(), EItemType::Weapon);
+	}
+	if (Inventory->GetLastArmorSlotIndex() != INDEX_NONE)
+	{
+		EquipItem(Inventory->GetLastArmorSlotIndex(), EItemType::Armor);
+	}
+		
 }
 
 void ABrandNewPlayerCharacter::ApplyAddXPEffect(const float XpToAdd) const
@@ -593,7 +613,9 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 
 void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
 {
-	if (!AbilitySystemComponent || !AttributeSet) return;
+	//TODO: 서버 클라이언트 로직 분리해야함.
+	
+	if (!AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
 
 	// Attribute를 저장하는 구조체 생성
 	FAttributeSaveData AttributeParams;
@@ -615,9 +637,13 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
 	SaveSlotPrams.TitleText =  FText::FromString(TEXT("퀘스트 구현시 만들어줘야 함"));
 
+	// 맵 에셋 네임 저장
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	SaveSlotPrams.MapPackageName = MapName;
 	SaveSlotPrams.MapName = GetGameInstance<UBrandNewGameInstance>()->GetMapName(MapName);
+
+	// 인벤토리 저장
+	SaveSlotPrams.InventoryContents = GetPlayerState<ABrandNewPlayerState>()->GetInventory()->GetInventoryContents();
 	
 	SaveSlotPrams.bIsValid = true;
 
@@ -671,12 +697,12 @@ void ABrandNewPlayerCharacter::ConsumeItem(const int32 SlotIndex) const
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
 	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
-	if (Inventory->GetInventory().EatablesSlots[SlotIndex].Quantity <= 0)
+	if (Inventory->GetInventoryContents().EatablesSlots[SlotIndex].Quantity <= 0)
 	{
 		return;
 	}
 
-	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, Inventory->GetInventory().EatablesSlots[SlotIndex].ItemID);
+	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, Inventory->GetInventoryContents().EatablesSlots[SlotIndex].ItemID);
 	
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
@@ -713,6 +739,8 @@ void ABrandNewPlayerCharacter::Server_EquipItem_Implementation(const int32 SlotI
 
 void ABrandNewPlayerCharacter::EquipItem(const int32 SlotIndex, const EItemType ItemType)
 {
+	if (!HasAuthority()) return;
+	
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
 	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
@@ -720,27 +748,27 @@ void ABrandNewPlayerCharacter::EquipItem(const int32 SlotIndex, const EItemType 
 	
 	if (ItemType == EItemType::Weapon)
 	{
-		if (!Inventory->GetInventory().WeaponSlots.IsValidIndex(SlotIndex) || Inventory->GetInventory().WeaponSlots[SlotIndex].Quantity <= 0) return;
+		if (!Inventory->GetInventoryContents().WeaponSlots.IsValidIndex(SlotIndex) || Inventory->GetInventoryContents().WeaponSlots[SlotIndex].Quantity <= 0) return;
 		
 		if (ActiveWeaponEffect.IsValid())
 		{
 			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveWeaponEffect);
 		}
-		const int32 ItemID = Inventory->GetInventory().WeaponSlots[SlotIndex].ItemID;
+		const int32 ItemID = Inventory->GetInventoryContents().WeaponSlots[SlotIndex].ItemID;
 		ActiveWeaponEffect = ApplyInfiniteItemEffect(ItemID);
-		EquippedWeaponId = ItemID;
+
 	}
 	else if (ItemType == EItemType::Armor)
 	{
-		if (!Inventory->GetInventory().ArmorSlots.IsValidIndex(SlotIndex) || Inventory->GetInventory().ArmorSlots[SlotIndex].Quantity <= 0) return;
+		if (!Inventory->GetInventoryContents().ArmorSlots.IsValidIndex(SlotIndex) || Inventory->GetInventoryContents().ArmorSlots[SlotIndex].Quantity <= 0) return;
 		
 		if (ActiveArmorEffect.IsValid())
 		{
 			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveArmorEffect);
 		}
-		const int32 ItemID = Inventory->GetInventory().ArmorSlots[SlotIndex].ItemID;
+		const int32 ItemID = Inventory->GetInventoryContents().ArmorSlots[SlotIndex].ItemID;
 		ActiveArmorEffect = ApplyInfiniteItemEffect(ItemID);
-		EquippedArmorId = ItemID;
+
 	}
 
 	Inventory->EquipItemInSlot(ItemType, SlotIndex);

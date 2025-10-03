@@ -87,7 +87,7 @@ void UBrandNewInventory::ConsumeItemInSlot(const EItemType ItemType, const int32
 
 void UBrandNewInventory::EquipItemInSlot(const EItemType ItemType, const int32 SlotIndex)
 {
-	if (ItemType == EItemType::Weapon)
+	if (ItemType == EItemType::Weapon && SlotIndex != LastEquippedWeaponSlotIndex)
 	{
 		if (LastEquippedWeaponSlotIndex != INDEX_NONE && ItemInventory.WeaponSlots.IsValidIndex(LastEquippedWeaponSlotIndex))
 		{
@@ -96,7 +96,7 @@ void UBrandNewInventory::EquipItemInSlot(const EItemType ItemType, const int32 S
 		ItemInventory.WeaponSlots[SlotIndex].bIsEquipped = true;
 		LastEquippedWeaponSlotIndex = SlotIndex;
 	}
-	else if (ItemType == EItemType::Armor)
+	else if (ItemType == EItemType::Armor && SlotIndex != LastEquippedArmorSlotIndex)
 	{
 		if (LastEquippedArmorSlotIndex != INDEX_NONE && ItemInventory.ArmorSlots.IsValidIndex(LastEquippedArmorSlotIndex))
 		{
@@ -152,6 +152,36 @@ void UBrandNewInventory::StackItemIntoInventory(const FInventorySlotData& NewIte
 		RemainingItemCount -= ToAdd;
 	}
 	
+	
+}
+
+void UBrandNewInventory::SetInventoryContents(const FInventoryContents& NewContents)
+{
+	ItemInventory = NewContents;
+
+	int32 Index = 0;
+
+	for (const FInventorySlotData& Slot : ItemInventory.WeaponSlots)
+	{
+		if (Slot.bIsEquipped)
+		{
+			LastEquippedWeaponSlotIndex = Index;
+			break;
+		}
+		++Index;
+	}
+
+	Index = 0;
+
+	for (const FInventorySlotData& Slot : ItemInventory.ArmorSlots)
+	{
+		if (Slot.bIsEquipped)
+		{
+			LastEquippedArmorSlotIndex = Index;
+			break;
+		}
+		++Index;
+	}
 	
 }
 

@@ -14,7 +14,7 @@ ABrandNewPlayerState::ABrandNewPlayerState()
 
 FInventoryContents ABrandNewPlayerState::GetInventoryContents() const
 {
-	return Inventory->GetInventory();
+	return Inventory->GetInventoryContents();
 }
 
 
