@@ -26,5 +26,26 @@ UMMC_Base::UMMC_Base()
 	VitalityDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	VitalityDef.bSnapshot = false;
 	RelevantAttributesToCapture.Add(VitalityDef);
+
+	ItemStrengthDef.AttributeToCapture = UBrandNewAttributeSet::GetItemStrengthAttribute();
+	ItemStrengthDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	ItemStrengthDef.bSnapshot = false;
+	RelevantAttributesToCapture.Add(ItemStrengthDef);
+
+	ItemIntelligenceDef.AttributeToCapture = UBrandNewAttributeSet::GetItemIntelligenceAttribute();
+	ItemIntelligenceDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	ItemIntelligenceDef.bSnapshot = false;
+	RelevantAttributesToCapture.Add(ItemIntelligenceDef);
+
+	ItemDexterityDef.AttributeToCapture = UBrandNewAttributeSet::GetItemDexterityAttribute();
+	ItemDexterityDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	ItemDexterityDef.bSnapshot = false;
+	RelevantAttributesToCapture.Add(ItemDexterityDef);
+
+	ItemVitalityDef.AttributeToCapture = UBrandNewAttributeSet::GetItemVitalityAttribute();
+	ItemVitalityDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
+	ItemVitalityDef.bSnapshot = false;
+	RelevantAttributesToCapture.Add(ItemVitalityDef);
+
 	
 }

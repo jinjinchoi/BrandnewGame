@@ -18,8 +18,14 @@ float UMMC_MagicDefensePower::CalculateBaseMagnitude_Implementation(const FGamep
 	float Intelligence = 0.f;
 	GetCapturedAttributeMagnitude(IntelligenceDef, Spec, EvaluationParams, Intelligence);
 
+	float ItemVitality = 0.0f;
+	GetCapturedAttributeMagnitude(ItemVitalityDef, Spec, EvaluationParams, ItemVitality);
 	
-	return round(5.f + 0.5f * Vitality + 0.2f * Intelligence);
+	float ItemIntelligence = 0.f;
+	GetCapturedAttributeMagnitude(ItemIntelligenceDef, Spec, EvaluationParams, ItemIntelligence);
+
+	
+	return round(5.f + 0.5f * (Vitality + ItemVitality) + 0.2f * (Intelligence + ItemIntelligence));
 	
 	
 }

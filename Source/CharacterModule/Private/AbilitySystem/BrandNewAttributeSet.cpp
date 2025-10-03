@@ -39,6 +39,10 @@ void UBrandNewAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, CharacterLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, XP, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, AttributePoint, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ItemStrength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ItemIntelligence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ItemDexterity, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ItemVitality, COND_None, REPNOTIFY_Always);
 	
 }
 
@@ -295,4 +299,29 @@ void UBrandNewAttributeSet::OnRep_AttributePoint(const FGameplayAttributeData& O
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, AttributePoint, OldAttributePoint);
 }
+
+void UBrandNewAttributeSet::OnRep_ItemStrength(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, ItemStrength, OldValue);
+	
+}
+
+void UBrandNewAttributeSet::OnRep_ItemIntelligence(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, ItemIntelligence, OldValue);
+	
+}
+
+void UBrandNewAttributeSet::OnRep_ItemDexterity(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, ItemDexterity, OldValue);
+	
+}
+
+void UBrandNewAttributeSet::OnRep_ItemVitality(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, ItemVitality, OldValue);
+	
+}
+
 #pragma endregion 

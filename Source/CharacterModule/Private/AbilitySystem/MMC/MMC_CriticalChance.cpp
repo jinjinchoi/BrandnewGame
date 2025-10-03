@@ -17,8 +17,14 @@ float UMMC_CriticalChance::CalculateBaseMagnitude_Implementation(const FGameplay
 
 	float Dexterity = 0.f;
 	GetCapturedAttributeMagnitude(DexterityDef, Spec, EvaluationParams, Dexterity);
+	
+	float ItemStrength = 0.f;
+	GetCapturedAttributeMagnitude(ItemStrengthDef, Spec, EvaluationParams, ItemStrength);
 
-	const float CriticalChance = FMath::Clamp(5.f + 0.25f * Dexterity + 0.05f * Strength, 0.f, 100.f);
+	float ItemDexterity = 0.f;
+	GetCapturedAttributeMagnitude(ItemDexterityDef, Spec, EvaluationParams, ItemDexterity);
+	
+	const float CriticalChance = FMath::Clamp(5.f + 0.25f * (Dexterity + ItemDexterity) + 0.05f * (Strength + ItemStrength), 0.f, 100.f);
 	
 	return round(CriticalChance);
 }

@@ -1,26 +1,26 @@
----,ID,ItemType,StackSize,ItemName,EffectDescription,Description,Thumbnail,MaxHealth,CurrentHealth,MaxMana,CurrentMana,Strength,Intelligence,Dexterity,Vitality,PhysicalAttackPower,MagicAttackPower,PhysicalDefensePower,MagicDefensePower,CriticalChance,CriticalMagnitude
-Blizzard_rod,1,Weapon,1,서리검,"장착한 캐릭터의 힘과 지능, 활력을 <emphasis>{Strength}</>만큼 증가 시킨다. 추가로 물리 공격력을 <emphasis>{PhysicalAttackPower}</>만큼 증가시키고 마법 공격력을 <emphasis>{MagicAttackPower}</>만큼 증가 시킨다.",얼음의 힘이 깃든 마검. 검으로서의 기능은 떨어지지만 사용자의 마력을 대폭 증가 시켜준다.,/Game/InventoryAsset/Swords/Blizzard_Rod/ICO_Blizzard-rod.ICO_Blizzard-rod,0,0,0,0,5,5,0,5,10,25,0,0,0,0
-BroadSword,2,Weapon,1,기사의 검,힘을 25만큼 증가시킨다. 물리 공격력을 <emphasis>{Strength}</> 증가시키며 치명타 확률을 <emphasis>{CriticalChance}%</> 치명타 피해량을 <emphasis>{CriticalMagnitude}%</>만큼 증가 시킨다.,"[자네는 왜 기사가 되기로 마음 먹었나?]
+---,ID,ItemType,StackSize,ItemName,EffectDescription,Description,Thumbnail,CurrentHealth,CurrentMana,Strength,Intelligence,Dexterity,Vitality
+Blizzard_rod,1,Weapon,1,서리검,"힘을 <emphasis>{Strength}</>만큼 증가 시키고, 지능을 <emphasis>{Intelligence}</>만큼 증가 시킨다.",얼음의 힘이 깃든 마검. 검으로서의 기능은 떨어지지만 사용자의 마력을 대폭 증가 시켜준다.,/Game/InventoryAsset/Swords/Blizzard_Rod/ICO_Blizzard-rod.ICO_Blizzard-rod,0,0,12,30,0,0
+BroadSword,2,Weapon,1,기사의 검,힘을 <emphasis>{Strength}</>만큼 증가시킨다.  지능이  <emphasis>{Intelligence}</>만큼 증가하며 민첩이 <emphasis>{Dexterity}</>만큽 증가한다.,"[자네는 왜 기사가 되기로 마음 먹었나?]
 
 [사람들을 지키기 위해서 입니다.]
 
 [하지만 그로 인해 자네도 위험해질 수 있다.]
 
-[그것은 상관없습니다. 저 또한 누군가에게 도움받았고 이제는 제가 도울 차례입니다.]",/Game/InventoryAsset/Swords/Knight_s_Broadsword/ICO_Knight_s_Broadsword.ICO_Knight_s_Broadsword,0,0,0,0,10,0,0,0,25,0,0,0,10,20
-SpikeBoko,3,Weapon,1,가시 몽둥이,물리 공격력을  <emphasis>{PhysicalAttackPower}</>만큼 올려주고 치명타 피해량을 <emphasis>{CriticalMagnitude}</>만큼 올려준다.,"나무를 다듬고 가시를 박은 투박한 모습의 방망이. 누구나 쉽게 만들 수 있는 형태지만 공격력만큼은 확실하게 보장한다.
+[그것은 상관없습니다. 저 또한 누군가에게 도움받았고 이제는 제가 도울 차례입니다.]",/Game/InventoryAsset/Swords/Knight_s_Broadsword/ICO_Knight_s_Broadsword.ICO_Knight_s_Broadsword,0,0,25,10,5,0
+SpikeBoko,3,Weapon,1,가시 몽둥이,힘을 <emphasis>{Strength}</>만큼 증가시킨다. ,"나무를 다듬고 가시를 박은 투박한 모습의 방망이. 누구나 쉽게 만들 수 있는 형태지만 공격력만큼은 확실하게 보장한다.
 
-[이것만큼 확실한 무기는 없지]",/Game/InventoryAsset/Swords/Spiked_Boko_Club/ICO_Spiked_Boko_Club.ICO_Spiked_Boko_Club,0,0,0,0,0,0,0,0,30,0,0,0,0,50
-Daybreak,11,Armor,1,새벽,민첩을 <emphasis>{Dexterity}</>만큼 올려주고 물리 방어력과 마법 방어력을 <emphasis>{PhysicalDefensePower}</>만큼 올려준다.,"세상을 악으로부터 구해주었다고 전해지는 방패. 진실이 무엇이든 사람들은 그 사실을 믿고 있다.
+[이것만큼 확실한 무기는 없지]",/Game/InventoryAsset/Swords/Spiked_Boko_Club/ICO_Spiked_Boko_Club.ICO_Spiked_Boko_Club,0,0,50,0,0,0
+Daybreak,11,Armor,1,새벽,민첩을 <emphasis>{Dexterity}</>만큼 올려주고 활력을 <emphasis>{Vitality}</>만큼 올려준다.,"세상을 악으로부터 구해주었다고 전해지는 방패. 진실이 무엇이든 사람들은 그 사실을 믿고 있다.
 
 [그것이 사실이든 아니든 중요하지 않아.]
 
 [중요한 것은 그 덕분에 사람들이 희망을 가진다는 거야.]
 
-[이 방패를 가지고 계속해서 사람들에게 희망을 주렴",/Game/InventoryAsset/Shields/Daybreaker/ICO_Daybreaker.ICO_Daybreaker,50,0,0,0,0,0,12,0,0,0,12,12,0,0
-RoyalGuard,12,Armor,1,로얄 가드,활력을 <emphasis>{Vitality}</>만큼 올려주고 물리 방어력과 마법 방어력을 <emphasis>{PhysicalDefensePower}</>만큼 올려준다.,왕궁의 기사들이 사용하는 방패. 방패는 빛을 발하고 그 빛을 보며 사람들은 평화를 얻는다.,/Game/InventoryAsset/Shields/Royal_Guard/ICO_Royal-guards-shield.ICO_Royal-guards-shield,0,0,0,0,0,0,0,20,0,0,10,10,0,0
-LizalShield,13,Armor,1,리잘 방패,물리 공격력을  <emphasis>{PhysicalAttackPower}</>만큼 올려주고 물리 방어력과 마법 방어력을 <emphasis>{PhysicalDefensePower}</>만큼 올려준다.,"강철로 만든 방패에 가시를 박아 공격 무기로도 사용할 수 있게 제작되었다.
+[이 방패를 가지고 계속해서 사람들에게 희망을 주렴",/Game/InventoryAsset/Shields/Daybreaker/ICO_Daybreaker.ICO_Daybreaker,0,0,0,0,12,25
+RoyalGuard,12,Armor,1,로얄 가드,"지능이  <emphasis>{Intelligence}</>만큼 증가하며  민첩이 <emphasis>{Dexterity}</>, 활력이 <emphasis>{Vitality}</>만큼 올라간다.",왕궁의 기사들이 사용하는 방패. 방패는 빛을 발하고 그 빛을 보며 사람들은 평화를 얻는다.,/Game/InventoryAsset/Shields/Royal_Guard/ICO_Royal-guards-shield.ICO_Royal-guards-shield,0,0,0,10,5,15
+LizalShield,13,Armor,1,리잘 방패,힘과 활력을 각각 <emphasis>{Strength}</>만큼 증가한다.,"강철로 만든 방패에 가시를 박아 공격 무기로도 사용할 수 있게 제작되었다.
 
-[방패를 꼭 방어 용도로 쓰라는 법이 있어?]",/Game/InventoryAsset/Shields/Steel_Lizal_Shield/ICO_Steel-lizal-shield.ICO_Steel-lizal-shield,0,0,0,0,0,0,0,0,10,0,5,5,0,0
-Apple,21,Eatable,5,사과,마나를 <emphasis>{CurrentMana}</>만큼 회복 시켜준다.,사과 먹고 나한테 사과해,/Game/InventoryAsset/Eatables/Apple/ICO_Apple.ICO_Apple,0,0,0,50,0,0,0,0,0,0,0,0,0,0
-Banana,22,Eatable,10,바나나,체력을  <emphasis>{CurrentHealth}</>만큼 회복 시켜준다.,바나나 먹으면 나한테 반하나?,/Game/InventoryAsset/Eatables/Mighty_Bananas/ICO_Mighty_Bananas.ICO_Mighty_Bananas,0,100,0,0,0,0,0,0,0,0,0,0,0,0
-Pumpkin,23,Eatable,1,호박,체력을  <emphasis>{CurrentHealth}</>만큼 회복 시켜준다.,커다란 호박. 체력과 마력을 회복시켜준다.,/Game/InventoryAsset/Eatables/Fortified_Pumpkin/ICO_Fortified_Pumpkin.ICO_Fortified_Pumpkin,0,200,0,100,0,0,0,0,0,0,0,0,0,0
+[방패를 꼭 방어 용도로 쓰라는 법이 있어?]",/Game/InventoryAsset/Shields/Steel_Lizal_Shield/ICO_Steel-lizal-shield.ICO_Steel-lizal-shield,0,0,10,0,0,10
+Apple,21,Eatable,5,사과,마나를 <emphasis>{CurrentMana}</>만큼 회복 시켜준다.,사과 먹고 나한테 사과해,/Game/InventoryAsset/Eatables/Apple/ICO_Apple.ICO_Apple,0,50,0,0,0,0
+Banana,22,Eatable,10,바나나,체력을  <emphasis>{CurrentHealth}</>만큼 회복 시켜준다.,바나나 먹으면 나한테 반하나?,/Game/InventoryAsset/Eatables/Mighty_Bananas/ICO_Mighty_Bananas.ICO_Mighty_Bananas,100,0,0,0,0,0
+Pumpkin,23,Eatable,1,호박,체력을  <emphasis>{CurrentHealth}</>만큼 회복 시켜준다.,커다란 호박. 체력과 마력을 회복시켜준다.,/Game/InventoryAsset/Eatables/Fortified_Pumpkin/ICO_Fortified_Pumpkin.ICO_Fortified_Pumpkin,200,100,0,0,0,0

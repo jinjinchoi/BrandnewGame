@@ -17,6 +17,12 @@ float UMMC_MagicAttackPower::CalculateBaseMagnitude_Implementation(const FGamepl
 
 	float Dexterity = 0.f;
 	GetCapturedAttributeMagnitude(DexterityDef, Spec, EvaluationParams, Dexterity);
+
+	float ItemIntelligence = 0.f;
+	GetCapturedAttributeMagnitude(ItemIntelligenceDef, Spec, EvaluationParams, ItemIntelligence);
+
+	float ItemDexterity = 0.f;
+	GetCapturedAttributeMagnitude(ItemDexterityDef, Spec, EvaluationParams, ItemDexterity);
 	
-	return round(10.f + 3.2f * Intelligence + 0.5f * Dexterity);
+	return round(10.f + 3.2f * (Intelligence + ItemIntelligence) + 0.5f * (Dexterity + ItemDexterity));
 }

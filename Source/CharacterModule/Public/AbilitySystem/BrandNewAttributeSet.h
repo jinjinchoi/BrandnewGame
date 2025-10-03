@@ -134,6 +134,24 @@ public:
 	FGameplayAttributeData IncomingXP;
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingXP);
 	
+#pragma endregion
+
+#pragma region ItemAttribute
+	UPROPERTY(ReplicatedUsing = OnRep_ItemStrength)
+	FGameplayAttributeData ItemStrength;
+	ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
+
+	UPROPERTY(ReplicatedUsing = OnRep_ItemIntelligence)
+	FGameplayAttributeData ItemIntelligence;
+	ATTRIBUTE_ACCESSORS(ThisClass, ItemIntelligence);
+
+	UPROPERTY(ReplicatedUsing = OnRep_ItemDexterity)
+	FGameplayAttributeData ItemDexterity;
+	ATTRIBUTE_ACCESSORS(ThisClass, ItemDexterity);
+
+	UPROPERTY(ReplicatedUsing = OnRep_ItemVitality)
+	FGameplayAttributeData ItemVitality;
+	ATTRIBUTE_ACCESSORS(ThisClass, ItemVitality);
 #pragma endregion 
 
 private:
@@ -188,7 +206,19 @@ private:
 	
 	UFUNCTION()
 	void OnRep_AttributePoint(const FGameplayAttributeData& OldAttributePoint);
+
+	UFUNCTION()
+	void OnRep_ItemStrength(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_ItemIntelligence(const FGameplayAttributeData& OldValue);
 	
+	UFUNCTION()
+	void OnRep_ItemDexterity(const FGameplayAttributeData& OldValue);
+	
+	UFUNCTION()
+	void OnRep_ItemVitality(const FGameplayAttributeData& OldValue);
+
 #pragma endregion
 	
 };

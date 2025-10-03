@@ -19,15 +19,24 @@ namespace BrandNewGamePlayTag
 
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MaxHealth);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Vital_CurrentHealth);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_MaxMana);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MaxMana);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Vital_CurrentMana);
 	
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_PhysicalAttackPower);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_MagicAttackPower);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_PhysicalDefensePower);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_MagicDefensePower);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_CriticalChance);
-	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondry_CriticalMagnitude);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_PhysicalAttackPower);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MagicAttackPower);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_PhysicalDefensePower);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_MagicDefensePower);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_CriticalChance);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Secondary_CriticalMagnitude);
+
+	/**
+	 * Item Attribute Tag
+	 */
+
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Item_Strength);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Item_Intelligence);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Item_Dexterity);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Item_Vitality);
 	
 	/**
 	 * Input Tags

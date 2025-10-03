@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "BrandNewBaseCharacter.h"
 #include "GameplayTagContainer.h"
-#include "Interfaces/Actor/PickupItemInterface.h"
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
@@ -58,6 +58,7 @@ public:
 	virtual void AddOverlappedItem(AActor* OverlappedItem ) override;
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) override;
 	virtual void UseConsumptionItem(const int32 SlotIndex) override;
+	virtual void UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -116,6 +117,10 @@ protected:
 	/* 모든 Attribute에 Set By Caller로 Instance 효과를 주는 이펙트 */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> AllAttributeInstanceEffect;
+
+	/* 무기 착용시 적용할 Effect */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> EquipmentInfiniteEffect;
 	
 	/** 캐릭터가 현재 장착 중인 무기에 따라 재생할 애니메이션 레이어를 저장하는 Map **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Anim Properties")
@@ -155,6 +160,16 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_ConsumeItem(const int32 SlotIndex);
 	void ConsumeItem(const int32 SlotIndex) const;
+	FActiveGameplayEffectHandle ApplyEquipmentEffect(const int32 ItemID, const FGameplayEffectSpecHandle& SpecHandle) const;
+
+	/* 적용된 장비 효과를 담은 핸들 */
+	FActiveGameplayEffectHandle ActiveWeaponEffect;
+	FActiveGameplayEffectHandle ActiveArmorEffect;
+
+	/* 적용된 장비 Id 담은 핸들 (세이브 로드시 사용) */
+	int32 EquippedWeaponId = -1;
+	int32 EquippedArmorId = -1;
+	
 
 	/* 현재 장착중인 무기의 종류를 나타내는 enum */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentEquippedWeaponType)

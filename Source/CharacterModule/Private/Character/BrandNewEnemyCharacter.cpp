@@ -223,17 +223,17 @@ void ABrandNewEnemyCharacter::ApplyEnemyAttribute() const
 	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(SecondaryAttributeEffect, 1.f, ContextHandle);
 	
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_PhysicalAttackPower, SecondaryDataRow->PhysicalAttackPower);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_PhysicalAttackPower, SecondaryDataRow->PhysicalAttackPower);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_PhysicalDefensePower, SecondaryDataRow->PhysicalDefensePower);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_PhysicalDefensePower, SecondaryDataRow->PhysicalDefensePower);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_MagicAttackPower, SecondaryDataRow->MagicAttackPower);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_MagicAttackPower, SecondaryDataRow->MagicAttackPower);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_MagicDefensePower, SecondaryDataRow->MagicDefensePower);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_MagicDefensePower, SecondaryDataRow->MagicDefensePower);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_CriticalChance, SecondaryDataRow->CriticalChance);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_CriticalChance, SecondaryDataRow->CriticalChance);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-		SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_CriticalMagnitude, SecondaryDataRow->CriticalMagnitude);
+		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_CriticalMagnitude, SecondaryDataRow->CriticalMagnitude);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
 		SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_MaxHealth, SecondaryDataRow->MaxHealth);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(

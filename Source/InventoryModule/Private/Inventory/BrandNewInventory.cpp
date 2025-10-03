@@ -18,6 +18,8 @@ void UBrandNewInventory::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ThisClass, ItemInventory, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ThisClass, LastEquippedWeaponSlotIndex, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ThisClass, LastEquippedArmorSlotIndex, COND_OwnerOnly);
 	
 }
 
@@ -48,7 +50,7 @@ void UBrandNewInventory::AddItemToSlot(const FInventorySlotData& NewItem)
 	
 }
 
-void UBrandNewInventory::ConsumeItemAtSlot(const EItemType ItemType, const int32 SlotIndex, const int32 NumOfRemoval)
+void UBrandNewInventory::ConsumeItemInSlot(const EItemType ItemType, const int32 SlotIndex, const int32 NumOfRemoval)
 {
 	TArray<FInventorySlotData>* Slots = nullptr;
 
@@ -80,6 +82,29 @@ void UBrandNewInventory::ConsumeItemAtSlot(const EItemType ItemType, const int32
 		Slots->RemoveAt(SlotIndex);
 	}
 	
+	
+}
+
+void UBrandNewInventory::EquipItemInSlot(const EItemType ItemType, const int32 SlotIndex)
+{
+	if (ItemType == EItemType::Weapon)
+	{
+		if (LastEquippedWeaponSlotIndex != INDEX_NONE)
+		{
+			ItemInventory.WeaponSlots[LastEquippedWeaponSlotIndex].bIsEquipped = false;
+		}
+		ItemInventory.WeaponSlots[SlotIndex].bIsEquipped = true;
+		LastEquippedWeaponSlotIndex = SlotIndex;
+	}
+	else if (ItemType == EItemType::Armor)
+	{
+		if (LastEquippedArmorSlotIndex != INDEX_NONE)
+		{
+			ItemInventory.ArmorSlots[LastEquippedArmorSlotIndex].bIsEquipped = false;
+		}
+		ItemInventory.ArmorSlots[SlotIndex].bIsEquipped = true;
+		LastEquippedArmorSlotIndex = SlotIndex;
+	}
 	
 }
 

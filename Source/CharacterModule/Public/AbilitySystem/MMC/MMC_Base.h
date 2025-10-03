@@ -22,5 +22,11 @@ protected:
 	FGameplayEffectAttributeCaptureDefinition IntelligenceDef;
 	FGameplayEffectAttributeCaptureDefinition DexterityDef;
 	FGameplayEffectAttributeCaptureDefinition VitalityDef;
+
+	//TODO: Item Attribute 추가해야함
+	FGameplayEffectAttributeCaptureDefinition ItemStrengthDef;
+	FGameplayEffectAttributeCaptureDefinition ItemIntelligenceDef;
+	FGameplayEffectAttributeCaptureDefinition ItemDexterityDef;
+	FGameplayEffectAttributeCaptureDefinition ItemVitalityDef;
 	
 };

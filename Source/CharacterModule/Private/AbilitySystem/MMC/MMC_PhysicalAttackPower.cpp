@@ -18,6 +18,12 @@ float UMMC_PhysicalAttackPower::CalculateBaseMagnitude_Implementation(const FGam
 
 	float Dexterity = 0.f;
 	GetCapturedAttributeMagnitude(DexterityDef, Spec, EvaluationParams, Dexterity);
+
+	float ItemStrength = 0.f;
+	GetCapturedAttributeMagnitude(ItemStrengthDef, Spec, EvaluationParams, ItemStrength);
+
+	float ItemDexterity = 0.f;
+	GetCapturedAttributeMagnitude(ItemDexterityDef, Spec, EvaluationParams, ItemDexterity);
 	
-	return round(10.f + 3.f * Strength + Dexterity);
+	return round(10.f + 3.f * (Strength + ItemStrength) + (Dexterity + ItemDexterity));
 }

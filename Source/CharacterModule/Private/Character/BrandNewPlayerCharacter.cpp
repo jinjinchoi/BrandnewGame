@@ -687,19 +687,70 @@ void ABrandNewPlayerCharacter::ConsumeItem(const int32 SlotIndex) const
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Dexterity, ItemInfo.Dexterity);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Primary_Vitality, ItemInfo.Vitality);
 	
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Secondary_MaxHealth, ItemInfo.MaxHealth);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Secondry_MaxMana, ItemInfo.MaxMana);
-
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentHealth, ItemInfo.CurrentHealth);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentMana, ItemInfo.CurrentMana);
 
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	
 	
-	Inventory->ConsumeItemAtSlot(EItemType::Eatable, SlotIndex);
+	Inventory->ConsumeItemInSlot(EItemType::Eatable, SlotIndex);
 }
 
 
+void ABrandNewPlayerCharacter::UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType)
+{
+	check(EquipmentInfiniteEffect)
+	
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	check(BrandNewPlayerState);
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
+	
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EquipmentInfiniteEffect, 1.f, ContextHandle);
+	
+	if (ItemType == EItemType::Weapon)
+	{
+		if (Inventory->GetInventory().WeaponSlots[SlotIndex].Quantity <= 0) return;
+		
+		if (ActiveWeaponEffect.IsValid())
+		{
+			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveWeaponEffect);
+		}
+		const int32 ItemID = Inventory->GetInventory().WeaponSlots[SlotIndex].ItemID;
+		ActiveWeaponEffect = ApplyEquipmentEffect(ItemID, SpecHandle);
+		EquippedWeaponId = ItemID;
+	}
+	else if (ItemType == EItemType::Armor)
+	{
+		if (Inventory->GetInventory().ArmorSlots[SlotIndex].Quantity <= 0) return;
+		
+		if (ActiveArmorEffect.IsValid())
+		{
+			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveArmorEffect);
+		}
+		const int32 ItemID = Inventory->GetInventory().ArmorSlots[SlotIndex].ItemID;
+		ActiveArmorEffect = ApplyEquipmentEffect(ItemID, SpecHandle);
+		EquippedArmorId = ItemID;
+	}
+
+	Inventory->EquipItemInSlot(ItemType, SlotIndex);
+	
+}
+
+ FActiveGameplayEffectHandle ABrandNewPlayerCharacter::ApplyEquipmentEffect(const int32 ItemID, const FGameplayEffectSpecHandle& SpecHandle) const
+{
+	if (ItemID < 0) return FActiveGameplayEffectHandle();
+	
+	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, ItemID);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Item_Strength, ItemInfo.Strength);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Item_Intelligence, ItemInfo.Intelligence);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Item_Dexterity, ItemInfo.Dexterity);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Item_Vitality, ItemInfo.Vitality);
+	
+	return AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+}
 
 void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const
 {

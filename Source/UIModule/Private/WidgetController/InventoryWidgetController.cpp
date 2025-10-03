@@ -28,3 +28,11 @@ void UInventoryWidgetController::UseEatableItem(const int32 SlotIndex) const
 		PlayerInterface->UseConsumptionItem(SlotIndex);
 	}
 }
+
+void UInventoryWidgetController::EquipItem(const int32 SlotIndex, const EItemType ItemType) const
+{
+	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn))
+	{
+		PlayerInterface->UseEquipmentItem(SlotIndex, ItemType);
+	}
+}

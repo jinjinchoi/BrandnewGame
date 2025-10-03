@@ -17,7 +17,12 @@ float UMMC_PhysicalDefensePower::CalculateBaseMagnitude_Implementation(const FGa
 
 	float Strength = 0.0f;
 	GetCapturedAttributeMagnitude(StrengthDef, Spec, EvaluationParams, Strength);
+
+	float ItemVitality = 0.0f;
+	GetCapturedAttributeMagnitude(ItemVitalityDef, Spec, EvaluationParams, ItemVitality);
+
+	float ItemStrength = 0.0f;
+	GetCapturedAttributeMagnitude(ItemStrengthDef, Spec, EvaluationParams, ItemStrength);
 	
-	
-	return round(5.f + 0.5f * Vitality + 0.2f * Strength);
+	return round(5.f + 0.5f * (Vitality + ItemVitality) + 0.2f * (Strength + ItemStrength));
 }

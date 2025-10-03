@@ -96,34 +96,24 @@ struct FItemDataRow : public FTableRowBase
 	/**
 	 * 아이템  사용시 증가시킬 Attribute
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float MaxHealth = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float CurrentHealth = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float MaxMana = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float CurrentMana = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float Strength = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float Intelligence = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float Dexterity = 0.f;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float Vitality = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float PhysicalAttackPower = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float MagicAttackPower = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float PhysicalDefensePower = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float MagicDefensePower = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float CriticalChance = 0.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	float CriticalMagnitude = 0.f;
 	
 };
 

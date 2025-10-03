@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BrandNewWidgetControllerBase.h"
+#include "BrandNewTypes/BrandNewEnumTypes.h"
 #include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "InventoryWidgetController.generated.h"
 
@@ -27,6 +28,9 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Inventory")
 	void UseEatableItem(const int32 SlotIndex) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Inventory")
+	void EquipItem(const int32 SlotIndex, const EItemType ItemType) const;
 
 public:
 	FORCEINLINE void SetPlayerState(APlayerState* PS) { PlayerState = PS; }

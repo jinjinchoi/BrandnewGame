@@ -198,10 +198,13 @@ struct FInventorySlotData
 
 	/* 아이디를 저장하여 TMap에서 아이템 정보를 가져옴 */
 	UPROPERTY(BlueprintReadOnly)
-	int32 ItemID;
+	int32 ItemID = INDEX_NONE;
 	
 	UPROPERTY(BlueprintReadOnly)
 	int32 Quantity = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsEquipped = false;	
 	
 };
 

@@ -17,16 +17,24 @@ namespace BrandNewGamePlayTag
 
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MaxHealth, "Attribute.Secondary.MaxHealth")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vital_CurrentHealth, "Attribute.Vital.CurrentHealth")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MaxMana, "Attribute.Secondary.MaxMana")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MaxMana, "Attribute.Secondary.MaxMana")
 	UE_DEFINE_GAMEPLAY_TAG(Attribute_Vital_CurrentMana, "Attribute.Vital.CurrentMana")
 
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_PhysicalAttackPower, "Attribute.Secondary.PhysicalAttackPower")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MagicAttackPower, "Attribute.Secondary.MagicAttackPower")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_PhysicalDefensePower, "Attribute.Secondary.PhysicalDefensePower")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_MagicDefensePower, "Attribute.Secondary.MagicDefensePower")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalChance, "Attribute.Secondary.CriticalChance")
-	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondry_CriticalMagnitude, "Attribute.Secondary.CriticalMagnitude")
-	
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_PhysicalAttackPower, "Attribute.Secondary.PhysicalAttackPower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MagicAttackPower, "Attribute.Secondary.MagicAttackPower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_PhysicalDefensePower, "Attribute.Secondary.PhysicalDefensePower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_MagicDefensePower, "Attribute.Secondary.MagicDefensePower")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_CriticalChance, "Attribute.Secondary.CriticalChance")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Secondary_CriticalMagnitude, "Attribute.Secondary.CriticalMagnitude")
+
+	/**
+	 * Item Attribute Tag
+	 */
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Item_Strength, "Attribute.Item.Strength")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Item_Intelligence, "Attribute.Item.Intelligence")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Item_Dexterity, "Attribute.Item.Dexterity")
+	UE_DEFINE_GAMEPLAY_TAG(Attribute_Item_Vitality, "Attribute.Item.Vitality")
+
 	
 	/**
 	 * Input Tags
