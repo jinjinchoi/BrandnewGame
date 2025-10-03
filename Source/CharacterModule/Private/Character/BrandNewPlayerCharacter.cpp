@@ -700,47 +700,59 @@ void ABrandNewPlayerCharacter::ConsumeItem(const int32 SlotIndex) const
 void ABrandNewPlayerCharacter::UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType)
 {
 	check(EquipmentInfiniteEffect)
+	if (!AbilitySystemComponent || !EquipmentInfiniteEffect) return;
+
+	HasAuthority() ? EquipItem(SlotIndex, ItemType) : Server_EquipItem(SlotIndex, ItemType);
 	
+}
+
+void ABrandNewPlayerCharacter::Server_EquipItem_Implementation(const int32 SlotIndex, const EItemType ItemType)
+{
+	EquipItem(SlotIndex, ItemType);
+}
+
+void ABrandNewPlayerCharacter::EquipItem(const int32 SlotIndex, const EItemType ItemType)
+{
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
 	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
-	
-	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	ContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EquipmentInfiniteEffect, 1.f, ContextHandle);
+	if (!Inventory) return;
 	
 	if (ItemType == EItemType::Weapon)
 	{
-		if (Inventory->GetInventory().WeaponSlots[SlotIndex].Quantity <= 0) return;
+		if (!Inventory->GetInventory().WeaponSlots.IsValidIndex(SlotIndex) || Inventory->GetInventory().WeaponSlots[SlotIndex].Quantity <= 0) return;
 		
 		if (ActiveWeaponEffect.IsValid())
 		{
 			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveWeaponEffect);
 		}
 		const int32 ItemID = Inventory->GetInventory().WeaponSlots[SlotIndex].ItemID;
-		ActiveWeaponEffect = ApplyEquipmentEffect(ItemID, SpecHandle);
+		ActiveWeaponEffect = ApplyInfiniteItemEffect(ItemID);
 		EquippedWeaponId = ItemID;
 	}
 	else if (ItemType == EItemType::Armor)
 	{
-		if (Inventory->GetInventory().ArmorSlots[SlotIndex].Quantity <= 0) return;
+		if (!Inventory->GetInventory().ArmorSlots.IsValidIndex(SlotIndex) || Inventory->GetInventory().ArmorSlots[SlotIndex].Quantity <= 0) return;
 		
 		if (ActiveArmorEffect.IsValid())
 		{
 			AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveArmorEffect);
 		}
 		const int32 ItemID = Inventory->GetInventory().ArmorSlots[SlotIndex].ItemID;
-		ActiveArmorEffect = ApplyEquipmentEffect(ItemID, SpecHandle);
+		ActiveArmorEffect = ApplyInfiniteItemEffect(ItemID);
 		EquippedArmorId = ItemID;
 	}
 
 	Inventory->EquipItemInSlot(ItemType, SlotIndex);
-	
 }
 
- FActiveGameplayEffectHandle ABrandNewPlayerCharacter::ApplyEquipmentEffect(const int32 ItemID, const FGameplayEffectSpecHandle& SpecHandle) const
+ FActiveGameplayEffectHandle ABrandNewPlayerCharacter::ApplyInfiniteItemEffect(const int32 ItemID) const
 {
 	if (ItemID < 0) return FActiveGameplayEffectHandle();
+
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(EquipmentInfiniteEffect, 1.f, ContextHandle);
 	
 	const FItemDataRow ItemInfo = UBrandNewFunctionLibrary::GetItemData(this, ItemID);
 	

@@ -160,7 +160,12 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_ConsumeItem(const int32 SlotIndex);
 	void ConsumeItem(const int32 SlotIndex) const;
-	FActiveGameplayEffectHandle ApplyEquipmentEffect(const int32 ItemID, const FGameplayEffectSpecHandle& SpecHandle) const;
+
+	UFUNCTION(Server, Reliable)
+	void Server_EquipItem(const int32 SlotIndex, const EItemType ItemType);
+	void EquipItem(const int32 SlotIndex, const EItemType ItemType);
+
+	FActiveGameplayEffectHandle ApplyInfiniteItemEffect(const int32 ItemID) const;
 
 	/* 적용된 장비 효과를 담은 핸들 */
 	FActiveGameplayEffectHandle ActiveWeaponEffect;

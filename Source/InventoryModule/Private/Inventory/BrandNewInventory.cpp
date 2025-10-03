@@ -89,7 +89,7 @@ void UBrandNewInventory::EquipItemInSlot(const EItemType ItemType, const int32 S
 {
 	if (ItemType == EItemType::Weapon)
 	{
-		if (LastEquippedWeaponSlotIndex != INDEX_NONE)
+		if (LastEquippedWeaponSlotIndex != INDEX_NONE && ItemInventory.WeaponSlots.IsValidIndex(LastEquippedWeaponSlotIndex))
 		{
 			ItemInventory.WeaponSlots[LastEquippedWeaponSlotIndex].bIsEquipped = false;
 		}
@@ -98,7 +98,7 @@ void UBrandNewInventory::EquipItemInSlot(const EItemType ItemType, const int32 S
 	}
 	else if (ItemType == EItemType::Armor)
 	{
-		if (LastEquippedArmorSlotIndex != INDEX_NONE)
+		if (LastEquippedArmorSlotIndex != INDEX_NONE && ItemInventory.ArmorSlots.IsValidIndex(LastEquippedArmorSlotIndex))
 		{
 			ItemInventory.ArmorSlots[LastEquippedArmorSlotIndex].bIsEquipped = false;
 		}

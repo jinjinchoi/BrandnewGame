@@ -23,6 +23,8 @@ FInventoryContents UInventoryWidgetController::GetInventoryContents() const
 
 void UInventoryWidgetController::UseEatableItem(const int32 SlotIndex) const
 {
+	if (SlotIndex < 0) return;
+	
 	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn))
 	{
 		PlayerInterface->UseConsumptionItem(SlotIndex);
@@ -31,6 +33,8 @@ void UInventoryWidgetController::UseEatableItem(const int32 SlotIndex) const
 
 void UInventoryWidgetController::EquipItem(const int32 SlotIndex, const EItemType ItemType) const
 {
+	if (SlotIndex < 0) return;
+	
 	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn))
 	{
 		PlayerInterface->UseEquipmentItem(SlotIndex, ItemType);
