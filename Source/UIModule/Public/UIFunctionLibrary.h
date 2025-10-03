@@ -46,8 +46,8 @@ class UIMODULE_API UUIFunctionLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|WidgetController", meta=(DefaultToSelf = "WorldContextObject"))
 	static UInventoryWidgetController* GetInventoryWidgetController(const UObject* WorldContextObject);
 	
-	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|SaveLogic")
-	static FSaveSlotViewInfoParams GetSaveSlotInfo(const FString& SlotName, const int32 SlotIndex = 1);
+	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|SaveLogic", meta=(DefaultToSelf = "WorldContextObject"))
+	static FSaveSlotViewInfoParams GetSaveSlotInfo(const UObject* WorldContextObject, const FString& SlotName, const int32 SlotIndex = 1);
 
 	UFUNCTION(BlueprintCallable, Category = "UIFunctionLibrary|SaveLogic")
 	static void RequestSave(ACharacter* PlayerCharacter, const FString& SlotName, const int32 SlotIndex = 1);

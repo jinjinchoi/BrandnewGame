@@ -34,3 +34,12 @@ FItemDataRow UBrandNewFunctionLibrary::GetItemData(const UObject* WorldContextOb
 
 	return FItemDataRow();
 }
+
+bool UBrandNewFunctionLibrary::IsOnlyEnglishWord(const FString& InputWord)
+{
+	const FRegexPattern Pattern(TEXT("^[A-Za-z0-9]+$"));
+	FRegexMatcher Matcher(Pattern, InputWord);
+
+	return Matcher.FindNext();
+	
+}

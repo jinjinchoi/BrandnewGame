@@ -20,6 +20,9 @@ public:
 	static UBrandNewObjectPoolManager* GetObjectPoolManager(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintPure, Category="BrandNewFunctionLibrary|InventorySystem", meta=(WorldContext="WorldContextObject"))
-	static FItemDataRow GetItemData(const UObject* WorldContextObject, const int32 ItemId); 
+	static FItemDataRow GetItemData(const UObject* WorldContextObject, const int32 ItemId);
+
+	UFUNCTION(BlueprintCallable, Category = "BrandNewFunctionLibrary|String")
+	static bool IsOnlyEnglishWord(const FString& InputWord);
 	
 };

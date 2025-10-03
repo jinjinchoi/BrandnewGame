@@ -8,6 +8,8 @@
 
 void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams)
 {
+	const FString UniqueSlotName = SlotName + UniqueIdentifier;
+	
 	UBrandNewSlotSaveGame* SlotSaveGame = Cast<UBrandNewSlotSaveGame>(UGameplayStatics::CreateSaveGameObject(UBrandNewSlotSaveGame::StaticClass()));
 	SlotSaveGame->AttributePrams = SaveSlotPrams.AttributePrams;
 	SlotSaveGame->AbilityDataMap = SaveSlotPrams.AbilityMap;
@@ -18,16 +20,18 @@ void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32
 	SlotSaveGame->MapPackageName = SaveSlotPrams.MapPackageName;
 	SlotSaveGame->Inventory = SaveSlotPrams.InventoryContents;
 
-	UGameplayStatics::SaveGameToSlot(SlotSaveGame, SlotName, SlotIndex);
+	UGameplayStatics::SaveGameToSlot(SlotSaveGame, UniqueSlotName, SlotIndex);
 	
 	
 }
 
 FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex)
 {
-	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
+	const FString UniqueSlotName = SlotName + UniqueIdentifier;
+	
+	if (UGameplayStatics::DoesSaveGameExist(UniqueSlotName, SlotIndex))
 	{
-		const UBrandNewSlotSaveGame* SlotSaveGame = Cast<UBrandNewSlotSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, SlotIndex));
+		const UBrandNewSlotSaveGame* SlotSaveGame = Cast<UBrandNewSlotSaveGame>(UGameplayStatics::LoadGameFromSlot(UniqueSlotName, SlotIndex));
 		if (!SlotSaveGame) return FSaveSlotPrams();
 
 		FSaveSlotPrams SaveSlotPrams;
@@ -73,4 +77,14 @@ FString UBrandNewSaveSubsystem::RequestCharacterDataLoad(const FString& SlotName
 
 	return FString();
 	
+}
+
+void UBrandNewSaveSubsystem::Login(const FString& Id)
+{
+	UniqueIdentifier = Id;
+}
+
+FString UBrandNewSaveSubsystem::GetUniqueIdentifier() const
+{
+	return UniqueIdentifier;
 }

@@ -18,10 +18,10 @@ class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
 
 public:
 	/* 슬롯에 데이터를 저장하는 함수 */
-	static void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams);
+	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams);
 	
 	/* 슬롯에서 데이터를 가져오는 함수 */
-	static FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex);
+	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex);
 	
 	/* 서브시스템에 데이터를 저장하는 함수. */
 	void SavePlayerData(const FSaveSlotPrams& SaveSlotPrams);
@@ -40,9 +40,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
 	FString RequestCharacterDataLoad(const FString& SlotName, const int32 SlotIndex);
 
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
+	void Login(const FString& Id);
+
+	UFUNCTION(BlueprintPure, Category = "Brandnew|Save Logic")
+	FString GetUniqueIdentifier() const;
 
 private:
 	/* 캐릭터의 데이터가 저장되어있는 구조체 */
 	FSaveSlotPrams LastestPlayerData;
+
+	/* 세이브 로드시 슬롯 이름 앞에 붙여 고유 저장소를 만들때 사용
+	 * 현재 가장 큰 목적은 클라이언트가 서버에 저장할때 리슨서버이기 때문에 서버의 저장파일도 존재하며,
+	 * 그렇기 때문에 이와 구분하기 위하여 고유 식별자를 사용.
+	 */
+	FString UniqueIdentifier;
 	
 };

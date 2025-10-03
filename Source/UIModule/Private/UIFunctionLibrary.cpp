@@ -36,9 +36,14 @@ UInventoryWidgetController* UUIFunctionLibrary::GetInventoryWidgetController(con
 	
 }
 
-FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const FString& SlotName, const int32 SlotIndex)
+FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const UObject* WorldContextObject, const FString& SlotName, const int32 SlotIndex)
 {
-	const FSaveSlotPrams SaveSlotPrams = UBrandNewSaveSubsystem::GetSaveDataInSlot(SlotName, SlotIndex);
+	if (!WorldContextObject) return FSaveSlotViewInfoParams();
+	
+	UBrandNewSaveSubsystem* SaveSubsystem = WorldContextObject->GetWorld()->GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return FSaveSlotViewInfoParams();
+	
+	const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetSaveDataInSlot(SlotName, SlotIndex);
 	if (SaveSlotPrams.bIsValid)
 	{
 		FSaveSlotViewInfoParams SlotViewParams;

@@ -647,7 +647,10 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 	
 	SaveSlotPrams.bIsValid = true;
 
-	UBrandNewSaveSubsystem::SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
+	if (UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
+	{
+		SaveSubsystem->SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
+	}
 	
 }
 
