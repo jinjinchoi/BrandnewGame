@@ -20,7 +20,7 @@ public:
 	virtual void BroadCastInitialValue();
 
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "BrandNew|Character")
 	TObjectPtr<APawn> ControlledPawn;
 
 public:

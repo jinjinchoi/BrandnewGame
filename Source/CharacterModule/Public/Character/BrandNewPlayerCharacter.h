@@ -47,10 +47,6 @@ public:
 	virtual int32 FindLevelForXP(const int32 InXP) const override;
 	virtual int32 GetAttributePointsReward(const int32 LevelToFind) const override;
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) override;
-	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() override;
-	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() override;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
 	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
@@ -72,6 +68,20 @@ public:
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag) const;
 
 	void InteractIfPossible();
+
+
+	/* Delegates */
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate HealthChangedDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate ManaChangedDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate MaxManaChangedDelegate;
+	FOnWeaponChangedDelegate WeaponChangedDelegate;
+	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
+	
 
 protected:
 	/* begin Actor Interface */
@@ -189,13 +199,6 @@ private:
 	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
 
 	FText GetCurrentTimeText() const;
-
-	FOnAttributeChangedDelegate HealthChangedDelegate;
-	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
-	FOnAttributeChangedDelegate ManaChangedDelegate;
-	FOnAttributeChangedDelegate MaxManaChangedDelegate;
-	FOnWeaponChangedDelegate WeaponChangedDelegate;
-	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
 	
 	TWeakObjectPtr<AActor> CombatTargetActor;
 	

@@ -64,6 +64,7 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetLastestPlayerData()
 void UBrandNewSaveSubsystem::ResetPlayerData()
 {
 	LastestPlayerData = FSaveSlotPrams();
+	UniqueIdentifier.Empty();
 }
 
 FString UBrandNewSaveSubsystem::RequestCharacterDataLoad(const FString& SlotName, const int32 SlotIndex)

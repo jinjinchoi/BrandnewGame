@@ -9,7 +9,7 @@
 #include "BrandNewPlayerInterface.generated.h"
 
 struct FGameplayTag;
-DECLARE_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedDelegate, const float, NewValue);
 DECLARE_DELEGATE_OneParam(FOnWeaponChangedDelegate, const ECombatWeaponType);
 DECLARE_DELEGATE_TwoParams(FOnOverlappedItemChangedDelegate, const bool /* Is Begin Overlap? */, const FPickupsUiInfo&)
 
@@ -69,11 +69,7 @@ public:
 	virtual int32 FindLevelForXP(const int32 InXP) const = 0;
 	virtual int32 GetAttributePointsReward(int32 LevelToFind) const = 0;
 	virtual void ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint) = 0;
-
-	virtual FOnAttributeChangedDelegate& GetHealthChangedDelegate() = 0;
-	virtual FOnAttributeChangedDelegate& GetMaxHealthChangedDelegate() = 0;
-	virtual FOnAttributeChangedDelegate& GetManaChangedDelegate() = 0;
-	virtual FOnAttributeChangedDelegate& GetMaxManaChangedDelegate() = 0;
+	
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() = 0;
 	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() = 0;
 	

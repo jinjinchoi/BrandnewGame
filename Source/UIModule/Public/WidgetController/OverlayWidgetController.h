@@ -9,6 +9,7 @@
 #include "DataAssets/DataAsset_AbilityInfo.h"
 #include "OverlayWidgetController.generated.h"
 
+class IBrandNewPlayerInterface;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerAttributeChanged, const float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponChanged, const ECombatWeaponType, ChangedWeaponType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOverlappedItemChanged, const bool, bIsOverlapped, const FPickupsUiInfo&, PickupsUiInfo);
@@ -54,7 +55,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|DataAssets")
 	TObjectPtr<UDataAsset_AbilityInfo> AbilityInfoDataAsset;
 
-	
+	UPROPERTY()
+	AGameStateBase* GameState;
+
+public:
+	FORCEINLINE void SetGameState(AGameStateBase* GameStateToSet) { GameState = GameStateToSet; }
 
 	
 };

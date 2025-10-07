@@ -13,7 +13,6 @@ void UBrandNewWidget::SetWidgetController(UObject* InWidgetController)
 void UBrandNewWidget::SetUIWidgetController(UObject* ControllerToSet)
 {
 	SetWidgetController(ControllerToSet);
-
 	
 }
 

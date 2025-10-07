@@ -20,8 +20,9 @@ void ABrandNewHUD::InitHUD()
 	if (!OverlayWidgetController && GetOwningPlayerController() && GetOwningPlayerController()->GetPawn())
 	{
 		OverlayWidgetController = NewObject<UOverlayWidgetController>(this, OverlayWidgetControllerClass);
-		OverlayWidgetController->BindCallbacksToDependencies(GetOwningPlayerController()->GetPawn());
 		OverlayWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+		OverlayWidgetController->SetGameState(GetOwningPlayerController()->GetWorld()->GetGameState());
+		OverlayWidgetController->BindCallbacksToDependencies(GetOwningPlayerController()->GetPawn());
 	}
 
 	OverlayWidget->SetWidgetController(OverlayWidgetController);

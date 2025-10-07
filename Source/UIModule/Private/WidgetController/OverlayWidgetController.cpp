@@ -13,26 +13,6 @@ void UOverlayWidgetController::BindCallbacksToDependencies(APawn* InControlledPa
 	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(InControlledPawn);
 	if (!PlayerInterface) return;
 
-	PlayerInterface->GetHealthChangedDelegate().BindLambda([this](const float NewValue)
-	{
-		OnHealthChangedDelegate.Broadcast(NewValue);
-	});
-	
-	PlayerInterface->GetMaxHealthChangedDelegate().BindLambda([this](const float NewValue)
-	{
-		OnMaxHealthChangedDelegate.Broadcast(NewValue);
-	});
-
-	PlayerInterface->GetManaChangedDelegate().BindLambda([this](const float NewValue)
-	{
-		OnManaChangedDelegate.Broadcast(NewValue);	
-	});
-
-	PlayerInterface->GetMaxManaChangedDelegate().BindLambda([this](const float NewValue)
-	{
-		OnMaxManaChangedDelegate.Broadcast(NewValue);
-	});
-
 	PlayerInterface->GetWeaponChangedDelegate().BindLambda([this](const ECombatWeaponType ChangedWeaponType)
 	{
 		OnWeaponChangedDelegate.Broadcast(ChangedWeaponType);
@@ -53,6 +33,7 @@ void UOverlayWidgetController::BroadCastInitialValue()
 
 	PlayerInterface->RequestBroadCastAttributeValue();
 	
+	
 }
 
 FAbilityInfoParams UOverlayWidgetController::FindAbilityInfoByTag(const FGameplayTag& AbilityTagToFind) const
@@ -66,6 +47,5 @@ FAbilityInfoParams UOverlayWidgetController::FindAbilityInfoByTag(const FGamepla
 
 	FoundAbilityInfoParams.RequiredMana = PlayerInterface->GetRequiredAbilityMana(AbilityTagToFind);
 	return FoundAbilityInfoParams;
-	
 	
 }

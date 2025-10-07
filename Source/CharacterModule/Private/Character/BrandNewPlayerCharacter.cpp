@@ -339,7 +339,7 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 		// DebugHelper::Print(WeakThis.Get(), Msg, FColor::Yellow);
 		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
 		{
-			PlayerCharacter->HealthChangedDelegate.ExecuteIfBound(Data.NewValue);
+			PlayerCharacter->HealthChangedDelegate.Broadcast(Data.NewValue);
 		}
 	});
 
@@ -349,7 +349,7 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 	{
 		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
 		{
-			PlayerCharacter->MaxHealthChangedDelegate.ExecuteIfBound(Data.NewValue);
+			PlayerCharacter->MaxHealthChangedDelegate.Broadcast(Data.NewValue);
 		}
 	});
 
@@ -359,7 +359,7 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 	{
 		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
 		{
-			PlayerCharacter->ManaChangedDelegate.ExecuteIfBound(Data.NewValue);
+			PlayerCharacter->ManaChangedDelegate.Broadcast(Data.NewValue);
 		}
 	});
 
@@ -369,7 +369,7 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 	{
 		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
 		{
-			PlayerCharacter->MaxManaChangedDelegate.ExecuteIfBound(Data.NewValue);
+			PlayerCharacter->MaxManaChangedDelegate.Broadcast(Data.NewValue);
 		}
 	});
 	
@@ -554,30 +554,10 @@ float ABrandNewPlayerCharacter::GetAttributeValueByTag(const FGameplayTag& Attri
 
 void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
 {
-	MaxHealthChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxHealth());
-	HealthChangedDelegate.ExecuteIfBound(AttributeSet->GetHealth());
-	MaxManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMaxMana());
-	ManaChangedDelegate.ExecuteIfBound(AttributeSet->GetMana());
-}
-
-FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetHealthChangedDelegate()
-{
-	return HealthChangedDelegate;
-}
-
-FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxHealthChangedDelegate()
-{
-	return MaxHealthChangedDelegate;
-}
-
-FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetManaChangedDelegate()
-{
-	return ManaChangedDelegate;
-}
-
-FOnAttributeChangedDelegate& ABrandNewPlayerCharacter::GetMaxManaChangedDelegate()
-{
-	return MaxManaChangedDelegate;
+	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
+	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
+	MaxManaChangedDelegate.Broadcast(AttributeSet->GetMaxMana());
+	ManaChangedDelegate.Broadcast(AttributeSet->GetMana());
 }
 
 FOnWeaponChangedDelegate& ABrandNewPlayerCharacter::GetWeaponChangedDelegate()
