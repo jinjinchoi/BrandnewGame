@@ -36,7 +36,6 @@ private:
 	void TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const;
 	void SendXP(const struct FGameplayEffectModCallbackData& Data) const;
 
-
 public:
 	////////////////////////////////////
 	////////// Attributes//////////////

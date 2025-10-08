@@ -134,6 +134,9 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 	}
+
+	
+	
 }
 
 void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const
@@ -335,8 +338,6 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		AttributeSet->GetHealthAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
 	{
-		// const FString Msg = FString::Printf(TEXT("Current Health: %f"), Data.NewValue);
-		// DebugHelper::Print(WeakThis.Get(), Msg, FColor::Yellow);
 		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
 		{
 			PlayerCharacter->HealthChangedDelegate.Broadcast(Data.NewValue);
@@ -558,6 +559,12 @@ void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
 	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
 	MaxManaChangedDelegate.Broadcast(AttributeSet->GetMaxMana());
 	ManaChangedDelegate.Broadcast(AttributeSet->GetMana());
+}
+
+void ABrandNewPlayerCharacter::K2_BroadCastCharacterInitialHealth_Implementation()
+{
+	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
+	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
 }
 
 FOnWeaponChangedDelegate& ABrandNewPlayerCharacter::GetWeaponChangedDelegate()

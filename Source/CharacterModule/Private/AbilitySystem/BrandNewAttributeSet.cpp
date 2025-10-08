@@ -58,16 +58,39 @@ void UBrandNewAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 	}
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+		{
+			/**
+			 * UI에 다른 플레이어들 최대 체력 변경되면 반영하기 위해 브로드캐스트 요청.
+			 * 리슨 서버에서 호스트 전용. 클라이언트는 밑의 복제 함수에서 브로드캐스트 요청함.
+			 */ 
+			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+		}
+	}
 	
 }
 
 void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
-
+	
+	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+	{
+		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+		{
+			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+		}
+	}
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		
+		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+		{
+			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+		}
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
@@ -83,6 +106,7 @@ void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffe
 	}
 	
 }
+
 
 void UBrandNewAttributeSet::HandleIncomingXP()
 {
@@ -159,6 +183,8 @@ void UBrandNewAttributeSet::SendXP(const struct FGameplayEffectModCallbackData& 
 	}
 }
 
+
+
 void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
 {
 	FGameplayEventData EventData;
@@ -217,11 +243,21 @@ void UBrandNewAttributeSet::ShowDamageText(const struct FGameplayEffectModCallba
 void UBrandNewAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, Health, OldHealth);
+	
+	if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+	{
+		IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+	}
 }
 
 void UBrandNewAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MaxHealth, OldMaxHealth);
+	
+	if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+	{
+		IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+	}
 }
 
 void UBrandNewAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)

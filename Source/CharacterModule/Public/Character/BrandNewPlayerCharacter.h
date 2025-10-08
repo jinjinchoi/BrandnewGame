@@ -41,6 +41,7 @@ public:
 	virtual void SetCombatTargetActor_Implementation(AActor* TargetActor) override;
 	virtual AActor* GetCombatTargetActor_Implementation() override;
 	virtual void RequestBroadCastAttributeValue() override;
+	virtual void K2_BroadCastCharacterInitialHealth_Implementation() override;
 	virtual float GetAttributeValueByTag(const FGameplayTag& AttributeTag) const override;
 	virtual void ApplyAddXPEffect(const float XpToAdd) const override;
 	virtual void ApplyLevelUpGameplayEffect(const int32 LevelToApply, const int32 RewardAttributePoint) override;
@@ -68,8 +69,7 @@ public:
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag) const;
 
 	void InteractIfPossible();
-
-
+	
 	/* Delegates */
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate HealthChangedDelegate;
@@ -79,6 +79,7 @@ public:
 	FOnAttributeChangedDelegate ManaChangedDelegate;
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
+	
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
 	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
 	
@@ -199,7 +200,8 @@ private:
 	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
 
 	FText GetCurrentTimeText() const;
-	
+
+	/* 현재 락온 중인 타겟 액터 */
 	TWeakObjectPtr<AActor> CombatTargetActor;
 	
 #pragma region Movement

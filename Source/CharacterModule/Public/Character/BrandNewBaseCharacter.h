@@ -109,6 +109,8 @@ private:
 	UPROPERTY()
 	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
 
+	
+	
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }
 

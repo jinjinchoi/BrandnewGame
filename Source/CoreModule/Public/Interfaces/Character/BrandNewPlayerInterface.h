@@ -64,6 +64,9 @@ public:
 	/* Vital Attribute 값을 브로드캐스트 요청 하는 함수 */
 	virtual void RequestBroadCastAttributeValue() = 0;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta=(DisplayName = "BroadCastCharacterInitialHealth"))
+	void K2_BroadCastCharacterInitialHealth();
+
 	/* 경험치를 더하는 함수 */
 	virtual void ApplyAddXPEffect(const float XpToAdd) const = 0;
 	virtual int32 FindLevelForXP(const int32 InXP) const = 0;

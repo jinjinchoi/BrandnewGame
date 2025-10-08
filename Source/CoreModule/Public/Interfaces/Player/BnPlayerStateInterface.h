@@ -7,6 +7,9 @@
 #include "UObject/Interface.h"
 #include "BnPlayerStateInterface.generated.h"
 
+
+DECLARE_DELEGATE(FOnPlayerSetDelegate);
+
 // This class does not need to be modified.
 UINTERFACE()
 class UBnPlayerStateInterface : public UInterface
@@ -24,5 +27,8 @@ class COREMODULE_API IBnPlayerStateInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual FInventoryContents GetInventoryContents() const = 0;
+	virtual bool IsPlayerReplicated() const = 0;
+	virtual FOnPlayerSetDelegate& GetPlayerSetDelegate() = 0;
+	virtual void SetPlayerNameToPlayerState(const FString& NewName) = 0;
 	
 };

@@ -17,6 +17,7 @@ class COREMODULE_API ABrandNewGameModeBase : public AGameModeBase
 
 public:
 	virtual void BeginPlay() override;
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Manager")

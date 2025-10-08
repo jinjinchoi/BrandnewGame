@@ -6,7 +6,7 @@
 #include "Game/Save/BrandNewSlotSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 
-void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams)
+void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const
 {
 	const FString UniqueSlotName = SlotName + UniqueIdentifier;
 	
@@ -25,7 +25,7 @@ void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32
 	
 }
 
-FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex)
+FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const
 {
 	const FString UniqueSlotName = SlotName + UniqueIdentifier;
 	
@@ -85,7 +85,7 @@ void UBrandNewSaveSubsystem::Login(const FString& Id)
 	UniqueIdentifier = Id;
 }
 
-FString UBrandNewSaveSubsystem::GetUniqueIdentifier() const
+FString UBrandNewSaveSubsystem::GetUniqueIdentifier()
 {
 	return UniqueIdentifier;
 }

@@ -18,10 +18,10 @@ class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
 
 public:
 	/* 슬롯에 데이터를 저장하는 함수 */
-	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams);
+	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
 	
 	/* 슬롯에서 데이터를 가져오는 함수 */
-	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex);
+	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const;
 	
 	/* 서브시스템에 데이터를 저장하는 함수. */
 	void SavePlayerData(const FSaveSlotPrams& SaveSlotPrams);
@@ -44,7 +44,7 @@ public:
 	void Login(const FString& Id);
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Save Logic")
-	FString GetUniqueIdentifier() const;
+	FString GetUniqueIdentifier();
 
 private:
 	/* 캐릭터의 데이터가 저장되어있는 구조체 */

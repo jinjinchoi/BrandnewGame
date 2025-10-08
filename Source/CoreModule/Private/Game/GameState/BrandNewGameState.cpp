@@ -3,18 +3,41 @@
 
 #include "Game/GameState/BrandNewGameState.h"
 #include "GameFramework/PlayerState.h"
+#include "Interfaces/Player/BnPlayerStateInterface.h"
 
-TArray<APawn*> ABrandNewGameState::GetTeammates()
+void ABrandNewGameState::AddPlayerState(APlayerState* PlayerState)
 {
-	TArray<APawn*> Result;
+	Super::AddPlayerState(PlayerState);
 	
-	for (const APlayerState* PS : PlayerArray)
+	IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(PlayerState);
+	if (!PlayerStateInterface) return;
+
+	// Player State 초기화 여부 확인하고 되었으면 UI에 알려서 같이 하는 플레이어들 체력바 UI에 표시함.
+	if (PlayerStateInterface->IsPlayerReplicated())
 	{
-		if (PS && PS->GetPawn())
+		PlayerJoinDelegate.Broadcast(PlayerState);
+	}
+	else
+	{
+		TWeakObjectPtr WeakThis = this;
+		TWeakObjectPtr WeakPlayerState = PlayerState;
+		
+		PlayerStateInterface->GetPlayerSetDelegate().BindLambda([WeakThis, WeakPlayerState]()
 		{
-			Result.Add(PS->GetPawn());
-		}
+			if (WeakThis.IsValid() && WeakPlayerState.IsValid())
+			{
+				WeakThis->PlayerJoinDelegate.Broadcast(WeakPlayerState.Get());
+			}
+		});
 	}
 
-	return Result;
+	
+}
+
+void ABrandNewGameState::RemovePlayerState(APlayerState* PlayerState)
+{
+	PlayerExitDelegate.Broadcast(PlayerState->GetPlayerId());
+	
+	Super::RemovePlayerState(PlayerState);
+
 }
