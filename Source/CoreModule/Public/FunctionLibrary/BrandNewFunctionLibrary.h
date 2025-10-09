@@ -22,7 +22,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="BrandNewFunctionLibrary|InventorySystem", meta=(WorldContext="WorldContextObject"))
 	static FItemDataRow GetItemData(const UObject* WorldContextObject, const int32 ItemId);
 
-	UFUNCTION(BlueprintCallable, Category = "BrandNewFunctionLibrary|String")
+	UFUNCTION(BlueprintPure, Category = "BrandNewFunctionLibrary|String")
 	static bool IsOnlyEnglishWord(const FString& InputWord);
+
+	UFUNCTION(BlueprintPure, Category = "BrandNewFunctionLibrary|String")
+	static bool IsValidIPAddressWord(const FString& Address);
 	
 };

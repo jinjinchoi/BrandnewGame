@@ -18,9 +18,11 @@ class COREMODULE_API UBrandNewLevelManagerSubsystem : public UGameInstanceSubsys
 	GENERATED_BODY()
 
 public:
+	/* 맵 이동 전 맵 클래스를 넘겨 이동할 맵을 설정 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
 	void SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass);
 
+	/* 로드 시 맵 에셋 네임을 넘겨 이동할 맵을 설정 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
 	void SetMapNameToTravelByString(const FString& MapName);
 
@@ -39,7 +41,8 @@ public:
 private:
 	void OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result);
 	void OnLoadPackageUpdated();
-	
+
+	/* 이동할 맵의 에셋 네임 */
 	FName TargetLevelPath;
 	FTimerHandle LoadingPercentTimerHandle;
 };

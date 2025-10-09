@@ -43,3 +43,23 @@ bool UBrandNewFunctionLibrary::IsOnlyEnglishWord(const FString& InputWord)
 	return Matcher.FindNext();
 	
 }
+
+bool UBrandNewFunctionLibrary::IsValidIPAddressWord(const FString& Address)
+{
+	const FRegexPattern ValidIPPattern(TEXT("^(\\d{1,3}\\.){3}\\d{1,3}$"));
+	FRegexMatcher Matcher(ValidIPPattern, Address);
+	if (!Matcher.FindNext())
+		return false;
+
+	// 각 섹션이 0~255인지 검사
+	TArray<FString> Parts;
+	Address.ParseIntoArray(Parts, TEXT("."), true);
+	for (const FString& Part : Parts)
+	{
+		int32 Num = FCString::Atoi(*Part);
+		if (Num < 0 || Num > 255)
+			return false;
+	}
+
+	return true;
+}
