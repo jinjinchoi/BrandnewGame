@@ -91,7 +91,9 @@ protected:
 
 	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
 	void InitializeCharacterInfo();
+	/* 세이브 데이터로 부터 캐릭터 정보를 가져오는 함수 */
 	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
+	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
 	void ApplyPrimaryAttributeFromDataTable() const;
 	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
 

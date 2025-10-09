@@ -53,6 +53,22 @@ void UBrandNewLevelManagerSubsystem::TravelMap() const
 	UGameplayStatics::OpenLevel(GetWorld(), TargetLevelPath);
 }
 
+void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass)
+{
+	const FSoftObjectPath& SoftObjectPath = TransitionMapClass.ToSoftObjectPath();
+	const FString PackageString = SoftObjectPath.GetLongPackageName();
+
+	if (GetWorld()->GetNetMode() == NM_Standalone)
+	{
+		const FName PackageFName(*PackageString);
+		UGameplayStatics::OpenLevel(GetWorld(), PackageFName);
+	}
+	else
+	{
+		GetWorld()->ServerTravel(PackageString);
+	}
+}
+
 void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
 {
 	GetWorld()->GetTimerManager().ClearTimer(LoadingPercentTimerHandle);

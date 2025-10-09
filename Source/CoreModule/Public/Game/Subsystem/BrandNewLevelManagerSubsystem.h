@@ -30,7 +30,13 @@ public:
 	void StartAsyncLoading();
 
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
-	void TravelMap() const; 
+	void TravelMap() const;
+
+	/**
+	 * 전환 맵으로 이동하는 함수로 NM_Standalone일 경우 Open Level을 NM_ListenServer일 경우 ServerTravel을 실행
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|SubystemFunction")
+	void TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass);
 	
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegate")
 	FAsyncLoadProgressDelegate OnAsyncLoadingUpdateDelegate;

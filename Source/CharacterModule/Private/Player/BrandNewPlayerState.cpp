@@ -44,10 +44,20 @@ FOnPlayerSetDelegate& ABrandNewPlayerState::GetPlayerSetDelegate()
 
 void ABrandNewPlayerState::SetPlayerNameToPlayerState(const FString& NewName)
 {
-	Super::SetPlayerName(NewName);
-	
-	bIsPlayerNameSet = true;
-	NotifyWhenPawnReady();
+
+	if (HasAuthority())
+	{
+		Super::SetPlayerName(NewName);
+		
+		bIsPlayerNameSet = true;
+		NotifyWhenPawnReady();
+	}
+	else
+	{
+		Server_SetPlayerName(NewName);
+		bIsPlayerNameSet = true;
+	}
+
 	
 }
 
@@ -82,5 +92,11 @@ void ABrandNewPlayerState::OnPlayerPawnPossessed(APlayerState* Player, APawn* Ne
 	bIsPawnSet = true;
 	OnPlayerSetDelegate.ExecuteIfBound();
 	
+	
+}
+
+void ABrandNewPlayerState::Server_SetPlayerName_Implementation(const FString& NewName)
+{
+	Super::SetPlayerName(NewName);
 	
 }

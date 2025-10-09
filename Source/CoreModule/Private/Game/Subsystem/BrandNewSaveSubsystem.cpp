@@ -6,6 +6,7 @@
 #include "Game/Save/BrandNewSlotSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 
+
 void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const
 {
 	const FString UniqueSlotName = SlotName + UniqueIdentifier;
@@ -51,6 +52,11 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName
 	return FSaveSlotPrams();
 }
 
+FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInCurrentSlot() const
+{
+	return GetSaveDataInSlot(CurrentSlotName, CurrentSlotIndex);
+}
+
 void UBrandNewSaveSubsystem::SavePlayerData(const FSaveSlotPrams& SaveSlotPrams)
 {
 	LastestPlayerData = SaveSlotPrams;
@@ -67,17 +73,25 @@ void UBrandNewSaveSubsystem::ResetPlayerData()
 	UniqueIdentifier.Empty();
 }
 
-FString UBrandNewSaveSubsystem::RequestCharacterDataLoad(const FString& SlotName, const int32 SlotIndex)
+FString UBrandNewSaveSubsystem::TryGetMapAssetNameAndSaveSlotInfo(const FString& SlotName, const int32 SlotIndex)
 {
 	const FSaveSlotPrams SaveSlotPrams = GetSaveDataInSlot(SlotName, SlotIndex);
+	bIsLoadedWorld = SaveSlotPrams.bIsValid;
+	
 	if (SaveSlotPrams.bIsValid)
 	{
-		SavePlayerData(SaveSlotPrams);
+		SetCurrentSlotNameAndIndex(SlotName, SlotIndex);
 		return SaveSlotPrams.MapPackageName;
 	}
 
 	return FString();
 	
+}
+
+void UBrandNewSaveSubsystem::SetCurrentSlotNameAndIndex(const FString& SlotName, const int32 SlotIndex)
+{
+	CurrentSlotName = SlotName;
+	CurrentSlotIndex = SlotIndex;
 }
 
 void UBrandNewSaveSubsystem::Login(const FString& Id)

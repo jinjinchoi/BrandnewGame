@@ -47,5 +47,8 @@ private:
 
 	UFUNCTION()
 	void OnPlayerPawnPossessed(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerName(const FString& NewName);
 	
 };

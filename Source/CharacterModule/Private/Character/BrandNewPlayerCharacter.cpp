@@ -120,9 +120,14 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 {
 	if (!HasAuthority()) return;
 
-	const FSaveSlotPrams SavedData = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>()->GetLastestPlayerData();
-	if (SavedData.bIsValid)
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	
+	if (SaveSubsystem->IsLoadedWorld())
 	{
+		const FSaveSlotPrams SavedData = SaveSubsystem->GetSaveDataInCurrentSlot();
+		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
+		
 		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
@@ -134,8 +139,6 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 	}
-
-	
 	
 }
 

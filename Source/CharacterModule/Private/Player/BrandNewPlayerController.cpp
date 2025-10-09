@@ -12,18 +12,15 @@
 #include "Blueprint/UserWidget.h"
 #include "BrandNewTypes/BrandNewMacro.h"
 #include "Character/BrandNewPlayerCharacter.h"
+#include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
+#include "Player/BrandNewPlayerState.h"
 
 ABrandNewPlayerController::ABrandNewPlayerController()
 {
 	PlayerTeamID = TEAM_PLAYER;
 }
 
-
-FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
-{
-	return PlayerTeamID;
-}
 
 void ABrandNewPlayerController::BeginPlay()
 {
@@ -41,6 +38,46 @@ void ABrandNewPlayerController::BeginPlay()
 			SubSystem->AddMappingContext(*FoundMappingContext, 0);
 		}
 	}
+	
+}
+
+
+FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
+{
+	return PlayerTeamID;
+}
+
+void ABrandNewPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	// Server
+	PlayerInterface = InPawn;
+	check(PlayerInterface);
+
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	
+	ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	if (!BrandNewPlayerState) return;
+	BrandNewPlayerState->SetPlayerNameToPlayerState(SaveSubsystem->GetUniqueIdentifier());
+	
+	
+}
+
+void ABrandNewPlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+
+	// Client
+	PlayerInterface = GetPawn();
+
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	
+	ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	if (!BrandNewPlayerState) return;
+	BrandNewPlayerState->SetPlayerNameToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
 }
 
@@ -71,23 +108,6 @@ void ABrandNewPlayerController::SetupInputComponent()
 		
 	}
 	
-}
-
-void ABrandNewPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-
-	// Server
-	PlayerInterface = InPawn;
-	check(PlayerInterface);
-}
-
-void ABrandNewPlayerController::OnRep_Pawn()
-{
-	Super::OnRep_Pawn();
-
-	// Client
-	PlayerInterface = GetPawn();
 }
 
 void ABrandNewPlayerController::AddInputMappingForWeapon(const ECombatWeaponType InWeaponType)
