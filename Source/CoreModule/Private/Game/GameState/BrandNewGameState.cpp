@@ -2,6 +2,8 @@
 
 
 #include "Game/GameState/BrandNewGameState.h"
+
+#include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
 #include "GameFramework/PlayerState.h"
 #include "Interfaces/Player/BnPlayerStateInterface.h"
 
@@ -36,8 +38,41 @@ void ABrandNewGameState::AddPlayerState(APlayerState* PlayerState)
 
 void ABrandNewGameState::RemovePlayerState(APlayerState* PlayerState)
 {
+	
 	PlayerExitDelegate.Broadcast(PlayerState->GetPlayerId());
+
+	// 로딩 중 플레이어가 나가면 Set에서 제외하고 체크
+	if (!LoadedPlayerIdSet.IsEmpty())
+	{
+		LoadedPlayerIdSet.Remove(PlayerState->GetPlayerId());
+		CheckAllPlayersLoaded();
+	}
 	
 	Super::RemovePlayerState(PlayerState);
 
 }
+
+void ABrandNewGameState::RegisterPlayerLoaded(const int32 PlayerId)
+{
+	LoadedPlayerIdSet.Add(PlayerId);
+	
+	CheckAllPlayersLoaded();
+}
+
+
+void ABrandNewGameState::CheckAllPlayersLoaded()
+{
+	if (!HasAuthority()) return;
+	
+	if (LoadedPlayerIdSet.Num() >= PlayerArray.Num())
+	{
+		// 이동 작업
+		LoadedPlayerIdSet.Empty();
+		
+		const UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>();
+		check(LevelManagerSubsystem);
+		LevelManagerSubsystem->TravelMap();
+		
+	}
+}
+

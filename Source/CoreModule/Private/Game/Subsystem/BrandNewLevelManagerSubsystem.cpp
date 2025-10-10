@@ -50,7 +50,14 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 
 void UBrandNewLevelManagerSubsystem::TravelMap() const
 {
-	UGameplayStatics::OpenLevel(GetWorld(), TargetLevelPath);
+	if (GetWorld()->GetNetMode() == NM_Standalone)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), TargetLevelPath);
+	}
+	else
+	{
+		GetWorld()->ServerTravel(TargetLevelPath.ToString());
+	}
 }
 
 void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass)

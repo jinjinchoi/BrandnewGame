@@ -25,5 +25,7 @@ class COREMODULE_API IBnPlayerControllerInterface
 public:
 	virtual void AddInputMappingForWeapon(const ECombatWeaponType InWeaponType) = 0;
 	virtual void RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove) = 0;
+
+	
 	
 };

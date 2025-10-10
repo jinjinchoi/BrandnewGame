@@ -23,7 +23,6 @@ class CHARACTERMODULE_API ABrandNewPlayerController : public APlayerController, 
 public:
 	ABrandNewPlayerController();
 	
-	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -43,10 +42,9 @@ protected:
 
 private:
 	FGenericTeamId PlayerTeamID;
-	
-////////////////////////////////////
-///////////  Input  ////////////////
-///////////////////////////////////
+
+
+#pragma region Input
 	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Input Properties")
 	TObjectPtr<UDataAsset_InputConfig> InputConfig;
@@ -66,6 +64,8 @@ private:
 	void Input_Run();
 
 	void Input_Interact();
+
+#pragma endregion
 	
 ////////////////////////////////////
 ///////////  UI  //////////////////

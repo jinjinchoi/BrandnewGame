@@ -21,7 +21,6 @@ ABrandNewPlayerController::ABrandNewPlayerController()
 	PlayerTeamID = TEAM_PLAYER;
 }
 
-
 void ABrandNewPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -46,6 +45,8 @@ FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
 {
 	return PlayerTeamID;
 }
+
+
 
 void ABrandNewPlayerController::OnPossess(APawn* InPawn)
 {
