@@ -600,13 +600,38 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 	
 }
 
-
 void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
 {
-	//TODO: 서버 클라이언트 로직 분리해야함.
-	
 	if (!AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
 
+	if (IsLocallyControlled() && HasAuthority())
+	{
+		SaveToSlot(SlotName, SlotIndex);
+	}
+	else if (HasAuthority())
+	{
+		/**
+		 * 세이브 작업은 서버에서만 하기 때문에 클라이언트 RPC로 자신의 아이디를 다시 서버 RPC 보내고
+		 * 서버는 이를 수신하여 세이브 작업 진행.
+		 */
+		Client_RequestSave(SlotName, SlotIndex);
+	}
+
+	
+}
+
+void ABrandNewPlayerCharacter::SaveToSlot(const FString& SlotName, const int32 SlotIndex)
+{
+	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
+	
+	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
+	{
+		SaveSubsystem->SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
+	}
+}
+
+FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams()
+{
 	// Attribute를 저장하는 구조체 생성
 	FAttributeSaveData AttributeParams;
 	AttributeParams.Strength = AttributeSet->GetStrength();
@@ -637,11 +662,28 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 	
 	SaveSlotPrams.bIsValid = true;
 
-	if (UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
-	{
-		SaveSubsystem->SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
-	}
+	return SaveSlotPrams;
+}
+
+
+void ABrandNewPlayerCharacter::Client_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex)
+{
+	// 클라이언트의 SubSystem 획득
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+
+	const FString ClientId = SaveSubsystem->GetUniqueIdentifier();
+	Server_Save(SlotName, SlotIndex, ClientId);
+}
+
+void ABrandNewPlayerCharacter::Server_Save_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
+{
+	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	
+	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
+	{
+		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
+	}
 }
 
 void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)

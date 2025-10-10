@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataTableStruct/DataTableRowStruct.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UIFunctionLibrary.generated.h"
 
 class UInventoryWidgetController;
-struct FItemDataRow;
 class UCharacterInfoWidgetController;
 
 USTRUCT(BlueprintType)

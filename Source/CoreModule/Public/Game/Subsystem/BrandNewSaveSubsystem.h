@@ -17,8 +17,10 @@ class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
+	
 	/* 슬롯에 데이터를 저장하는 함수 */
 	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
+	static void SaveGameToSlotWithId(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams, const FString& UniqueId);
 	
 	/* 슬롯에서 데이터를 가져오는 함수 */
 	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const;

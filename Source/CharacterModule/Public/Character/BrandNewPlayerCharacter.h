@@ -169,6 +169,14 @@ private:
 	void InitHUDAndBroadCastInitialValue() const;
 
 	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
+	void SaveToSlot(const FString& SlotName, int32 SlotIndex);
+	FSaveSlotPrams MakeSaveSlotPrams();
+
+	UFUNCTION(Client, Reliable)
+	void Client_RequestSave(const FString& SlotName, const int32 SlotIndex);
+
+	UFUNCTION(Server, Reliable)
+	void Server_Save(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
 
 	UFUNCTION(Server, Reliable)
 	void Server_AcquireItem();

@@ -9,7 +9,12 @@
 
 void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const
 {
-	const FString UniqueSlotName = SlotName + UniqueIdentifier;
+	SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, UniqueIdentifier);
+}
+
+void UBrandNewSaveSubsystem::SaveGameToSlotWithId(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams, const FString& UniqueId)
+{
+	const FString UniqueSlotName = SlotName + UniqueId;
 	
 	UBrandNewSlotSaveGame* SlotSaveGame = Cast<UBrandNewSlotSaveGame>(UGameplayStatics::CreateSaveGameObject(UBrandNewSlotSaveGame::StaticClass()));
 	SlotSaveGame->AttributePrams = SaveSlotPrams.AttributePrams;
@@ -22,8 +27,6 @@ void UBrandNewSaveSubsystem::SaveGameToSlot(const FString& SlotName, const int32
 	SlotSaveGame->Inventory = SaveSlotPrams.InventoryContents;
 
 	UGameplayStatics::SaveGameToSlot(SlotSaveGame, UniqueSlotName, SlotIndex);
-	
-	
 }
 
 FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const

@@ -3,11 +3,12 @@
 
 #include "UIFunctionLibrary.h"
 
-#include "DataTableStruct/DataTableRowStruct.h"
+#include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "HUD/BrandNewHUD.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerState.h"
 
 UCharacterInfoWidgetController* UUIFunctionLibrary::GetCharacterInfoWidgetController(const UObject* WorldContextObject)
 {
@@ -61,11 +62,35 @@ FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const UObject* World
 
 void UUIFunctionLibrary::RequestSave(ACharacter* PlayerCharacter, const FString& SlotName, const int32 SlotIndex)
 {
-	check(PlayerCharacter)
+	if (!PlayerCharacter || !PlayerCharacter->HasAuthority() || !PlayerCharacter->GetWorld()) return;
 
-	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(PlayerCharacter))
+	if (PlayerCharacter->IsNetMode(NM_Standalone))
 	{
-		PlayerInterface->RequestSave(SlotName, SlotIndex);
+		if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(PlayerCharacter))
+		{
+			PlayerInterface->RequestSave(SlotName, SlotIndex);
+		}
+		return;
+	}
+	
+	if (AGameStateBase* GameState = PlayerCharacter->GetWorld()->GetGameState())
+	{
+		for (const TObjectPtr<APlayerState>& PlayerState : GameState->PlayerArray)
+		{
+			if (!PlayerState) continue;
+			
+			APawn* Pawn = PlayerState->GetPawn();
+			if (!Pawn)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("RequestSave skipped: PlayerState %s has no Pawn."), *PlayerState->GetPlayerName());
+				continue;
+			}
+
+			if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(Pawn))
+			{
+				PlayerInterface->RequestSave(SlotName, SlotIndex);
+			}
+		}
 	}
 }
 
