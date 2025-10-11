@@ -29,9 +29,9 @@ void UBrandNewSaveSubsystem::SaveGameToSlotWithId(const FString& SlotName, const
 	UGameplayStatics::SaveGameToSlot(SlotSaveGame, UniqueSlotName, SlotIndex);
 }
 
-FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const
+FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataById(const FString& SlotName, const int32 SlotIndex, const FString& UniqueId) const
 {
-	const FString UniqueSlotName = SlotName + UniqueIdentifier;
+	const FString UniqueSlotName = SlotName + UniqueId;
 	
 	if (UGameplayStatics::DoesSaveGameExist(UniqueSlotName, SlotIndex))
 	{
@@ -55,9 +55,19 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName
 	return FSaveSlotPrams();
 }
 
+FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const
+{
+	return GetSaveDataById(SlotName, SlotIndex, UniqueIdentifier);
+}
+
 FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataInCurrentSlot() const
 {
 	return GetSaveDataInSlot(CurrentSlotName, CurrentSlotIndex);
+}
+
+FSaveSlotPrams UBrandNewSaveSubsystem::GetCurrentSlotSaveDataById(const FString& UniqueId) const
+{
+	return GetSaveDataById(CurrentSlotName, CurrentSlotIndex, UniqueId);
 }
 
 void UBrandNewSaveSubsystem::SavePlayerData(const FSaveSlotPrams& SaveSlotPrams)
@@ -102,7 +112,7 @@ void UBrandNewSaveSubsystem::Login(const FString& Id)
 	UniqueIdentifier = Id;
 }
 
-FString UBrandNewSaveSubsystem::GetUniqueIdentifier()
+FString UBrandNewSaveSubsystem::GetUniqueIdentifier() const
 {
 	return UniqueIdentifier;
 }

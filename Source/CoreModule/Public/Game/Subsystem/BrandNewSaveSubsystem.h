@@ -21,12 +21,16 @@ public:
 	/* 슬롯에 데이터를 저장하는 함수 */
 	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
 	static void SaveGameToSlotWithId(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams, const FString& UniqueId);
+
+	FSaveSlotPrams GetSaveDataById(const FString& SlotName, const int32 SlotIndex, const FString& UniqueId) const;
 	
 	/* 슬롯에서 데이터를 가져오는 함수 */
 	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const;
 
 	/* 본 클래스에 존재하는 CurrentSlotName의 슬롯에서 데이터를 반환하는 함수 */
 	FSaveSlotPrams GetSaveDataInCurrentSlot() const;
+
+	FSaveSlotPrams GetCurrentSlotSaveDataById(const FString& UniqueId) const;
 	
 	/* 최신 플레이어 데이터를 저장하는 함수. */
 	void SavePlayerData(const FSaveSlotPrams& SaveSlotPrams);
@@ -52,7 +56,7 @@ public:
 	void Login(const FString& Id);
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Save Logic")
-	FString GetUniqueIdentifier();
+	FString GetUniqueIdentifier() const;
 
 private:
 	/* 캐릭터의 데이터가 저장되어있는 구조체 */

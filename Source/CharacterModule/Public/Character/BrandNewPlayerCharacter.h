@@ -88,7 +88,7 @@ protected:
 	/* begin Actor Interface */
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
-
+	
 	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
 	void InitializeCharacterInfo();
 	/* 세이브 데이터로 부터 캐릭터 정보를 가져오는 함수 */
@@ -96,6 +96,10 @@ protected:
 	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
 	void ApplyPrimaryAttributeFromDataTable() const;
 	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
+
+	// 클라이언트가 서버에 Unique Id를 넘겨 Attribute 로드를 요청하는 함수
+	UFUNCTION(Server, Reliable)
+	void Server_RequestInitCharacterInfo(const FString& ClientId);
 
 	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
 	void LoadInventory(const FInventoryContents& InventoryData);
@@ -169,14 +173,15 @@ private:
 	void InitHUDAndBroadCastInitialValue() const;
 
 	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
+	
 	void SaveToSlot(const FString& SlotName, int32 SlotIndex);
 	FSaveSlotPrams MakeSaveSlotPrams();
 
 	UFUNCTION(Client, Reliable)
-	void Client_RequestSave(const FString& SlotName, const int32 SlotIndex);
+	void Client_SaveInSlot(const FString& SlotName, const int32 SlotIndex);
 
 	UFUNCTION(Server, Reliable)
-	void Server_Save(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
+	void Server_RequestSave(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
 
 	UFUNCTION(Server, Reliable)
 	void Server_AcquireItem();

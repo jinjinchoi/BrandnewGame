@@ -93,7 +93,10 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	Server_RequestUpdateMovementMode(CurrentGate);
 	InitAbilityActorInfo();
-	InitializeCharacterInfo();
+	if (IsLocallyControlled())
+	{
+		InitializeCharacterInfo();
+	}
 	BindAttributeDelegates();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
 }
@@ -101,10 +104,17 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 void ABrandNewPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-
+	
 	UpdateMovementComponentPrams();
 	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
 	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
+
+	if (IsLocallyControlled())
+	{
+		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
+	}
+	
 	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
 }
 
@@ -140,6 +150,31 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 	}
 	
+}
+
+void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& ClientId)
+{
+	if (!HasAuthority()) return;
+
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	
+	if (SaveSubsystem->IsLoadedWorld() && !ClientId.IsEmpty())
+	{
+		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(ClientId);
+		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
+		
+		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
+		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
+		LoadInventory(SavedData.InventoryContents); // 인벤토리 로드
+	}
+	else
+	{
+		ApplyPrimaryAttributeFromDataTable();
+		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	}
 }
 
 void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const
@@ -197,6 +232,8 @@ void ABrandNewPlayerCharacter::OverrideVitalAttribute(const float HealthToApply,
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Vital_CurrentMana, ManaToApply);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
+
+
 
 void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& InventoryData)
 {
@@ -614,7 +651,7 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 		 * 세이브 작업은 서버에서만 하기 때문에 클라이언트 RPC로 자신의 아이디를 다시 서버 RPC 보내고
 		 * 서버는 이를 수신하여 세이브 작업 진행.
 		 */
-		Client_RequestSave(SlotName, SlotIndex);
+		Client_SaveInSlot(SlotName, SlotIndex);
 	}
 
 	
@@ -666,17 +703,17 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams()
 }
 
 
-void ABrandNewPlayerCharacter::Client_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex)
+void ABrandNewPlayerCharacter::Client_SaveInSlot_Implementation(const FString& SlotName, const int32 SlotIndex)
 {
 	// 클라이언트의 SubSystem 획득
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
 
 	const FString ClientId = SaveSubsystem->GetUniqueIdentifier();
-	Server_Save(SlotName, SlotIndex, ClientId);
+	Server_RequestSave(SlotName, SlotIndex, ClientId);
 }
 
-void ABrandNewPlayerCharacter::Server_Save_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
+void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
 {
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	
