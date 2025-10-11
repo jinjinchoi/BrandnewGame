@@ -165,16 +165,18 @@ protected:
 	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
 
 private:
-	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
-	void AddCharacterAbilities() const;
 	/* Attribute 변화를 바인딩 하는 함수 */
 	void BindAttributeDelegates();
 	/* HUD 초기화 하고 초기 값 브로드캐스트 하는 함수 */
 	void InitHUDAndBroadCastInitialValue() const;
 
-	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
+#pragma region SaveAndLoad
+
+	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
+	void AddCharacterAbilities() const;
 	
 	void SaveToSlot(const FString& SlotName, int32 SlotIndex);
+	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
 	FSaveSlotPrams MakeSaveSlotPrams();
 
 	UFUNCTION(Client, Reliable)
@@ -182,6 +184,15 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestSave(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
+
+	/* 캐릭터의 데이터가 저장되어있는 구조체. 서버에서만 설정됨 */
+	FSaveSlotPrams LastestPlayerData;
+
+#pragma endregion
+
+#pragma region Item
+
+	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
 
 	UFUNCTION(Server, Reliable)
 	void Server_AcquireItem();
@@ -210,6 +221,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_CurrentEquippedWeaponType();
+
+#pragma endregion 
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);

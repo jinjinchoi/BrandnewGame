@@ -137,6 +137,8 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetSaveDataInCurrentSlot();
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
+
+		LastestPlayerData = SavedData;
 		
 		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
@@ -163,6 +165,8 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(ClientId);
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
+
+		LastestPlayerData = SavedData;
 		
 		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
@@ -334,8 +338,6 @@ void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(con
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	
 }
-
-
 
 
 void ABrandNewPlayerCharacter::AddCharacterAbilities() const
@@ -663,6 +665,7 @@ void ABrandNewPlayerCharacter::SaveToSlot(const FString& SlotName, const int32 S
 	
 	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
 	{
+		LastestPlayerData = SaveSlotPrams;
 		SaveSubsystem->SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
 	}
 }
@@ -719,6 +722,7 @@ void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& 
 	
 	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
 	{
+		LastestPlayerData = SaveSlotPrams;
 		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
 	}
 }

@@ -70,19 +70,8 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetCurrentSlotSaveDataById(const FString&
 	return GetSaveDataById(CurrentSlotName, CurrentSlotIndex, UniqueId);
 }
 
-void UBrandNewSaveSubsystem::SavePlayerData(const FSaveSlotPrams& SaveSlotPrams)
-{
-	LastestPlayerData = SaveSlotPrams;
-}
-
-FSaveSlotPrams UBrandNewSaveSubsystem::GetLastestPlayerData()
-{
-	return LastestPlayerData;
-}
-
 void UBrandNewSaveSubsystem::ResetPlayerData()
 {
-	LastestPlayerData = FSaveSlotPrams();
 	UniqueIdentifier.Empty();
 }
 

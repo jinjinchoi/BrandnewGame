@@ -9,7 +9,9 @@
 
 
 /**
- * 
+ * 세이브 로드 작업을 하는 서브시스템.
+ * 세이브 로드가 아이디 기반과 아이디 매개변수 없이 멤버 변수 UniqueIdentifier를 사용하는 함수로 나누어져 있는데
+ * 서버에서 클라이언트의 서브시스템에 접근할 수 없기 때문에 클라이언트에서 세이브시 클라이언트의 아이디를 얻어서 이를 서버에 보내야해서 세이브 로드 로직을 두가지 버전으로 나눔.
  */
 UCLASS()
 class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
@@ -29,14 +31,8 @@ public:
 
 	/* 본 클래스에 존재하는 CurrentSlotName의 슬롯에서 데이터를 반환하는 함수 */
 	FSaveSlotPrams GetSaveDataInCurrentSlot() const;
-
+	
 	FSaveSlotPrams GetCurrentSlotSaveDataById(const FString& UniqueId) const;
-	
-	/* 최신 플레이어 데이터를 저장하는 함수. */
-	void SavePlayerData(const FSaveSlotPrams& SaveSlotPrams);
-	
-	/* 가장 최신 플레이어 데이터를 가져오는 함수. */
-	FSaveSlotPrams GetLastestPlayerData();
 	
 	/* 서브시스템에 있는 데이터를 초기화하는 함수 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
@@ -59,9 +55,6 @@ public:
 	FString GetUniqueIdentifier() const;
 
 private:
-	/* 캐릭터의 데이터가 저장되어있는 구조체 */
-	FSaveSlotPrams LastestPlayerData;
-
 	/**
 	 * 세이브 로드시 슬롯 이름 앞에 붙여 고유 저장소를 만들때 사용.
 	 * 현재 가장 큰 목적은 클라이언트별로 세이브 데이터 슬롯을 구분하기 위하여 고유 식별자를 사용.
