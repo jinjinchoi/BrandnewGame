@@ -56,6 +56,7 @@ public:
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) override;
 	virtual void UseConsumptionItem(const int32 SlotIndex) override;
 	virtual void UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType) override;
+	virtual void RevivePlayerCharacter() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -89,21 +90,6 @@ protected:
 	virtual void BeginPlay() override;
 	/* end Actor Interface */
 	
-	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
-	void InitializeCharacterInfo();
-	/* 세이브 데이터로 부터 캐릭터 정보를 가져오는 함수 */
-	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
-	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
-	void ApplyPrimaryAttributeFromDataTable() const;
-	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
-
-	// 클라이언트가 서버에 Unique Id를 넘겨 Attribute 로드를 요청하는 함수
-	UFUNCTION(Server, Reliable)
-	void Server_RequestInitCharacterInfo(const FString& ClientId);
-
-	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
-	void LoadInventory(const FInventoryContents& InventoryData);
-
 	/* 캐릭터의 최초 Attribute가 저장되어 있는 데이터 테이블 */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> AttributeDataTable;
@@ -173,14 +159,45 @@ private:
 	void MoveCharacterToValidLocation(const FVector& NewLocation);
 	FVector GetSafeTeleportLocation(const FVector& NewLocation) const;
 
+	void ReviveCharacter();
+	UFUNCTION(Server, Reliable)
+	void Server_ReviveCharacter();
+	
+
+	/* 부활할때 사용할 마지막으로 저장하거나 로드된 위치. 서버에서만 설정됨. */
+	FVector SafeLocation;
+
 #pragma region SaveAndLoad
+	
+	// 클라이언트가 서버에 Unique Id를 넘겨 Attribute 로드를 요청하는 함수
+	UFUNCTION(Server, Reliable)
+	void Server_RequestInitCharacterInfo(const FString& ClientId);
+
+	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
+	void InitializeCharacterInfo(const FString& UniqueId);
+	
+	// 세이브 데이터로부터 캐릭터 정보 로드
+	void LoadCharacterData(const FSaveSlotPrams& SavedDataToApply);
+
+	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
+	void LoadInventory(const FInventoryContents& InventoryData);
+	
+	/* 세이브 데이터로 부터 캐릭터 정보를 가져오는 함수 */
+	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
+
+	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
+
+	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
+	void ApplyPrimaryAttributeFromDataTable() const;
 
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
 	void AddCharacterAbilities() const;
 	
-	void SaveToSlot(const FString& SlotName, int32 SlotIndex);
 	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
-	FSaveSlotPrams MakeSaveSlotPrams();
+	FSaveSlotPrams MakeSaveSlotPrams() const;
+
+	// 캐릭터 데이터를 슬롯에 저장
+	void SaveCharacterData(const FString& SlotName, int32 SlotIndex, const FString& ClientId);
 
 	UFUNCTION(Client, Reliable)
 	void Client_SaveInSlot(const FString& SlotName, const int32 SlotIndex);

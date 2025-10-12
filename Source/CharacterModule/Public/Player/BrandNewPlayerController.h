@@ -40,6 +40,8 @@ protected:
 
 
 private:
+	bool CanNotInteraction() const;
+	
 	FGenericTeamId PlayerTeamID;
 
 	UFUNCTION(Server, Reliable)

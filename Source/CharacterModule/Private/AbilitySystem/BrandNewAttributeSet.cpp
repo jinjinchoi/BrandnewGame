@@ -53,6 +53,12 @@ void UBrandNewAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+		
+		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
+		{
+			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
+		}
+		
 	}
 	if (Attribute == GetManaAttribute())
 	{
@@ -62,10 +68,8 @@ void UBrandNewAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
 		{
-			/**
-			 * UI에 다른 플레이어들 최대 체력 변경되면 반영하기 위해 브로드캐스트 요청.
-			 * 리슨 서버에서 호스트 전용. 클라이언트는 밑의 복제 함수에서 브로드캐스트 요청함.
-			 */ 
+			/* UI에 다른 플레이어들 최대 체력 변경되면 반영하기 위해 브로드캐스트 요청.
+			 * 리슨 서버에서 호스트 전용. 클라이언트는 밑의 복제 함수에서 브로드캐스트 요청함. */ 
 			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
 		}
 	}
@@ -76,21 +80,9 @@ void UBrandNewAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffe
 {
 	Super::PostGameplayEffectExecute(Data);
 	
-	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
-	{
-		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
-		{
-			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
-		}
-	}
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		
-		if (GetOwningActor()->Implements<UBrandNewPlayerInterface>())
-		{
-			IBrandNewPlayerInterface::Execute_K2_BroadCastCharacterInitialHealth(GetOwningActor());
-		}
 	}
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{

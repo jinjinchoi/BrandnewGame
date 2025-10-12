@@ -29,6 +29,7 @@ FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
 }
 
 
+
 void ABrandNewPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -167,9 +168,15 @@ void ABrandNewPlayerController::Input_AbilityInputReleased(FGameplayTag InInputT
 	ControlledCharacter->OnAbilityInputReleased(InInputTag);
 }
 
+bool ABrandNewPlayerController::CanNotInteraction() const
+{
+	return !PlayerInterface || PlayerInterface->IsHitReacting() || IBrandNewCharacterInterface::Execute_IsDead(GetPawn());
+}
+
+
 void ABrandNewPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
-	if (!PlayerInterface || PlayerInterface->IsHitReacting()) return;
+	if (CanNotInteraction()) return;
 	
 	ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
 	if (!ControlledCharacter) return;
@@ -210,7 +217,7 @@ void ABrandNewPlayerController::Input_Look(const FInputActionValue& InputActionV
 
 void ABrandNewPlayerController::Input_Jump()
 {
-	if (!PlayerInterface || PlayerInterface->IsHitReacting()) return;
+	if (CanNotInteraction()) return;
 	
 	ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
 	if (!ControlledCharacter) return;
@@ -241,6 +248,8 @@ void ABrandNewPlayerController::Input_Run()
 
 void ABrandNewPlayerController::Input_Interact()
 {
+	if (CanNotInteraction()) return;
+	
 	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
 	{
 		ControlledCharacter->InteractIfPossible();

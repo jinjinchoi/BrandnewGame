@@ -56,6 +56,8 @@ ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 	
 }
 
+
+
 void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -87,6 +89,18 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 	
 }
 
+
+void ABrandNewPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnEquippedWeaponChanged();
+
+	// 처음 시작할때 위치를 저장하여 맵을 이동하더라도 이동 된 월드의 초기 Location을 알 수 있게 함.
+	SafeLocation = GetActorLocation();
+	
+}
+
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -95,7 +109,8 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	InitAbilityActorInfo();
 	if (IsLocallyControlled())
 	{
-		InitializeCharacterInfo();
+		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		InitializeCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	BindAttributeDelegates();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
@@ -119,14 +134,13 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 }
 
 
-void ABrandNewPlayerCharacter::BeginPlay()
+void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& ClientId)
 {
-	Super::BeginPlay();
-
-	OnEquippedWeaponChanged();
+	InitializeCharacterInfo(ClientId);
 }
 
-void ABrandNewPlayerCharacter::InitializeCharacterInfo()
+
+void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 {
 	if (!HasAuthority()) return;
 
@@ -135,21 +149,11 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 	
 	if (SaveSubsystem->IsLoadedWorld())
 	{
-		const FSaveSlotPrams SavedData = SaveSubsystem->GetSaveDataInCurrentSlot();
+		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId);
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
-
-		LastestPlayerData = SavedData;
 		
-		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
-		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
-		LoadInventory(SavedData.InventoryContents); // 인벤토리 로드
-
-		const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
-		if (SavedData.MapPackageName == MapName)
-		{
-			MoveCharacterToValidLocation(SavedData.CharacterLocation);
-		}
+		LastestPlayerData = SavedData;
+		LoadCharacterData(SavedData);
 		
 	}
 	else
@@ -157,34 +161,23 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 		ApplyPrimaryAttributeFromDataTable();
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+		LastestPlayerData = MakeSaveSlotPrams();
 	}
-	
 }
 
-void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& ClientId)
+void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedDataToApply)
 {
-	if (!HasAuthority()) return;
-
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
+	if (!SavedDataToApply.bIsValid) return;
 	
-	if (SaveSubsystem->IsLoadedWorld() && !ClientId.IsEmpty())
-	{
-		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(ClientId);
-		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
+	ApplyPrimaryAttributeFromSaveData(SavedDataToApply.AttributePrams);
+	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
+	LoadInventory(SavedDataToApply.InventoryContents); // 인벤토리 로드
 
-		LastestPlayerData = SavedData;
-		
-		ApplyPrimaryAttributeFromSaveData(SavedData.AttributePrams);
-		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
-		LoadInventory(SavedData.InventoryContents); // 인벤토리 로드
-	}
-	else
+	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
+	if (SavedDataToApply.MapPackageName == MapName)
 	{
-		ApplyPrimaryAttributeFromDataTable();
-		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+		MoveCharacterToValidLocation(SavedDataToApply.CharacterLocation);
 	}
 }
 
@@ -440,9 +433,10 @@ void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
 
 void ABrandNewPlayerCharacter::MoveCharacterToValidLocation(const FVector& NewLocation)
 {
-	const FVector SafeLocation = GetSafeTeleportLocation(NewLocation);
+	const FVector ValidLocation = GetSafeTeleportLocation(NewLocation);
 
-	SetActorLocation(SafeLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorLocation(ValidLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	SafeLocation = ValidLocation;
 }
 
 FVector ABrandNewPlayerCharacter::GetSafeTeleportLocation(const FVector& NewLocation) const
@@ -685,32 +679,51 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 
 	if (IsLocallyControlled() && HasAuthority())
 	{
-		SaveToSlot(SlotName, SlotIndex);
+		// 호스트의 경우 바로 세이브 작업 실행
+		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		if (!SaveSubsystem) return;
+	
+		SaveCharacterData(SlotName, SlotIndex, SaveSubsystem->GetUniqueIdentifier());
 	}
 	else if (HasAuthority())
 	{
-		/**
-		 * 세이브 작업은 서버에서만 하기 때문에 클라이언트 RPC로 자신의 아이디를 다시 서버 RPC 보내고
-		 * 서버는 이를 수신하여 세이브 작업 진행.
-		 */
+		/* 세이브 작업은 서버에서만 하기 때문에 클라이언트의 아이디를 알 수 없어서
+		 * 클라이언트 RPC로 서버에 자신의 아이디를 보내도록 요청. */
 		Client_SaveInSlot(SlotName, SlotIndex);
 	}
 
 	
 }
 
-void ABrandNewPlayerCharacter::SaveToSlot(const FString& SlotName, const int32 SlotIndex)
+void ABrandNewPlayerCharacter::Client_SaveInSlot_Implementation(const FString& SlotName, const int32 SlotIndex)
+{
+	// 클라이언트의 SubSystem 획득
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+
+	const FString ClientId = SaveSubsystem->GetUniqueIdentifier();
+	Server_RequestSave(SlotName, SlotIndex, ClientId); // 서버에 아이디를 보내고 저장 요청
+}
+
+void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
+{
+	SaveCharacterData(SlotName, SlotIndex, ClientId);
+}
+
+void ABrandNewPlayerCharacter::SaveCharacterData(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
 {
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	
 	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
 	{
 		LastestPlayerData = SaveSlotPrams;
-		SaveSubsystem->SaveGameToSlot(SlotName, SlotIndex, SaveSlotPrams);
+		SafeLocation = SaveSlotPrams.CharacterLocation;
+		
+		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
 	}
 }
 
-FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams()
+FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 {
 	// Attribute를 저장하는 구조체 생성
 	FAttributeSaveData AttributeParams;
@@ -745,27 +758,6 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams()
 	return SaveSlotPrams;
 }
 
-
-void ABrandNewPlayerCharacter::Client_SaveInSlot_Implementation(const FString& SlotName, const int32 SlotIndex)
-{
-	// 클라이언트의 SubSystem 획득
-	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
-
-	const FString ClientId = SaveSubsystem->GetUniqueIdentifier();
-	Server_RequestSave(SlotName, SlotIndex, ClientId);
-}
-
-void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
-{
-	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
-	
-	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
-	{
-		LastestPlayerData = SaveSlotPrams;
-		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
-	}
-}
 
 void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
 {
@@ -845,6 +837,44 @@ void ABrandNewPlayerCharacter::UseEquipmentItem(const int32 SlotIndex, const EIt
 	if (!AbilitySystemComponent || !EquipmentInfiniteEffect) return;
 
 	HasAuthority() ? EquipItem(SlotIndex, ItemType) : Server_EquipItem(SlotIndex, ItemType);
+	
+}
+
+void ABrandNewPlayerCharacter::ReviveCharacter()
+{
+	bIsDead = false;
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		
+	FGameplayTagContainer GameplayTags;
+	GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+	AbilitySystemComponent->CancelAbilities(&GameplayTags);
+
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	MoveCharacterToValidLocation(SafeLocation);
+}
+
+void ABrandNewPlayerCharacter::Server_ReviveCharacter_Implementation()
+{
+	ReviveCharacter();
+}
+
+void ABrandNewPlayerCharacter::RevivePlayerCharacter()
+{
+	if (!bIsDead) return;
+	
+	if (HasAuthority())
+	{
+		ReviveCharacter();
+	}
+	else
+	{
+		bIsDead = false; // 서버는 따로 설정하기 때문에 클라에서만 설정
+		Server_ReviveCharacter();
+	}
 	
 }
 

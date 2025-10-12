@@ -37,6 +37,19 @@ UInventoryWidgetController* UUIFunctionLibrary::GetInventoryWidgetController(con
 	
 }
 
+UGameOverWidgetController* UUIFunctionLibrary::GetGameOverWidgetController(const UObject* WorldContextObject)
+{
+	if (const APlayerController* PlayerController = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	{
+		if (ABrandNewHUD* HUD = Cast<ABrandNewHUD>(PlayerController->GetHUD()))
+		{
+			return HUD->GetGameOverWidgetController();
+		}
+	}
+
+	return nullptr;
+}
+
 FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const UObject* WorldContextObject, const FString& SlotName, const int32 SlotIndex)
 {
 	if (!WorldContextObject) return FSaveSlotViewInfoParams();
@@ -44,7 +57,7 @@ FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const UObject* World
 	UBrandNewSaveSubsystem* SaveSubsystem = WorldContextObject->GetWorld()->GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return FSaveSlotViewInfoParams();
 	
-	const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetSaveDataInSlot(SlotName, SlotIndex);
+	const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetSaveDataById(SlotName, SlotIndex, SaveSubsystem->GetUniqueIdentifier());
 	if (SaveSlotPrams.bIsValid)
 	{
 		FSaveSlotViewInfoParams SlotViewParams;

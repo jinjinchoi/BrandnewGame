@@ -7,6 +7,7 @@
 #include "WidgetController/CharacterInfoWidgetController.h"
 #include "WidgetController/InventoryWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
+#include "WidgetController/GameOverWidgetController.h"
 
 void ABrandNewHUD::InitHUD()
 {
@@ -62,5 +63,19 @@ UInventoryWidgetController* ABrandNewHUD::GetInventoryWidgetController()
 	}
 
 	return InventoryWidgetController;
+	
+}
+
+UGameOverWidgetController* ABrandNewHUD::GetGameOverWidgetController()
+{
+	check(GameOverWidgetControllerClass)
+
+	if (!GameOverWidgetController)
+	{
+		GameOverWidgetController = NewObject<UGameOverWidgetController>(this, GameOverWidgetControllerClass);
+		GameOverWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+	}
+
+	return GameOverWidgetController;
 	
 }

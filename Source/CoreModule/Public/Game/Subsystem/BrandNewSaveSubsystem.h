@@ -10,8 +10,9 @@
 
 /**
  * 세이브 로드 작업을 하는 서브시스템.
- * 세이브 로드가 아이디 기반과 아이디 매개변수 없이 멤버 변수 UniqueIdentifier를 사용하는 함수로 나누어져 있는데
- * 서버에서 클라이언트의 서브시스템에 접근할 수 없기 때문에 클라이언트에서 세이브시 클라이언트의 아이디를 얻어서 이를 서버에 보내야해서 세이브 로드 로직을 두가지 버전으로 나눔.
+ * 세이브 슬롯은 UniqueIdentifier로 구분 되는데 SubSystem에서 직접 클라이언트의 UniqueIdentifier에 접근할 수 없기 때문에
+ * 클라이언트의 데이터를 저장하거나 로드하기 위해서는 UniqueIdentifier를 매개변수로 보내야함.
+ * 세이브 로드를 서버에서만 하기 때문에 서버는 굳이 안보내도 되나 함수의 통일을 위해 서버(호스트)도 동일한 로직을 사용.
  */
 UCLASS()
 class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
@@ -19,29 +20,21 @@ class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	
 	/* 슬롯에 데이터를 저장하는 함수 */
-	void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
+	// void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
 	static void SaveGameToSlotWithId(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams, const FString& UniqueId);
 
 	FSaveSlotPrams GetSaveDataById(const FString& SlotName, const int32 SlotIndex, const FString& UniqueId) const;
-	
-	/* 슬롯에서 데이터를 가져오는 함수 */
-	FSaveSlotPrams GetSaveDataInSlot(const FString& SlotName, const int32 SlotIndex) const;
 
-	/* 본 클래스에 존재하는 CurrentSlotName의 슬롯에서 데이터를 반환하는 함수 */
-	FSaveSlotPrams GetSaveDataInCurrentSlot() const;
-	
+	/* 현재 슬롯은 호스트에서 로드하였을때 클라이언트가 호스트의 로드 슬롯으로 데이터를 로드하기 위해서 사용. */
 	FSaveSlotPrams GetCurrentSlotSaveDataById(const FString& UniqueId) const;
 	
 	/* 서브시스템에 있는 데이터를 초기화하는 함수 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
 	void ResetPlayerData();
 
-	/**
-	 * 맵 에셋 네임을 반환하는 함수.
-	 * 맵을 이동하기전에 사용하는 함수이기 때문에 에셋 네임을 성공적으로 반환하면 슬롯 데이터를 저장까지 진행.
-	 */
+	/* 맵 에셋 네임을 반환하는 함수.
+	 * 맵을 이동하기전에 사용하는 함수이기 때문에 에셋 네임을 성공적으로 반환하면 슬롯 데이터를 저장까지 진행. */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Save Logic")
 	FString TryGetMapAssetNameAndSaveSlotInfo(const FString& SlotName, const int32 SlotIndex);
 	

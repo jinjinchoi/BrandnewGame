@@ -7,6 +7,7 @@
 #include "Interfaces/UI/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
+class UGameOverWidgetController;
 class UInventoryWidgetController;
 class UCharacterInfoWidgetController;
 class UOverlayWidgetController;
@@ -28,6 +29,7 @@ public:
 
 	UCharacterInfoWidgetController* GetCharacterInfoWidgetController();
 	UInventoryWidgetController* GetInventoryWidgetController();
+	UGameOverWidgetController* GetGameOverWidgetController();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
@@ -35,14 +37,15 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
-
 	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UCharacterInfoWidgetController> CharacterInfoWidgetControllerClass;
-
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UInventoryWidgetController> InventoryWidgetControllerClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	TSubclassOf<UGameOverWidgetController> GameOverWidgetControllerClass;
 
 private:
 	UPROPERTY()
@@ -56,5 +59,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UInventoryWidgetController> InventoryWidgetController;
+	
+	UPROPERTY()
+	TObjectPtr<UGameOverWidgetController> GameOverWidgetController;
 	
 };
