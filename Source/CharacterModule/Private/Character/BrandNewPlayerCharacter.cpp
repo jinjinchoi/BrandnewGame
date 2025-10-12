@@ -91,7 +91,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	Server_RequestUpdateMovementMode(CurrentGate);
+	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
 	if (IsLocallyControlled())
 	{
@@ -144,6 +144,13 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo()
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		OverrideVitalAttribute(SavedData.AttributePrams.CurrentHealth, SavedData.AttributePrams.CurrentMana);
 		LoadInventory(SavedData.InventoryContents); // 인벤토리 로드
+
+		const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
+		if (SavedData.MapPackageName == MapName)
+		{
+			MoveCharacterToValidLocation(SavedData.CharacterLocation);
+		}
+		
 	}
 	else
 	{
@@ -429,6 +436,39 @@ void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
 	BrandNewHUD->RequestInitHUD();
 	
 }
+
+
+void ABrandNewPlayerCharacter::MoveCharacterToValidLocation(const FVector& NewLocation)
+{
+	const FVector SafeLocation = GetSafeTeleportLocation(NewLocation);
+
+	SetActorLocation(SafeLocation, false, nullptr, ETeleportType::TeleportPhysics);
+}
+
+FVector ABrandNewPlayerCharacter::GetSafeTeleportLocation(const FVector& NewLocation) const
+{
+	const UWorld* World = GetWorld();
+	if (!World) return GetActorLocation();
+
+	FVector TraceStart = NewLocation + FVector(0.f, 0.f, 200.f);
+	FVector TraceEnd = NewLocation - FVector(0.f, 0.f, 500.f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	// 아래로 라인 트레이스해서 바닥 찾기
+	if (World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params))
+	{
+		FVector ValidLocation = HitResult.Location;
+		ValidLocation.Z += GetCapsuleComponent()->GetScaledCapsuleHalfHeight(); // 충돌 보정
+		return ValidLocation;
+	}
+
+	// 트레이스 실패 시 기존 위치 유지
+	return GetActorLocation();
+}
+
 
 
 void ABrandNewPlayerCharacter::OnAbilityInputPressed(const FGameplayTag& InInputTag) const

@@ -170,6 +170,9 @@ private:
 	/* HUD 초기화 하고 초기 값 브로드캐스트 하는 함수 */
 	void InitHUDAndBroadCastInitialValue() const;
 
+	void MoveCharacterToValidLocation(const FVector& NewLocation);
+	FVector GetSafeTeleportLocation(const FVector& NewLocation) const;
+
 #pragma region SaveAndLoad
 
 	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수

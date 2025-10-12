@@ -14,12 +14,20 @@
 #include "Character/BrandNewPlayerCharacter.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
-#include "Player/BrandNewPlayerState.h"
+#include "Interfaces/Player/BnPlayerStateInterface.h"
+#include "GameFramework/PlayerState.h"
 
 ABrandNewPlayerController::ABrandNewPlayerController()
 {
 	PlayerTeamID = TEAM_PLAYER;
 }
+
+
+FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
+{
+	return PlayerTeamID;
+}
+
 
 void ABrandNewPlayerController::BeginPlay()
 {
@@ -40,28 +48,20 @@ void ABrandNewPlayerController::BeginPlay()
 	
 }
 
-
-FGenericTeamId ABrandNewPlayerController::GetGenericTeamId() const
-{
-	return PlayerTeamID;
-}
-
-
-
 void ABrandNewPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+
+	if (!IsLocalController()) return;
 	
 	// Server
 	PlayerInterface = InPawn;
 	check(PlayerInterface);
 
-	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
 	
-	ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
-	if (!BrandNewPlayerState) return;
-	BrandNewPlayerState->SetPlayerNameToPlayerState(SaveSubsystem->GetUniqueIdentifier());
+	SetPlayerIdToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
 	
 }
@@ -70,16 +70,29 @@ void ABrandNewPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
 
+	if (!IsLocalController()) return;
+
 	// Client
 	PlayerInterface = GetPawn();
 
-	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
+
+	Server_SetPlayerIdToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
-	ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
-	if (!BrandNewPlayerState) return;
-	BrandNewPlayerState->SetPlayerNameToPlayerState(SaveSubsystem->GetUniqueIdentifier());
+}
+
+void ABrandNewPlayerController::Server_SetPlayerIdToPlayerState_Implementation(const FString& ClientName)
+{
+	SetPlayerIdToPlayerState(ClientName);
+}
+
+void ABrandNewPlayerController::SetPlayerIdToPlayerState(const FString& PlayerName) const
+{
+	IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(PlayerState);
+	if (!PlayerStateInterface) return;
 	
+	PlayerStateInterface->SetPlayerNameToPlayerState(PlayerName);
 }
 
 void ABrandNewPlayerController::SetupInputComponent()
