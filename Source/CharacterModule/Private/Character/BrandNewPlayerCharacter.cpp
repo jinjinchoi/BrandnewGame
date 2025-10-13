@@ -427,8 +427,70 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 			PlayerCharacter->MaxManaChangedDelegate.Broadcast(Data.NewValue);
 		}
 	});
+
+	// 레벨 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetCharacterLevelAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->LevelChangedDelegate.Broadcast(Data.NewValue);
+			PlayerCharacter->ExperienceChangedDelegate.Broadcast(PlayerCharacter->CalculateExpPercent());
+		}
+	});
+
+	// 경험치 변경 바인딩
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		AttributeSet->GetXPAttribute()).AddLambda([WeakThis](const FOnAttributeChangeData& Data)
+	{
+		if (const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get())
+		{
+			PlayerCharacter->ExperienceChangedDelegate.Broadcast(PlayerCharacter->CalculateExpPercent());
+		}
+	});
 	
 }
+
+void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
+{
+	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
+	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
+	MaxManaChangedDelegate.Broadcast(AttributeSet->GetMaxMana());
+	ManaChangedDelegate.Broadcast(AttributeSet->GetMana());
+	LevelChangedDelegate.Broadcast(AttributeSet->GetCharacterLevel());
+	ExperienceChangedDelegate.Broadcast(CalculateExpPercent());
+	
+}
+
+
+float ABrandNewPlayerCharacter::CalculateExpPercent() const
+{
+	if (!AttributeSet || !LevelUpInfoDataAsset) return 0.f;
+	
+	const int32 PlayerLevel = AttributeSet->GetCharacterLevel();
+	if (PlayerLevel < 1) return 0.f;
+			
+	if (LevelUpInfoDataAsset->LevelUpInformation.IsValidIndex(PlayerLevel) && LevelUpInfoDataAsset->LevelUpInformation.IsValidIndex(PlayerLevel + 1))
+	{
+		const FLevelUpInfo& NextLevelUpInfo = LevelUpInfoDataAsset->LevelUpInformation[PlayerLevel + 1];
+		const FLevelUpInfo& CurrentLevelUpInfo = LevelUpInfoDataAsset->LevelUpInformation[PlayerLevel];
+		const float Range = NextLevelUpInfo.LevelUpRequirement - CurrentLevelUpInfo.LevelUpRequirement; // 현재 레벨에서 다음 레벨로 진행하기 위해 필요한 경험치량
+		float Progress  = AttributeSet->GetXP() - CurrentLevelUpInfo.LevelUpRequirement; // 현재 레벨 기준으로 획득한 경험치량
+
+		Progress = FMath::Clamp(Progress, 0.f, Range);
+	
+		if (Range <= 0.f)
+		{
+			return 0.f;
+		}
+	
+		return Progress / Range;
+		
+	}
+
+	return 0.f;
+}
+
 
 void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
 {
@@ -441,7 +503,6 @@ void ABrandNewPlayerCharacter::InitHUDAndBroadCastInitialValue() const
 	BrandNewHUD->RequestInitHUD();
 	
 }
-
 
 void ABrandNewPlayerCharacter::MoveCharacterToValidLocation(const FVector& NewLocation)
 {
@@ -641,13 +702,6 @@ float ABrandNewPlayerCharacter::GetAttributeValueByTag(const FGameplayTag& Attri
 	
 }
 
-void ABrandNewPlayerCharacter::RequestBroadCastAttributeValue()
-{
-	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
-	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
-	MaxManaChangedDelegate.Broadcast(AttributeSet->GetMaxMana());
-	ManaChangedDelegate.Broadcast(AttributeSet->GetMana());
-}
 
 void ABrandNewPlayerCharacter::K2_BroadCastCharacterInitialHealth_Implementation()
 {

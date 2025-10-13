@@ -75,12 +75,21 @@ public:
 	/* Delegates */
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate HealthChangedDelegate;
+	
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate MaxHealthChangedDelegate;
+	
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate ManaChangedDelegate;
+	
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
 	FOnAttributeChangedDelegate MaxManaChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate LevelChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
+	FOnAttributeChangedDelegate ExperienceChangedDelegate;
 	
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
 	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
@@ -156,6 +165,8 @@ private:
 	void BindAttributeDelegates();
 	/* HUD 초기화 하고 초기 값 브로드캐스트 하는 함수 */
 	void InitHUDAndBroadCastInitialValue() const;
+
+	float CalculateExpPercent() const;
 
 	void MoveCharacterToValidLocation(const FVector& NewLocation);
 	FVector GetSafeTeleportLocation(const FVector& NewLocation) const;
