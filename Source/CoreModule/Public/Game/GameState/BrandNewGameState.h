@@ -7,7 +7,7 @@
 #include "BrandNewGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerJoin, const APlayerState*, NewPlayerState);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerExit, const int32, ExitedPlayerId);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerExit,const APlayerState*, ExitedPlayerId);
 
 /**
  * 

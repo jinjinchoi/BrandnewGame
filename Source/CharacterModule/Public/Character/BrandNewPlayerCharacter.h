@@ -52,6 +52,7 @@ public:
 	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
+	virtual void SavePlayerDataForTravel() override;
 	virtual void AddOverlappedItem(AActor* OverlappedItem ) override;
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) override;
 	virtual void UseConsumptionItem(const int32 SlotIndex) override;
@@ -163,15 +164,20 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_ReviveCharacter();
 	
-
 	/* 부활할때 사용할 마지막으로 저장하거나 로드된 위치. 서버에서만 설정됨. */
 	FVector SafeLocation;
+
+	UFUNCTION(Client, Reliable)
+	void Client_RecoveryDataAfterMapTravel();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_RecoveryDataAfterMapTravel(const FString& PlayerName);
 
 #pragma region SaveAndLoad
 	
 	// 클라이언트가 서버에 Unique Id를 넘겨 Attribute 로드를 요청하는 함수
 	UFUNCTION(Server, Reliable)
-	void Server_RequestInitCharacterInfo(const FString& ClientId);
+	void Server_RequestInitCharacterInfo(const FString& PlayerId);
 
 	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
 	void InitializeCharacterInfo(const FString& UniqueId);
@@ -204,9 +210,6 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestSave(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
-
-	/* 캐릭터의 데이터가 저장되어있는 구조체. 서버에서만 설정됨 */
-	FSaveSlotPrams LastestPlayerData;
 
 #pragma endregion
 

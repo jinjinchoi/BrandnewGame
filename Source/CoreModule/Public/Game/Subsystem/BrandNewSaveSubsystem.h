@@ -21,7 +21,6 @@ class COREMODULE_API UBrandNewSaveSubsystem : public UGameInstanceSubsystem
 
 public:
 	/* 슬롯에 데이터를 저장하는 함수 */
-	// void SaveGameToSlot(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams) const;
 	static void SaveGameToSlotWithId(const FString& SlotName, const int32 SlotIndex, const FSaveSlotPrams& SaveSlotPrams, const FString& UniqueId);
 
 	FSaveSlotPrams GetSaveDataById(const FString& SlotName, const int32 SlotIndex, const FString& UniqueId) const;
@@ -46,6 +45,25 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Save Logic")
 	FString GetUniqueIdentifier() const;
+	
+	void UpdateLatestPlayerDataMap(const FString& PlayerName, const FSaveSlotPrams& SaveSlotPrams);
+	
+	/* 맵 이동 후 기존 데이터를 가져오는 함수 */
+	FSaveSlotPrams GetLatestPlayerData(const FString& PlayerName) const;
+	
+	/**
+	 * 맵 이동후 기존 데이터를 가져왔으면 Map에서 제외.
+	 * 최신 데이터가 그대로 남아있으면 맵 이동 후 로드시 잘못된 데이터를 가져올 가능성이 있음.
+	 * 로드 로직에서 로드시 LatestPlayerDataMap를 초기화해도 되지만 로드 로직을 블루프린트에서 설정하고 있어
+	 * C++에서 해결하기 위해 본 함수를 사용해 데이터를 초기화 하는 방식을 채택.
+	 */
+	void RemoveLatestPlayerData(const FString& PlayerName);
+
+	/**
+	 * 맵 이동시 사용할 플레이어의 맵 이동 직전 데이터.
+	 * 로드시 이 맵의 Len을 확인하여 내부 데이터가 있으면 맵 이동으로 판단하여
+	 * 로드 로직을 해당 맵에서 데이터를 가져와 하는 것으로 진행.
+	 */
 
 private:
 	/**
@@ -57,7 +75,11 @@ private:
 	/* 서버가 로드할때 사용한 슬롯의 정보를 담는 변수. */
 	FString CurrentSlotName = FString();
 	int32 CurrentSlotIndex = 0;
+
 	bool bIsLoadedWorld = false;
+	
+	TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
+	
 
 public:
 	FORCEINLINE bool IsLoadedWorld() const { return bIsLoadedWorld; }

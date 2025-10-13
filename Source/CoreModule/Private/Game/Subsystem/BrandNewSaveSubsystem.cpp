@@ -58,6 +58,11 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetCurrentSlotSaveDataById(const FString&
 void UBrandNewSaveSubsystem::ResetPlayerData()
 {
 	UniqueIdentifier.Empty();
+	bIsLoadedWorld = false;
+	LatestPlayerDataMap.Empty();
+	CurrentSlotIndex = 0;
+	CurrentSlotName = FString();
+	
 }
 
 FString UBrandNewSaveSubsystem::TryGetMapAssetNameAndSaveSlotInfo(const FString& SlotName, const int32 SlotIndex)
@@ -89,4 +94,28 @@ void UBrandNewSaveSubsystem::Login(const FString& Id)
 FString UBrandNewSaveSubsystem::GetUniqueIdentifier() const
 {
 	return UniqueIdentifier;
+}
+
+
+void UBrandNewSaveSubsystem::UpdateLatestPlayerDataMap(const FString& PlayerName, const FSaveSlotPrams& SaveSlotPrams)
+{
+	LatestPlayerDataMap.Add(PlayerName, SaveSlotPrams);
+}
+
+void UBrandNewSaveSubsystem::RemoveLatestPlayerData(const FString& PlayerName)
+{
+	if (LatestPlayerDataMap.Contains(PlayerName))
+	{
+		LatestPlayerDataMap.Remove(PlayerName);
+	}
+}
+
+FSaveSlotPrams UBrandNewSaveSubsystem::GetLatestPlayerData(const FString& PlayerName) const
+{
+	if (LatestPlayerDataMap.Contains(PlayerName))
+	{
+		return *LatestPlayerDataMap.Find(PlayerName);
+	}
+
+	return FSaveSlotPrams();
 }

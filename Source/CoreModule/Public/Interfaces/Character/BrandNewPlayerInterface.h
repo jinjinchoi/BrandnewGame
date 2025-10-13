@@ -83,12 +83,15 @@ public:
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const = 0;
 
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) = 0;
+
+	/* 맵 이동할때 임시로 데이터 저장 요청 */
+	virtual void SavePlayerDataForTravel() = 0;
 	
 	virtual void AddOverlappedItem(AActor* OverlappedItem) = 0;
 	virtual void RemoveOverlappedItem(AActor* OverlappedItem) = 0;
 
 	virtual void RevivePlayerCharacter() = 0;
-
+	
 	/* Instance Gameplay Effect를 사용하여 아이템 효과에 해당하는 Attribute를 영구적으로 증가 시킴 */
 	virtual void UseConsumptionItem(const int32 SlotIndex) = 0;
 	virtual void UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType) = 0;

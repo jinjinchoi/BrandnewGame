@@ -39,7 +39,7 @@ void ABrandNewGameState::AddPlayerState(APlayerState* PlayerState)
 void ABrandNewGameState::RemovePlayerState(APlayerState* PlayerState)
 {
 	
-	PlayerExitDelegate.Broadcast(PlayerState->GetPlayerId());
+	PlayerExitDelegate.Broadcast(PlayerState);
 
 	// 로딩 중 플레이어가 나가면 Set에서 제외하고 체크
 	if (!LoadedPlayerIdSet.IsEmpty())

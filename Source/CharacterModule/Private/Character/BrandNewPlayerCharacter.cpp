@@ -110,7 +110,8 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	if (IsLocallyControlled())
 	{
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-		InitializeCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
+		check(SaveSubsystem);
+		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	BindAttributeDelegates();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
@@ -127,6 +128,7 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 	if (IsLocallyControlled())
 	{
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	
@@ -134,9 +136,21 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 }
 
 
-void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& ClientId)
+void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
-	InitializeCharacterInfo(ClientId);
+
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+
+	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동일 경우 이동 직전 데이터 복구
+	{
+		LoadCharacterData(SaveSlotPrams);
+		SaveSubsystem->RemoveLatestPlayerData(PlayerId);
+	}
+	else
+	{
+		InitializeCharacterInfo(PlayerId);
+	}
+	
 }
 
 
@@ -147,21 +161,19 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
 	
-	if (SaveSubsystem->IsLoadedWorld())
+	if (SaveSubsystem->IsLoadedWorld()) // 로드된 세상일 로드 슬롯에 맞는 데이터를 복구
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId);
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
 		
-		LastestPlayerData = SavedData;
 		LoadCharacterData(SavedData);
 		
 	}
-	else
+	else // NewGame으로 시작한 경우 Default 데이터 설정.
 	{
 		ApplyPrimaryAttributeFromDataTable();
 		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
-		LastestPlayerData = MakeSaveSlotPrams();
 	}
 }
 
@@ -716,12 +728,43 @@ void ABrandNewPlayerCharacter::SaveCharacterData(const FString& SlotName, const 
 	
 	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
 	{
-		LastestPlayerData = SaveSlotPrams;
 		SafeLocation = SaveSlotPrams.CharacterLocation;
 		
 		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
 	}
 }
+
+void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
+{
+	// 해당 함수는 서버에서만 호출되지만 만약을 대비한 방어 코드
+	if (!HasAuthority()) return;
+	
+	if (IsLocallyControlled())
+	{
+		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		if (!SaveSubsystem) return;
+		Server_RecoveryDataAfterMapTravel(SaveSubsystem->GetUniqueIdentifier());
+	}
+	else
+	{
+		Client_RecoveryDataAfterMapTravel();
+	}
+	
+}
+
+void ABrandNewPlayerCharacter::Client_RecoveryDataAfterMapTravel_Implementation()
+{
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	Server_RecoveryDataAfterMapTravel(SaveSubsystem->GetUniqueIdentifier());
+}
+
+void ABrandNewPlayerCharacter::Server_RecoveryDataAfterMapTravel_Implementation(const FString& PlayerName)
+{
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	SaveSubsystem->UpdateLatestPlayerDataMap(PlayerName, MakeSaveSlotPrams());
+}
+
 
 FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 {

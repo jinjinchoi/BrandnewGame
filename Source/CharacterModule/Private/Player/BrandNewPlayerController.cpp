@@ -64,7 +64,6 @@ void ABrandNewPlayerController::OnPossess(APawn* InPawn)
 	
 	SetPlayerIdToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
-	
 }
 
 void ABrandNewPlayerController::OnRep_Pawn()
