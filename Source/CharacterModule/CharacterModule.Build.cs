@@ -10,10 +10,6 @@ public class CharacterModule : ModuleRules
             new string[]
             {
                 "Core", 
-                "GameplayTags",
-                "CoreModule",
-                "GameplayAbilities",
-                "AIModule"
             }
         );
 
@@ -32,7 +28,11 @@ public class CharacterModule : ModuleRules
                 "MotionWarping",
                 "Niagara",
                 "NavigationSystem",
-                "InventoryModule"
+                "InventoryModule",
+                "GameplayAbilities",
+                "GameplayTags",
+                "AIModule",
+                "CoreModule",
             }
         );
     }

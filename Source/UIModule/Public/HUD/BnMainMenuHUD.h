@@ -7,7 +7,7 @@
 #include "BnMainMenuHUD.generated.h"
 
 /**
- * 
+ * 메인화면에서 사용하는 HUD
  */
 UCLASS()
 class UIMODULE_API ABnMainMenuHUD : public AHUD

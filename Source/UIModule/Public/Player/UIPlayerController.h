@@ -7,7 +7,8 @@
 #include "UIPlayerController.generated.h"
 
 /**
- * 
+ * 캐릭터가 없는 단순 UI 화면 일때만 사용하는 플레이어 컨트로러.
+ * 대표적으로 트랜지션 맵이나 메인 화면.
  */
 UCLASS()
 class UIMODULE_API AUIPlayerController : public APlayerController

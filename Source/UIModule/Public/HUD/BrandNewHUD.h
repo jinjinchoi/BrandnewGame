@@ -13,7 +13,7 @@ class UCharacterInfoWidgetController;
 class UOverlayWidgetController;
 class UBrandNewWidget;
 /**
- * 
+ * 실제 In game에서 사용하는 HUD
  */
 UCLASS()
 class UIMODULE_API ABrandNewHUD : public AHUD, public IBrandNewHUDInterface

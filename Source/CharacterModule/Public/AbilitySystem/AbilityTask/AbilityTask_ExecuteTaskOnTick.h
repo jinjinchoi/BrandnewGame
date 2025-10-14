@@ -9,7 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityTaskTickDelegate, float, DeltaTime);
 
 /**
- * 
+ * GA에서 Tick을 사용하는 Ability Task
  */
 UCLASS()
 class CHARACTERMODULE_API UAbilityTask_ExecuteTaskOnTick : public UAbilityTask

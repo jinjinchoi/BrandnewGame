@@ -9,7 +9,7 @@ public class InventoryModule : ModuleRules
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
-                "Core", "GameplayTags", "CoreModule",
+                "Core",  "CoreModule",
             }
         );
 
@@ -20,7 +20,8 @@ public class InventoryModule : ModuleRules
                 "Engine",
                 "Slate",
                 "SlateCore",
-                "Niagara"
+                "Niagara",
+                "GameplayTags",
             }
         );
     }
