@@ -38,7 +38,7 @@ void UBrandNewGameInstance::Init()
 	Super::Init();
 
 	check(ItemDataTable)
-if (!ItemDataTable) return;
+	if (!ItemDataTable) return;
 
 	// 데이터 테이블의 Row 구조체가 설정한 구조체와 맞는지 확인
 	if (ItemDataTable->GetRowStruct() == FItemDataRow::StaticStruct())
@@ -46,7 +46,6 @@ if (!ItemDataTable) return;
 		for (const TPair<FName, unsigned char*>& RowMap : ItemDataTable->GetRowMap()) // 데이터 테이블을 순회하여 아이디와 아이템 정보를 저장
 		{
 			const FItemDataRow* ItemData = reinterpret_cast<FItemDataRow*>(RowMap.Value);
-			check(ItemData)
 			ItemIdMap.Add(ItemData->ID, *ItemData);
 		}
 	}

@@ -30,10 +30,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> ItemDataTable;
 
+#pragma region DialogueDataTable
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Dialogue")
+	TObjectPtr<UDataTable> TextDialogueDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Dialogue")
+	TObjectPtr<UDataTable> SequenceDialogueDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Dialogue")
+	TObjectPtr<UDataTable> ChoiceDialogueDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Dialogue")
+	TObjectPtr<UDataTable> ConditionDialogueDataTable;
+#pragma endregion
+
 private:
 	/* 아이템의 아이디를 기반으로 아이템 정보를 저장하는 TMap */
 	TMap<int32, FItemDataRow> ItemIdMap;
 
-	
+public:
+	FORCEINLINE UDataTable* GetTextDialogueDataTable() const { return TextDialogueDataTable; }
+	FORCEINLINE UDataTable* GetSequenceDialogueDataTable() const { return SequenceDialogueDataTable; }
+	FORCEINLINE UDataTable* GetChoiceDialogueDataTable() const { return ChoiceDialogueDataTable; }
+	FORCEINLINE UDataTable* GetConditionDialogueDataTable() const { return ConditionDialogueDataTable; }
 	
 };
