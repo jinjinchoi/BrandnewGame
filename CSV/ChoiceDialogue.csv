@@ -1,0 +1,7 @@
+---,ChoiceGroupId,NodeId,ChoiceType,ChoiceText,NextNodeId,QuestID
+1,Group1,Test01,Normal,일반적인 선택지. 선택지 노드는 그룹 노드로 연결해야함.,Dialogue1,None
+2,Group1,Test02,QuestOffer,퀘스트 제공 선택지,Dialogue2,FindItem
+3,Group1,Test03,QuestReward,퀘스트 완료 선택지,Dialogue3,FindItem
+4,WarriorDefaultChoice,WDC1,Normal,조작 방법에 대해 알고 싶어요.,WDCR1001,
+5,WarriorDefaultChoice,WDC2,Normal,이곳이 어디인가요?,WDCR2001,
+6,WarriorDefaultChoice,WDC3,Normal,감사합니다. 안녕히계세요.,WDCR3001,

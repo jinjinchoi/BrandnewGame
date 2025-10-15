@@ -19,7 +19,27 @@ struct FTextDialogueParams
 	
 };
 
+USTRUCT(BlueprintType)
+struct FChoiceNodeParams
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FName NextNodeName = NAME_None;
+
+	UPROPERTY(BlueprintReadOnly)
+	FText ChoiceText = FText();
+
+	UPROPERTY(BlueprintReadOnly)
+	FName QuestID = NAME_None; 
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsLastOption = false;
+	
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTextDialogueReceived , const FTextDialogueParams&, TextDialogueParams);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChoiceNodeReceived , const FChoiceNodeParams&, ChoiceNodeParams);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDialogueEnded);
 /**
  * 
@@ -34,6 +54,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Dialogue Function")
 	void BroadCastDialogue();
+
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Dialogue Function")
+	void ChoiceButtonClick(const FName& NextNodeId);
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Brandnew|Dialogue")
 	FName DialogueId;
@@ -42,9 +65,13 @@ public:
 	FOnTextDialogueReceived TextDialogueReceivedDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
+	FOnChoiceNodeReceived ChoiceNodeReceivedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnDialogueEnded DialogueEndedDelegate;
 
 private:
 	void HandleTextDialogue();
+	void HandleChoiceNode() const;
 	
 };

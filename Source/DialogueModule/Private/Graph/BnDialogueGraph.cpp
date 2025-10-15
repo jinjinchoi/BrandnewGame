@@ -83,7 +83,7 @@ void UBnDialogueGraph::CreateChoiceNode()
 
 	if (BrandNewGameInstance->GetChoiceDialogueDataTable()->GetRowStruct() == FChoiceDialogueDataRow::StaticStruct())
 	{
-		for (const TPair<FName, unsigned char*>& RowMap : BrandNewGameInstance->GetSequenceDialogueDataTable()->GetRowMap())
+		for (const TPair<FName, unsigned char*>& RowMap : BrandNewGameInstance->GetChoiceDialogueDataTable()->GetRowMap())
 		{
 			const FChoiceDialogueDataRow* ChoiceDialogueData = reinterpret_cast<FChoiceDialogueDataRow*>(RowMap.Value);
 

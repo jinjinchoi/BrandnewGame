@@ -20,7 +20,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	template<class T>
-	T* GetTextNodeById(const FName& DialogueId) const;
+	T* GetDialogueNodeById(const FName& DialogueId) const;
+	UBnDialogueNodeBase* GetDialogueNodeById(const FName& DialogueId) const;
 
 	EDialogueType GetDialogueTypeById(const FName& DialogueId) const;
 	
@@ -31,7 +32,7 @@ private:
 };
 
 template <class T>
-T* UDialogueSubSystem::GetTextNodeById(const FName& DialogueId) const
+T* UDialogueSubSystem::GetDialogueNodeById(const FName& DialogueId) const
 {
 	static_assert(TIsDerivedFrom<T, UBnDialogueNodeBase>::IsDerived, "T must be derived from UBnDialogueNodeBase");
 

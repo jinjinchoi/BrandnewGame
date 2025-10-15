@@ -1,4 +1,12 @@
----,NodeId,SpeakerName,DialogueText,NextNodeId
+--,NodeId,SpeakerName,DialogueText,NextNodeId
 1,WarriorStart,전사,어서 오게 모험가여,Warrior00001
 2,Warrior00001,전사,이곳 생활은 할만 한가?,Warrior00002
 3,Warrior00002,전사,원한다면 이곳이 어떠한 곳인지 설명해주지.,WarriorStart
+4,WDCR1001,전사,그래 조작 방법에 대해 알려주지.,WDCR1002
+5,WDCR1002,전사,"WASD로 이동이 가능하고 우클릭으로 대시, 컨트롤 키로 걷기 모드로 진입이 가능하다네. 또한 E키를 눌러 장비를 장착할 수 있지.",WDCR1003
+6,WDCR1003,전사,장비를 장착하면 다양한 기술들을 사용해 적을 무찌를 수 있다네.,WDCR1004
+7,WDCR1004,전사,또 궁금한 것들이 있는가?,WarriorDefaultChoice
+8,WDCR2001,전사,이곳이 어딘지 궁금한가?,WDCR2002
+9,WDCR2002,전사,글쎄 과연 이곳이 어디일까? 궁금하다면 직접 돌아다니면서 찾아보게나.,WDCR2003
+10,WDCR2003,전사,하하 이런 대답이라 미안하군. 또 궁금한 것이 있는가?,WarriorDefaultChoice
+11,WDCR3001,전사,그래. 조심히 다니게나.,EndNode

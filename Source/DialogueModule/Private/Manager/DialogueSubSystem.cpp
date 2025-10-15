@@ -14,6 +14,11 @@ void UDialogueSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
+UBnDialogueNodeBase* UDialogueSubSystem::GetDialogueNodeById(const FName& DialogueId) const
+{
+	return DialogueGraph->GetNodeFromId(DialogueId);
+}
+
 EDialogueType UDialogueSubSystem::GetDialogueTypeById(const FName& DialogueId) const
 {
 	if (const UBnDialogueNodeBase* DialogueNodeBase = DialogueGraph->GetNodeFromId(DialogueId))
