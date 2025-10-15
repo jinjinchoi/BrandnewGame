@@ -14,7 +14,7 @@ class UIMODULE_API UBrandNewWidgetControllerBase : public UObject
 	GENERATED_BODY()
 
 public:
-	virtual void BindCallbacksToDependencies(APawn* InControlledPawn) const;
+	virtual void BindCallbacksToDependencies() const;
 
 	UFUNCTION(BlueprintCallable, Category = "BrandNew|WidgetControllerFunc")
 	virtual void BroadCastInitialValue();

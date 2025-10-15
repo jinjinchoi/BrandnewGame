@@ -13,3 +13,13 @@ void UDialogueSubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	DialogueGraph->Init();
 	
 }
+
+EDialogueType UDialogueSubSystem::GetDialogueTypeById(const FName& DialogueId) const
+{
+	if (const UBnDialogueNodeBase* DialogueNodeBase = DialogueGraph->GetNodeFromId(DialogueId))
+	{
+		return DialogueNodeBase->NodeType;
+	}
+
+	return EDialogueType::None;
+}

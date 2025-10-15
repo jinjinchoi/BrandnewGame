@@ -24,7 +24,7 @@ class UIMODULE_API UOverlayWidgetController : public UBrandNewWidgetControllerBa
 	GENERATED_BODY()
 
 public:
-	virtual void BindCallbacksToDependencies(APawn* InControlledPawn) const override;
+	virtual void BindCallbacksToDependencies() const override;
 	virtual void BroadCastInitialValue() override;
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|UtilityFunction")

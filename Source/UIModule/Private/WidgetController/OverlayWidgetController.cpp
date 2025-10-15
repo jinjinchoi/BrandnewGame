@@ -6,11 +6,11 @@
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 
 
-void UOverlayWidgetController::BindCallbacksToDependencies(APawn* InControlledPawn) const
+void UOverlayWidgetController::BindCallbacksToDependencies() const
 {
-	if (!IsValid(InControlledPawn)) return;
+	if (!IsValid(ControlledPawn)) return;
 
-	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(InControlledPawn);
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
 	if (!PlayerInterface) return;
 
 	PlayerInterface->GetWeaponChangedDelegate().BindLambda([this](const ECombatWeaponType ChangedWeaponType)

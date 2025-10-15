@@ -7,6 +7,7 @@
 #include "Interfaces/UI/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
+class UDialogueWidgetController;
 class UGameOverWidgetController;
 class UInventoryWidgetController;
 class UCharacterInfoWidgetController;
@@ -25,6 +26,9 @@ public:
 
 	/* begin IBrandNewHUDInterface */
 	virtual void RequestInitHUD() override;
+	virtual void CreateDialogueWidget(const FName& FirstDialogueId) override;
+	virtual void HideMainOverlay() override;
+	virtual void ShowMainOverlay_Implementation() override;
 	/* end IBrandNewHUDInterface */
 
 	UCharacterInfoWidgetController* GetCharacterInfoWidgetController();
@@ -34,6 +38,10 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
 	TSubclassOf<UBrandNewWidget> OverlayWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
+	TSubclassOf<UBrandNewWidget> DialogueWidgetClass;
+
 	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
@@ -46,10 +54,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UGameOverWidgetController> GameOverWidgetControllerClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	TSubclassOf<UDialogueWidgetController> DialogueWidgetControllerClass;
 
 private:
 	UPROPERTY()
 	TObjectPtr<UBrandNewWidget> OverlayWidget;
+
+	UPROPERTY()
+	TObjectPtr<UBrandNewWidget> DialogueWidget;
 
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
@@ -62,5 +76,8 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UGameOverWidgetController> GameOverWidgetController;
+
+	UPROPERTY()
+	TObjectPtr<UDialogueWidgetController> DialogueWidgetController;
 	
 };

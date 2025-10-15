@@ -9,7 +9,7 @@ public class CharacterModule : ModuleRules
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
-                "Core", 
+                "Core",
             }
         );
 

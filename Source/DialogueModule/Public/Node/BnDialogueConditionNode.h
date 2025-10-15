@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BnDialogueNodeBase.h"
-#include "DialogueConditionNode.generated.h"
+#include "BnDialogueConditionNode.generated.h"
 
 /* 퀘스트 진행 여부 */
 enum class EDialogueConditionType : uint8
@@ -34,7 +34,7 @@ struct FDialogueCondition
  * 
  */
 UCLASS()
-class DIALOGUEMODULE_API UDialogueConditionNode : public UBnDialogueNodeBase
+class DIALOGUEMODULE_API UBnDialogueConditionNode : public UBnDialogueNodeBase
 {
 	GENERATED_BODY()
 

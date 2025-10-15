@@ -23,5 +23,10 @@ class COREMODULE_API IBrandNewHUDInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void RequestInitHUD() = 0;
+	virtual void CreateDialogueWidget(const FName& FirstDialogueId) = 0;
+	virtual void HideMainOverlay() = 0;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Brandnew|Interface Function")
+	void ShowMainOverlay();
 	
 };

@@ -1,0 +1,4 @@
+---,NodeId,SpeakerName,DialogueText,NextNodeId
+1,WarriorStart,전사,어서 오게 모험가여,Warrior00001
+2,Warrior00001,전사,이곳 생활은 할만 한가?,Warrior00002
+3,Warrior00002,전사,원한다면 이곳이 어떠한 곳인지 설명해주지.,WarriorStart

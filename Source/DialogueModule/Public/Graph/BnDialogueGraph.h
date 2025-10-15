@@ -19,12 +19,12 @@ class DIALOGUEMODULE_API UBnDialogueGraph : public UObject
 public:
 	void Init();
 	UBnDialogueNodeBase* GetNodeFromId(const FName& NodeId) const;
-	
-	
+
 private:
 	void CreateTextNode();
 	void CreateSequenceNode();
 	void CreateChoiceNode();
+	void CreateEndNode();
 	
 	UPROPERTY()
 	TMap<FName /* Node ID*/, UBnDialogueNodeBase* /* Node */ > NodeMap;

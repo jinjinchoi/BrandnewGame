@@ -5,6 +5,7 @@
 
 #include "Widget/BrandNewWidget.h"
 #include "WidgetController/CharacterInfoWidgetController.h"
+#include "WidgetController/DialogueWidgetController.h"
 #include "WidgetController/InventoryWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
 #include "WidgetController/GameOverWidgetController.h"
@@ -23,7 +24,7 @@ void ABrandNewHUD::InitHUD()
 		OverlayWidgetController = NewObject<UOverlayWidgetController>(this, OverlayWidgetControllerClass);
 		OverlayWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
 		OverlayWidgetController->SetGameState(GetOwningPlayerController()->GetWorld()->GetGameState());
-		OverlayWidgetController->BindCallbacksToDependencies(GetOwningPlayerController()->GetPawn());
+		OverlayWidgetController->BindCallbacksToDependencies();
 	}
 
 	OverlayWidget->SetWidgetController(OverlayWidgetController);
@@ -34,6 +35,44 @@ void ABrandNewHUD::InitHUD()
 void ABrandNewHUD::RequestInitHUD()
 {
 	InitHUD();
+}
+
+void ABrandNewHUD::HideMainOverlay()
+{
+	if (!OverlayWidget) return;
+
+	OverlayWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ABrandNewHUD::ShowMainOverlay_Implementation()
+{
+	if (!OverlayWidget) return;
+
+	OverlayWidget->SetVisibility(ESlateVisibility::Visible);
+	
+}
+
+void ABrandNewHUD::CreateDialogueWidget(const FName& FirstDialogueId)
+{
+	check(DialogueWidgetControllerClass && DialogueWidgetClass);
+	if (!DialogueWidgetControllerClass || !DialogueWidgetClass) return;
+	
+	if (!DialogueWidgetController)
+	{
+		DialogueWidgetController = NewObject<UDialogueWidgetController>(this, DialogueWidgetControllerClass);
+		DialogueWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+		DialogueWidgetController->BindCallbacksToDependencies();
+	}
+
+	if (!DialogueWidget)
+	{
+		DialogueWidget = CreateWidget<UBrandNewWidget>(GetWorld(), DialogueWidgetClass);
+	}
+	
+	DialogueWidgetController->DialogueId = FirstDialogueId;
+	DialogueWidget->SetWidgetController(DialogueWidgetController);
+	DialogueWidget->AddToViewport();
+	
 }
 
 UCharacterInfoWidgetController* ABrandNewHUD::GetCharacterInfoWidgetController()

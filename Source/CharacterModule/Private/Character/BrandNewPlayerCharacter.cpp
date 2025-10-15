@@ -28,8 +28,10 @@
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
+#include "Interfaces/Actor/BrandNewNPCInterface.h"
 #include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
 #include "Inventory/BrandNewInventory.h"
+#include "Kismet/GameplayStatics.h"
 #include "PickupItems/BrandNewPickupItem.h"
 #include "Player/BrandNewPlayerState.h"
 
@@ -1050,26 +1052,44 @@ void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool
 
 
 
+void ABrandNewPlayerCharacter::AddOverlappedNPC(AActor* OverlappedNPC)
+{
+	OverlappedNPCArray.AddUnique(OverlappedNPC);
+	
+}
+
+void ABrandNewPlayerCharacter::RemoveOverlappedNPC(AActor* EndOverlappedNPC)
+{
+	if (OverlappedNPCArray.Contains(EndOverlappedNPC))
+	{
+		OverlappedNPCArray.Remove(EndOverlappedNPC);
+	}
+	
+}
+
 void ABrandNewPlayerCharacter::InteractIfPossible()
 {
 
+	// 아이템 획득 로직
 	if (HasAuthority())
 	{
-		if (!OverlappedItems.IsEmpty())
+		if (OverlappedItems.Num() > 0)
 		{
 			for (const TWeakObjectPtr<AActor>& Item : OverlappedItems)
 			{
 				if (Item.IsValid())
 				{
+					// 아이템 한번에 획득 전 UI에서 위젯 제거용. 아이템은 현재 한번에 모두 획득함.
 					SendPickupInfoToUi(Item.Get(), false);
 				}
 			}
 			AcquireItem();
+			return;
 		}
 	}
 	else
 	{
-		if (!OverlappedItemsForUI.IsEmpty())
+		if (OverlappedItemsForUI.Num() > 0)
 		{
 			for (const TWeakObjectPtr<AActor>& Item : OverlappedItemsForUI)
 			{
@@ -1080,7 +1100,29 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 			}
 			OverlappedItemsForUI.Empty();
 			Server_AcquireItem();
+			return;
 		}
+	}
+
+	if (OverlappedNPCArray.Num() > 0)
+	{
+		float Distance = 0.f;
+		AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedNPCArray, Distance);
+		
+		IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor);
+		checkf(NPCInterface, TEXT("Actor in OverlappedInteractiveActors must implement IInteractiveActorInterface"));
+
+		// 가장 가까운 NPC 찾아서 상호작용.
+		const FName FirstDialogueId = NPCInterface->GetFirstDialogueId();
+		if (FirstDialogueId.IsNone()) return;
+
+		const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (!PlayerController) return;
+		IBrandNewHUDInterface* BrandNewHUD = Cast<IBrandNewHUDInterface>(PlayerController->GetHUD());
+		if (!BrandNewHUD) return;
+		BrandNewHUD->HideMainOverlay();
+		BrandNewHUD->CreateDialogueWidget(FirstDialogueId);
+		
 	}
 	
 }
@@ -1092,6 +1134,8 @@ void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
 
 void ABrandNewPlayerCharacter::AcquireItem()
 {
+	if (OverlappedItems.IsEmpty()) return;
+	
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
 	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();

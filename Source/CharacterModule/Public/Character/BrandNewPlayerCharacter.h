@@ -58,6 +58,8 @@ public:
 	virtual void UseConsumptionItem(const int32 SlotIndex) override;
 	virtual void UseEquipmentItem(const int32 SlotIndex, const EItemType ItemType) override;
 	virtual void RevivePlayerCharacter() override;
+	virtual void AddOverlappedNPC(AActor* OverlappedNPC) override;
+	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -158,7 +160,12 @@ protected:
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
 	
+	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
+
+	UPROPERTY()
+	TArray<AActor*> OverlappedNPCArray;
+	
 
 private:
 	/* Attribute 변화를 바인딩 하는 함수 */

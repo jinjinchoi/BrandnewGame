@@ -3,7 +3,7 @@
 
 #include "WidgetController/BrandNewWidgetControllerBase.h"
 
-void UBrandNewWidgetControllerBase::BindCallbacksToDependencies(APawn* InControlledPawn) const
+void UBrandNewWidgetControllerBase::BindCallbacksToDependencies() const
 {
 }
 

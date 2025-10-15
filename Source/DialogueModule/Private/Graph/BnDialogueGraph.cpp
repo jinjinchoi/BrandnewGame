@@ -5,6 +5,7 @@
 
 #include "DialogueType/DialogueStructType.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
+#include "Node/BnDialogueEndNode.h"
 #include "Node/BnDialogueSequenceNode.h"
 #include "Node/BnDialogueTextNode.h"
 
@@ -13,6 +14,7 @@ void UBnDialogueGraph::Init()
 	CreateTextNode();
 	CreateSequenceNode();
 	CreateChoiceNode();
+	CreateEndNode();
 }
 
 UBnDialogueNodeBase* UBnDialogueGraph::GetNodeFromId(const FName& NodeId) const
@@ -112,6 +114,16 @@ void UBnDialogueGraph::CreateChoiceNode()
 			}
 		}
 	}
+	
+}
+
+void UBnDialogueGraph::CreateEndNode()
+{
+	UBnDialogueEndNode* EndNode = NewObject<UBnDialogueEndNode>();
+	EndNode->NodeId = TEXT("EndNode");
+	EndNode->NodeType = EDialogueType::End;
+
+	NodeMap.Add(EndNode->NodeId, EndNode);
 	
 }
 
