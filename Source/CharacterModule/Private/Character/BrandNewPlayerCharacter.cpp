@@ -1104,6 +1104,7 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		}
 	}
 
+	// NPC 대화 로직
 	if (OverlappedNPCArray.Num() > 0)
 	{
 		float Distance = 0.f;
@@ -1115,6 +1116,7 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		// 가장 가까운 NPC 찾아서 상호작용.
 		const FName FirstDialogueId = NPCInterface->GetFirstDialogueId();
 		if (FirstDialogueId.IsNone()) return;
+		NPCInterface->HideInteractionWidget();
 
 		const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		if (!PlayerController) return;

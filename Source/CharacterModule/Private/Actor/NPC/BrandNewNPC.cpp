@@ -3,6 +3,7 @@
 
 #include "Actor/NPC/BrandNewNPC.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
@@ -13,8 +14,13 @@ ABrandNewNPC::ABrandNewNPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
+	CapsuleComponent->InitCapsuleSize(42.f, 96.f); // Radius, HalfHeight
+	CapsuleComponent->SetCollisionProfileName(TEXT("Pawn"));
+	SetRootComponent(CapsuleComponent);
+	
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh Component"));
-	SetRootComponent(SkeletalMeshComponent);
+	SkeletalMeshComponent->SetupAttachment(GetRootComponent());
 
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
 	SphereCollision->SetupAttachment(GetRootComponent());
@@ -25,12 +31,20 @@ ABrandNewNPC::ABrandNewNPC()
 
 	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interaction Widget Component"));
 	InteractionWidgetComponent->SetupAttachment(GetRootComponent());
+
+	NPCNameWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPC Name Widget Compoennt"));
+	NPCNameWidgetComponent->SetupAttachment(GetRootComponent());
 	
 }
 
-FName ABrandNewNPC::GetFirstDialogueId()
+FName ABrandNewNPC::GetFirstDialogueId() const
 {
 	return FirstDialogueId;
+}
+
+void ABrandNewNPC::HideInteractionWidget() const
+{
+	InteractionWidgetComponent->SetVisibility(false);
 }
 
 
@@ -43,7 +57,8 @@ void ABrandNewNPC::BeginPlay()
 	SphereCollision->OnComponentEndOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereEndOverlap);
 
 	InteractionWidgetComponent->SetVisibility(false);
-	
+	NPCNameWidgetComponent->SetVisibility(false);
+
 }
 
 void ABrandNewNPC::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -55,6 +70,8 @@ void ABrandNewNPC::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 		if (Player->IsLocallyControlled())
 		{
 			InteractionWidgetComponent->SetVisibility(true);
+			NPCNameWidgetComponent->SetVisibility(true);
+
 		}
 	}
 
@@ -74,6 +91,7 @@ void ABrandNewNPC::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 		if (Player->IsLocallyControlled())
 		{
 			InteractionWidgetComponent->SetVisibility(false);
+			NPCNameWidgetComponent->SetVisibility(false);
 		}
 	}
 

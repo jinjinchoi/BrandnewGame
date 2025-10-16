@@ -22,6 +22,6 @@ class COREMODULE_API IBrandNewNPCInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual FName GetFirstDialogueId() = 0;
-	
+	virtual FName GetFirstDialogueId() const = 0;
+	virtual void HideInteractionWidget() const = 0;
 };
