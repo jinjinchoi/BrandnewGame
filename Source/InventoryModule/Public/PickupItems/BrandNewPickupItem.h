@@ -17,11 +17,14 @@ class INVENTORYMODULE_API ABrandNewPickupItem : public AActor, public IPickupIte
 
 public:
 	ABrandNewPickupItem();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/* begin IPickupItemInterface */
 	virtual int32 GetId() const override;
 	virtual int32 GetQuantity() const override;
 	virtual FGuid GetUniqueId() const override;
+	virtual void SetId(const int32 InItemId) override;
+	virtual void SetQuantity(const int32 InQuantity) override;
 	/* end IPickupItemInterface */
 	
 
@@ -40,13 +43,13 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UNiagaraComponent> NiagaraComponent;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	FGuid ItemUniqueId;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brandnew|Item Info")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Brandnew|Item Info")
 	int32 ItemId = INDEX_NONE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brandnew|Item Info")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "Brandnew|Item Info")
 	int32 Quantity = 1;
 
 	

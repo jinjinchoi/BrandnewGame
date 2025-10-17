@@ -112,9 +112,11 @@ private:
 	
 	UPROPERTY()
 	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_DisableCapsuleCollision();
 
-	
-	
+
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }
 

@@ -8,6 +8,7 @@
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericTeamAgentInterface.h"
+#include "BrandNewTypes/BrandNewMacro.h"
 #include "Interfaces/Character/BrandNewCharacterInterface.h"
 
 FBrandNewEffectContext& UCharacterFunctionLibrary::GetBrandNewEffectContext(FGameplayEffectContextHandle& ContextHandle)
@@ -368,5 +369,31 @@ FVector UCharacterFunctionLibrary::GetClosestActorLocation(const TArray<AActor*>
 	}
 
 	return FVector::ZeroVector;
+}
+
+void UCharacterFunctionLibrary::GetValidGroundLocation(const UObject* WorldContextObject, const FVector& OriginalLocation, FVector& OutValidLocation,
+	const float OffsetZ)
+{
+	if (OriginalLocation.IsNearlyZero())
+	{
+		OutValidLocation = OriginalLocation;
+		return;
+	}
+
+	const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World)
+	{
+		OutValidLocation = OriginalLocation;
+		return;
+	}
+
+	const FVector Start = OriginalLocation + FVector(0, 0, 500);
+	const FVector End = OriginalLocation - FVector(0, 0, 500);
+
+	FHitResult HitResult;
+	if (World->LineTraceSingleByChannel(HitResult, Start, End, ECC_Ground))
+	{
+		OutValidLocation = HitResult.ImpactPoint + FVector(0, 0, OffsetZ);
+	}
 }
 

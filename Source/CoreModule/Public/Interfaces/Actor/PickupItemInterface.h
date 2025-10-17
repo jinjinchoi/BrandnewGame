@@ -25,5 +25,8 @@ public:
 	virtual int32 GetId() const = 0;
 	virtual int32 GetQuantity() const = 0;
 	virtual FGuid GetUniqueId() const = 0;
+
+	virtual void SetId(const int32 InItemId) = 0;
+	virtual void SetQuantity(const int32 InQuantity) = 0;
 	
 };

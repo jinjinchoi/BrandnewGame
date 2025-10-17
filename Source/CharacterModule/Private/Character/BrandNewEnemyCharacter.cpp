@@ -67,15 +67,40 @@ float ABrandNewEnemyCharacter::GetInitialMaxWalkSpeed_Implementation() const
 	return InitialMaxWalkSpeed;
 }
 
+void ABrandNewEnemyCharacter::OnCharacterHit_Implementation(const bool bIsHit)
+{
+	Super::OnCharacterHit_Implementation(bIsHit);
+
+	if (ABrandNewAIController* AIController = Cast<ABrandNewAIController>(GetController()))
+	{
+		if (UBlackboardComponent* BB = AIController->GetBlackboardComponent())
+		{
+			BB->SetValueAsBool("IsHit", bIsHit);
+		}
+	}
+	
+}
+
 void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 {
 	Super::OnCharacterDied_Implementation();
+
+	if (!HasAuthority()) return; 
 	
 	if (AController* AIController = GetController())
 	{
 		AIController->UnPossess();
 	}
+
+	// 아이템 드랍
+	FGameplayEventData EventData;
+	EventData.EventTag = BrandNewGamePlayTag::Event_ItemDrop;
+	EventData.Target = this;
+	EventData.Instigator = this;
 	
+	AbilitySystemComponent->HandleGameplayEvent(EventData.EventTag, &EventData);
+
+	// 타이머 설정 후 에너미 Pool로 return
 	TWeakObjectPtr WeakThis = this;
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([WeakThis]()
@@ -106,40 +131,41 @@ void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 	
 }
 
-void ABrandNewEnemyCharacter::OnCharacterHit_Implementation(const bool bIsHit)
-{
-	Super::OnCharacterHit_Implementation(bIsHit);
-
-	if (ABrandNewAIController* AIController = Cast<ABrandNewAIController>(GetController()))
-	{
-		if (UBlackboardComponent* BB = AIController->GetBlackboardComponent())
-		{
-			BB->SetValueAsBool("IsHit", bIsHit);
-		}
-	}
-	
-}
-
 bool ABrandNewEnemyCharacter::IsAllocatedToWorld()
 {
 	return bIsActivated;
 }
 
+void ABrandNewEnemyCharacter::Multicast_EnableCapsuleCollision_Implementation()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+}
+
 void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation)
 {
+	SetActorLocation(NewLocation);
+	SetActorRotation(NewRotation);
+	
 	ApplyEnemyAttribute();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+
+	if (HasAuthority())
+	{
+		Multicast_EnableCapsuleCollision();
+	}
 	
-	SetActorLocation(NewLocation);
-	SetActorRotation(NewRotation);
+	GetCharacterMovement()->GravityScale = 1.f;
 	
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
-
+	
 	if (CombatWeapon)
 	{
 		CombatWeapon->HideWeapon(false);
@@ -195,6 +221,7 @@ void ABrandNewEnemyCharacter::BindGameplayTagChanged()
 	AbilitySystemComponent->RegisterGameplayTagEvent(BrandNewGamePlayTag::Status_Shared_SuperArmor).AddUObject(this, &ThisClass::OnSuperArmorTagChanged);
 }
 
+
 void ABrandNewEnemyCharacter::OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	if (IBnBaseAnimInstanceInterface* AnimInterface = Cast<IBnBaseAnimInstanceInterface>(GetMesh()->GetAnimInstance()))
@@ -208,6 +235,8 @@ void ABrandNewEnemyCharacter::OnSuperArmorTagChanged(const FGameplayTag Callback
 	GameplayTagChangedDelegate.Broadcast(CallbackTag, NewCount > 0);
 	
 }
+
+
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 {
@@ -271,7 +300,7 @@ void ABrandNewEnemyCharacter::GiveAbilitiesToEnemy()
 				WeakThis.Get()->AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
 			}
 
-			if (WeakThis.Get()->CombatWeapon)
+			if (WeakThis.Get()->CombatWeapon && !WeakThis.Get()->bIsActivated)
 			{
 				WeakThis.Get()->CombatWeapon->HideWeapon(true);
 			}

@@ -56,17 +56,16 @@ AActor* UBrandNewObjectPoolManager::GetPooledObject(const TSubclassOf<AActor>& A
 		
 		if (IsValid(PoolActor) && !PoolableActorInterface->IsAllocatedToWorld())
 		{
-			if (const ACharacter* Character = Cast<ACharacter>(PoolActor))
-			{
-				Character->GetCharacterMovement()->GravityScale = 1.f;
-			}
-			
 			return PoolActor;
 		}
 	}
 
 	if (AActor* NewActor = GetWorld()->SpawnActor<AActor>(ActorClass, FVector::ZeroVector, FRotator::ZeroRotator))
 	{
+		NewActor->SetActorHiddenInGame(true);
+		NewActor->SetActorEnableCollision(false);
+		NewActor->SetActorTickEnabled(false);
+		
 		ObjectPools[ActorClass].Add(NewActor);
 		
 		return NewActor;

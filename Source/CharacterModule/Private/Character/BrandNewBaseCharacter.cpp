@@ -169,6 +169,8 @@ void ABrandNewBaseCharacter::SetupWeapon()
 	
 }
 
+
+
 void ABrandNewBaseCharacter::ToggleWeaponCollision_Implementation(const bool bEnable)
 {
 	if (!CombatWeapon) return;
@@ -218,15 +220,25 @@ void ABrandNewBaseCharacter::OnCharacterDied_Implementation()
 {
 	bIsDead = true;
 	OnCharacterDiedDelegate.Broadcast();
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
+	if (HasAuthority())
+	{
+		Multicast_DisableCapsuleCollision();
+	}
+
 	GetMovementComponent()->StopMovementImmediately();
 	
 }
+
+void ABrandNewBaseCharacter::Multicast_DisableCapsuleCollision_Implementation()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+}
+
 
 bool ABrandNewBaseCharacter::IsHitReacting() const
 {

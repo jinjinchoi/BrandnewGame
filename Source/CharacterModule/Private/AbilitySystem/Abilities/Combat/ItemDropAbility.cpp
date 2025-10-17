@@ -1,0 +1,61 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "AbilitySystem/Abilities/Combat/ItemDropAbility.h"
+
+#include "CharacterFunctionLibrary.h"
+#include "Interfaces/Actor/PickupItemInterface.h"
+
+void UItemDropAbility::DropItem()
+{
+	if (!ItemClass) return;
+
+	const FDropItemParams ItemParams = GetItemPram();
+	if (ItemParams.ItemId <= 0)	return; // 아이디 0번 이하로 설정되어있으면 생성 방지. 이걸로 드랍 확률 설정.
+	
+	const FRotator SpawnRotation = FRotator::ZeroRotator;
+	FVector SpawnLocation = FVector::ZeroVector;
+	UCharacterFunctionLibrary::GetValidGroundLocation(
+		GetOwningActorFromActorInfo(), GetOwningActorFromActorInfo()->GetActorLocation(), SpawnLocation, 50);
+
+	// 트랜스폼 생성
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation(SpawnRotation.Quaternion());
+	
+	if (AActor* PickupItemActor = GetWorld()->SpawnActorDeferred<AActor>(ItemClass, SpawnTransform))
+	{
+		IPickupItemInterface* PickupItemInterface = CastChecked<IPickupItemInterface>(PickupItemActor);
+
+		PickupItemInterface->SetId(ItemParams.ItemId);
+		PickupItemInterface->SetQuantity(ItemParams.Quantity);
+
+		PickupItemActor->FinishSpawning(SpawnTransform);
+	}
+	
+}
+
+FDropItemParams UItemDropAbility::GetItemPram()
+{
+	float TotalWeight = 0.0f;
+
+	for (const FDropItemParams& ItemData : DropItems)
+	{
+		TotalWeight += ItemData.Weight;
+	}
+
+	const float RandomValue = FMath::RandRange(0.0f, TotalWeight);
+	float AccumulatedWeight = 0.0f;
+
+	for (const FDropItemParams& ItemData : DropItems)
+	{
+		AccumulatedWeight += ItemData.Weight;
+		if (AccumulatedWeight >= RandomValue)
+		{
+			return ItemData;
+		}
+	}
+
+	return DropItems.Last();
+	
+}

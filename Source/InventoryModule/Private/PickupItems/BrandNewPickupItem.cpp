@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "NiagaraComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ABrandNewPickupItem::ABrandNewPickupItem()
@@ -20,6 +21,16 @@ ABrandNewPickupItem::ABrandNewPickupItem()
 	NiagaraComponent->bAutoActivate = true;
 
 	bReplicates = true;
+	
+}
+
+void ABrandNewPickupItem::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Quantity);
+	DOREPLIFETIME(ThisClass, ItemUniqueId);
+	DOREPLIFETIME(ThisClass, ItemId);
 	
 }
 
@@ -72,4 +83,14 @@ int32 ABrandNewPickupItem::GetQuantity() const
 FGuid ABrandNewPickupItem::GetUniqueId() const
 {
 	return ItemUniqueId;
+}
+
+void ABrandNewPickupItem::SetId(const int32 InItemId)
+{
+	ItemId = InItemId;
+}
+
+void ABrandNewPickupItem::SetQuantity(const int32 InQuantity)
+{
+	Quantity = InQuantity;
 }

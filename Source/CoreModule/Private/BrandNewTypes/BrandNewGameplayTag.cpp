@@ -79,6 +79,8 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_ShockLanding, "Ability.Enemy.Combat.ShockLanding")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_JumpAttack, "Ability.Enemy.Combat.JumpAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_Roaring, "Ability.Enemy.Combat.Roaring")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Utility_ItemDrop, "Ability.Enemy.Utility.ItemDrop")
 
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Hit, "Ability.Shared.React.Hit")
@@ -100,6 +102,8 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Back, "Event.HitReact.Back")
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Left, "Event.HitReact.Left")
 	UE_DEFINE_GAMEPLAY_TAG(Event_HitReact_Right, "Event.HitReact.Right")
+	
+	UE_DEFINE_GAMEPLAY_TAG(Event_ItemDrop, "Event.ItemDrop")
 
 	
 	/**
