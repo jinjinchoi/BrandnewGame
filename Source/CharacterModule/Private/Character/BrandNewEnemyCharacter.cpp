@@ -187,10 +187,12 @@ void ABrandNewEnemyCharacter::BindAttributeChanged()
 	
 }
 
-void ABrandNewEnemyCharacter::BindGameplayTagDelegates()
+void ABrandNewEnemyCharacter::BindGameplayTagChanged()
 {
 	AbilitySystemComponent->RegisterGameplayTagEvent(
 		BrandNewGamePlayTag::Status_Shared_Strafing, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::OnStrafingTagChanged);
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(BrandNewGamePlayTag::Status_Shared_SuperArmor).AddUObject(this, &ThisClass::OnSuperArmorTagChanged);
 }
 
 void ABrandNewEnemyCharacter::OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
@@ -199,6 +201,12 @@ void ABrandNewEnemyCharacter::OnStrafingTagChanged(const FGameplayTag CallbackTa
 	{
 		AnimInterface->SetIsStrafing(NewCount > 0);
 	}
+}
+
+void ABrandNewEnemyCharacter::OnSuperArmorTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	GameplayTagChangedDelegate.Broadcast(CallbackTag, NewCount > 0);
+	
 }
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const

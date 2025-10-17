@@ -101,11 +101,11 @@ void ABrandNewBaseCharacter::InitAbilityActorInfo()
 
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
-	BindGameplayTagDelegates();
+	BindGameplayTagChanged();
 	
 }
 
-void ABrandNewBaseCharacter::BindGameplayTagDelegates()
+void ABrandNewBaseCharacter::BindGameplayTagChanged()
 {
 
 }

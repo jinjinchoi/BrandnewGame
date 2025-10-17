@@ -51,7 +51,7 @@ protected:
 	/* end Actor Class */
 	
 	virtual void InitAbilityActorInfo();
-	virtual void BindGameplayTagDelegates();
+	virtual void BindGameplayTagChanged();
 	
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& EffectClass, const float Level) const;
 

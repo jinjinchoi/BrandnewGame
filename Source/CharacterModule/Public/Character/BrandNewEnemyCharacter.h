@@ -11,6 +11,7 @@
 #include "BrandNewEnemyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeValueChangedDelegate, const float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGameplayTagChanged, const FGameplayTag&, NewTag, bool, bTagAdded);
 
 class UWidgetComponent;
 class UDataAsset_EnemyAbilities;
@@ -45,7 +46,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void BindGameplayTagDelegates() override;
+	virtual void BindGameplayTagChanged() override;
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
@@ -79,12 +80,16 @@ private:
 	void GiveAbilitiesToEnemy();
 	void BindAttributeChanged();
 	void OnStrafingTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	void OnSuperArmorTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate HealthChangedDelegate;
 	
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
+	FOnGameplayTagChanged GameplayTagChangedDelegate;
 
 	int32 EnemyLevel = 1;
 	/* Pool에서 나와 활성화 되어 있는지 확인하는 변수 */
