@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BrandNewTypes/BrandNewMacro.h"
+#include "Interfaces/Character/BrandNewCharacterInterface.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -32,8 +33,17 @@ ABrandNewAIController::ABrandNewAIController()
 
 ETeamAttitude::Type ABrandNewAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	const APawn* PawnToCheck = Cast<const APawn>(&Other);
-	const IGenericTeamAgentInterface* OtherTeamAgent = Cast<const IGenericTeamAgentInterface>(PawnToCheck->GetController());
+	const APawn* OtherPawn = Cast<APawn>(&Other);
+	if (!OtherPawn) return ETeamAttitude::Neutral;
+
+	const IGenericTeamAgentInterface* OtherTeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController());
+	if (!OtherTeamAgent) return ETeamAttitude::Neutral;
+
+	if (!OtherPawn->Implements<UBrandNewCharacterInterface>() || IBrandNewCharacterInterface::Execute_IsDead(OtherPawn))
+	{
+		return ETeamAttitude::Neutral;
+	}
+	
 	if (OtherTeamAgent && OtherTeamAgent->GetGenericTeamId() < GetGenericTeamId())
 	{
 		return ETeamAttitude::Hostile;
@@ -42,30 +52,37 @@ ETeamAttitude::Type ABrandNewAIController::GetTeamAttitudeTowards(const AActor& 
 	return ETeamAttitude::Friendly;
 }
 
-void ABrandNewAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+void ABrandNewAIController::OnEnemyPerceptionUpdated(AActor* DetectedActor, FAIStimulus Stimulus)
 {
 	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
 	if (!BlackboardComponent) return;
 
-	if (!IsValid(Actor))
-	{
-		BlackboardComponent->ClearValue("TargetActor");
-		GetWorldTimerManager().ClearTimer(LostTargetTimer);
-		return;
-	}
-
+	IBrandNewCharacterInterface* CharacterInterface = Cast<IBrandNewCharacterInterface>(DetectedActor);
+	if (!CharacterInterface) return;
+	
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(LostTargetTimer);
+
+		// 에너미에 타겟이 설정되어있지 않을때만 타겟 설정
 		if (!BlackboardComponent->GetValueAsObject(FName("TargetActor")))
 		{
-			BlackboardComponent->SetValueAsObject(FName("TargetActor"), Actor);
+			if (!CharacterInterface->GetOnCharacterDiedDelegate().IsBoundToObject(this))
+			{
+				CharacterDiedDelegateHandle = CharacterInterface->GetOnCharacterDiedDelegate().AddWeakLambda(this, [this, BlackboardComponent]()
+				{
+					if (!IsValid(BlackboardComponent)) return;
+					BlackboardComponent->ClearValue("TargetActor");
+				});
+			}
+			
+			BlackboardComponent->SetValueAsObject(FName("TargetActor"), DetectedActor);
 		}
 	}
 	else
 	{
 		FTimerDelegate TimerDelegate;
-		TimerDelegate.BindUObject(this, &ThisClass::HandleLostTarget, Actor);
+		TimerDelegate.BindUObject(this, &ThisClass::HandleLostTarget, DetectedActor);
 		
 		GetWorldTimerManager().SetTimer(LostTargetTimer, TimerDelegate, LostTargetDelay, false);
 		
@@ -74,14 +91,26 @@ void ABrandNewAIController::OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus 
 
 void ABrandNewAIController::HandleLostTarget(AActor* LostActor)
 {
-	if (!IsValid(LostActor)) return;
-	
 	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
 	if (!BlackboardComponent) return;
-
+	
+	if (!IsValid(LostActor))
+	{
+		BlackboardComponent->ClearValue("TargetActor");
+		return;
+	}
+	
 	UObject* CurrentTarget = BlackboardComponent->GetValueAsObject("TargetActor");
 	if (IsValid(CurrentTarget) && CurrentTarget == LostActor)
 	{
+		if (CharacterDiedDelegateHandle.IsValid())
+		{
+			IBrandNewCharacterInterface* CharacterInterface = Cast<IBrandNewCharacterInterface>(LostActor);
+			CharacterInterface->GetOnCharacterDiedDelegate().Remove(CharacterDiedDelegateHandle);
+			CharacterDiedDelegateHandle.Reset();
+		}
+		
 		BlackboardComponent->ClearValue("TargetActor");
 	}
 }
+

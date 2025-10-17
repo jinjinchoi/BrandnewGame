@@ -26,7 +26,7 @@ public:
 
 protected:
 	UFUNCTION()
-	virtual void OnEnemyPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+	virtual void OnEnemyPerceptionUpdated(AActor* DetectedActor, FAIStimulus Stimulus);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAIPerceptionComponent> EnemyPerceptionComponent;
@@ -43,4 +43,5 @@ protected:
 private:
 	void HandleLostTarget(AActor* LostActor);
 	FTimerHandle LostTargetTimer;
+	FDelegateHandle CharacterDiedDelegateHandle;
 };
