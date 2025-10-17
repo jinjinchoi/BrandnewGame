@@ -205,7 +205,7 @@ void ABrandNewBaseCharacter::LaunchCharacter(FVector LaunchVelocity, bool bXYOve
 	if (bCanLaunch)
 	{
 		GetMovementComponent()->StopMovementImmediately();
-		Super::LaunchCharacter(LaunchVelocity, bXYOverride, bZOverride);
+		Super::LaunchCharacter(LaunchVelocity * CharacterLaunchMultiplier, bXYOverride, bZOverride);
 	}
 }
 

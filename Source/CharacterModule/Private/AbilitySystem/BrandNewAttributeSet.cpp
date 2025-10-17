@@ -179,6 +179,8 @@ void UBrandNewAttributeSet::SendXP(const struct FGameplayEffectModCallbackData& 
 
 void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
 {
+	if (UCharacterFunctionLibrary::DoseActorHasTag(GetOwningActor(), BrandNewGamePlayTag::Status_Shared_SuperArmor)) return;
+	
 	FGameplayEventData EventData;
 	EventData.EventTag = UCharacterFunctionLibrary::GetHitDirectionTagToContext(Data.EffectSpec.GetContext()); // 방향성 타격 구현해야함
 	EventData.Instigator = Data.EffectSpec.GetContext().GetOriginalInstigator();

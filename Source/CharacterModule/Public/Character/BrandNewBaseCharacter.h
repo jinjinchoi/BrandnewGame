@@ -97,6 +97,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	bool bCanLaunch = true;
+
+	/* 캐릭터 넉백될때 보정치 */
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Combat",  meta = (ClampMin = "0.0", ClampMax = "2.0", EditCondition = "bCanLaunch"))
+	float CharacterLaunchMultiplier = 1.f;
 	
 	bool bIsHitReacting = false;
 	bool bIsDead = false;

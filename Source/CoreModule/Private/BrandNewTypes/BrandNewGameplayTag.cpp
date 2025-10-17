@@ -77,6 +77,9 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_RangeAttack, "Ability.Enemy.Combat.RangeAttack")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_TrackingShard, "Ability.Enemy.Combat.TrackingShard")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_ShockLanding, "Ability.Enemy.Combat.ShockLanding")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_JumpAttack, "Ability.Enemy.Combat.JumpAttack")
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Enemy_Combat_Roaring, "Ability.Enemy.Combat.Roaring")
+
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Hit, "Ability.Shared.React.Hit")
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Shared_React_Death, "Ability.Shared.React.Death")
@@ -118,6 +121,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Dead, "Status.Shared.Dead")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Strafing, "Status.Shared.Strafing")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_Invincible, "Status.Shared.Invincible")
+	UE_DEFINE_GAMEPLAY_TAG(Status_Shared_SuperArmor, "Status.Shared.SuperArmor")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Status_Player_LockOn, "Status.Player.LockOn")
 	UE_DEFINE_GAMEPLAY_TAG(Status_Player_Fire, "Status.Player.Fire")

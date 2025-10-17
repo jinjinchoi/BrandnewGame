@@ -156,17 +156,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
 
-	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
-	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
-	
-	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
-
-	UPROPERTY()
-	TArray<AActor*> OverlappedNPCArray;
-	
-
 private:
 	/* Attribute 변화를 바인딩 하는 함수 */
 	void BindAttributeDelegates();
@@ -190,6 +179,24 @@ private:
 	
 	UFUNCTION(Server, Reliable)
 	void Server_RecoveryDataAfterMapTravel(const FString& PlayerName);
+	
+	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
+	
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
+
+	UPROPERTY()
+	TArray<AActor*> OverlappedNPCArray;
+	
+	/* 현재 락온 중인 타겟 액터 */
+	TWeakObjectPtr<AActor> CombatTargetActor;
+
+	UFUNCTION(Server, Reliable)
+	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
+
+	FText GetCurrentTimeText() const;
 
 #pragma region SaveAndLoad
 	
@@ -265,14 +272,6 @@ private:
 
 #pragma endregion 
 
-	UFUNCTION(Server, Reliable)
-	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
-
-	FText GetCurrentTimeText() const;
-
-	/* 현재 락온 중인 타겟 액터 */
-	TWeakObjectPtr<AActor> CombatTargetActor;
-	
 #pragma region Movement
 	
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentGate)
