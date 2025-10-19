@@ -12,10 +12,14 @@ struct FMapInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UWorld> MapAsset; // 실제 월드 에셋
+	TSoftObjectPtr<UWorld> MapAsset = nullptr; // 실제 월드 에셋
 
 	UPROPERTY(EditDefaultsOnly)
-	FText DisplayName; // 표시할 이름
+	FText DisplayName = FText(); // 표시할 이름
+
+	UPROPERTY(EditDefaultsOnly)
+	FName DisplayNameKey;
+	
 };
 
 /**
@@ -29,5 +33,7 @@ class COREMODULE_API UDataAsset_MapInfo : public UDataAsset
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FMapInfo> MapInfos;
+
+	FText GetDisplayName(const TSoftObjectPtr<UWorld> MapAsset) const;
 	
 };

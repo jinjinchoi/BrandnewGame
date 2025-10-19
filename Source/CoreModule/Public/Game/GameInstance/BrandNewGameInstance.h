@@ -18,6 +18,7 @@ class COREMODULE_API UBrandNewGameInstance : public UGameInstance
 
 public:
 	FText GetMapName(const FString& MapPath) const;
+	FText GetMapName(const TSoftObjectPtr<UWorld> SoftMapClass) const;
 	FItemDataRow GetItemData(const int32 ItemId);
 
 protected:

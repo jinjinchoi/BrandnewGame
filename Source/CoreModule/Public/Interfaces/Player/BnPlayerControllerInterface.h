@@ -26,6 +26,11 @@ public:
 	virtual void AddInputMappingForWeapon(const ECombatWeaponType InWeaponType) = 0;
 	virtual void RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove) = 0;
 
+	/**
+	 * Map Entry Actor에 플레이어가 오버랩되면 최대 플레이어의 수와 현재 오버랩 된 플레이어의 수를 보여주는 함수
+	 * 오버랩된 플레이어의 수가 0이면 위젯을 제거함.
+	 */
+	virtual void HandlePlayerMapEntryOverlap(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum) = 0;
 	
 	
 };

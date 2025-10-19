@@ -20,6 +20,12 @@ FText UBrandNewGameInstance::GetMapName(const FString& MapPath) const
 	
 }
 
+FText UBrandNewGameInstance::GetMapName(const TSoftObjectPtr<UWorld> SoftMapClass) const
+{
+	return MapInfoDataAsset->GetDisplayName(SoftMapClass);
+	
+}
+
 FItemDataRow UBrandNewGameInstance::GetItemData(const int32 ItemId)
 {
 	if (ItemIdMap.IsEmpty()) return FItemDataRow();

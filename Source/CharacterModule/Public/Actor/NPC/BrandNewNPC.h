@@ -33,6 +33,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	TObjectPtr<USphereComponent> SphereCollision;
 
+	// NPC 네임은 블루프린트에서 설정중
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UWidgetComponent> NPCNameWidgetComponent;
 

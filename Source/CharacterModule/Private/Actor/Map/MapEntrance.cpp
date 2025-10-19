@@ -4,10 +4,14 @@
 #include "Actor/Map/MapEntrance.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/GameStateBase.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
+#include "Interfaces/Player/BnPlayerControllerInterface.h"
 
 // Sets default values
 AMapEntrance::AMapEntrance()
@@ -23,6 +27,12 @@ AMapEntrance::AMapEntrance()
 
 	BoxCollision->SetBoxExtent(FVector(500.f, 500.f, 200.f));
 
+	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interaction Widget Component"));
+	InteractionWidgetComponent->SetupAttachment(GetRootComponent());
+	InteractionWidgetComponent->SetVisibility(false);
+	InteractionWidgetComponent->SetDrawAtDesiredSize(true);
+	InteractionWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	
 }
 
 // Called when the game starts or when spawned
@@ -31,35 +41,57 @@ void AMapEntrance::BeginPlay()
 	Super::BeginPlay();
 	
 	check(!LevelToTravelClass.IsNull() || !TransitionLevelClass.IsNull());
-
-	if (LevelToTravelClass.IsNull() || TransitionLevelClass.IsNull() || !HasAuthority()) return;
+	
+	if (LevelToTravelClass.IsNull() || TransitionLevelClass.IsNull()) return;
 
 	BoxCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
+	
 	
 }
 
 void AMapEntrance::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 	
-	if (IsValid(OtherActor) && OtherActor->Implements<UBrandNewPlayerInterface>() && !OtherActor->IsPendingKillPending() && !OtherActor->IsActorBeingDestroyed())
+	if (HasAuthority() && OtherActor->Implements<UBrandNewPlayerInterface>() && !OtherActor->IsPendingKillPending() && !OtherActor->IsActorBeingDestroyed())
 	{
 		OverlappingActors.Add(OtherActor);
 		OtherActor->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnActorDestroyed);
 		
 		CheckAllPlayersOverlapped();
+		CreateOrUpdateEntryStatusWidget();
 	}
-	
+
+	if (const ACharacter* Player = Cast<ACharacter>(OtherActor))
+	{
+		if (Player->IsLocallyControlled())
+		{
+			InteractionWidgetComponent->SetVisibility(true);
+		}
+	}
 	
 }
 
 void AMapEntrance::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (IsValid(OtherActor) && OverlappingActors.Contains(OtherActor))
+	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
+	
+	if (HasAuthority() && OverlappingActors.Contains(OtherActor))
 	{
 		OverlappingActors.Remove(TWeakObjectPtr<AActor>(OtherActor));
 		OtherActor->OnDestroyed.RemoveDynamic(this, &ThisClass::OnActorDestroyed);
+		CreateOrUpdateEntryStatusWidget();
 	}
+
+	if (const ACharacter* Player = Cast<ACharacter>(OtherActor))
+	{
+		if (Player->IsLocallyControlled())
+		{
+			InteractionWidgetComponent->SetVisibility(false);
+		}
+	}
+	
 }
 
 
@@ -72,6 +104,7 @@ void AMapEntrance::OnActorDestroyed(AActor* DestroyedActor)
 	
 	OverlappingActors.Remove(TWeakObjectPtr<AActor>(DestroyedActor));
 	CheckAllPlayersOverlapped();
+	CreateOrUpdateEntryStatusWidget();
 }
 
 void AMapEntrance::CleanupInvalidActors()
@@ -115,6 +148,28 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 
 		LevelManagerSubsystem->SetMapNameToTravel(LevelToTravelClass);
 		LevelManagerSubsystem->TravelToTransitionMap(TransitionLevelClass);
+	}
+	
+}
+
+void AMapEntrance::CreateOrUpdateEntryStatusWidget() const
+{
+	const ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
+	if (!BrandNewGameState) return;
+
+	const int32 OverlappedPlayerCount = OverlappingActors.Num();
+	const int32 MaxPlayersCount = BrandNewGameState->PlayerArray.Num();
+	
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (!IsValid(PlayerController)) continue;
+
+		IBnPlayerControllerInterface* PlayerControllerInterface = Cast<IBnPlayerControllerInterface>(PlayerController);
+		if (!PlayerControllerInterface) continue;
+
+		PlayerControllerInterface->HandlePlayerMapEntryOverlap(OverlappedPlayerCount, MaxPlayersCount);
+		
 	}
 	
 }

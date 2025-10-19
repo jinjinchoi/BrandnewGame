@@ -16,6 +16,7 @@
 #include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
 #include "Interfaces/Player/BnPlayerStateInterface.h"
 #include "GameFramework/PlayerState.h"
+#include "Interfaces/UI/EntryStatusWidgetInterface.h"
 
 ABrandNewPlayerController::ABrandNewPlayerController()
 {
@@ -151,6 +152,60 @@ void ABrandNewPlayerController::RemoveInputMappingForWeapon(const ECombatWeaponT
 	
 }
 
+void ABrandNewPlayerController::HandlePlayerMapEntryOverlap(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum)
+{
+	check(EntryStatusWidgetClass)
+	
+	// 함수 자체는 서버에서만 실행중이라 불필요하지만 로직 보기 싶게 하기 위해 체크
+	if (!HasAuthority() || !EntryStatusWidgetClass) return;
+
+	if (IsLocalController()) // 리슨서버 호스트용
+	{
+		CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
+	}
+	else
+	{
+		Client_CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
+	}
+	
+}
+
+
+void ABrandNewPlayerController::Client_CreateOrUpdateEntryStatusWidget_Implementation(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum)
+{
+	CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
+}
+
+void ABrandNewPlayerController::CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum)
+{
+	// 현재 오버랩 된 플레이어가 없으면 위젯 제거
+	if (OverlappedPlayersNum <= 0 && EntryStatusWidget)
+	{
+		EntryStatusWidget->RemoveFromParent();
+		EntryStatusWidget = nullptr;
+		return;
+	}
+
+	// 엔트리 정보 위젯 생성 및 가운데에서 Y Off 준 위치에 정렬
+	if (!EntryStatusWidget)
+	{
+		EntryStatusWidget = CreateWidget(this, EntryStatusWidgetClass);
+		
+		EntryStatusWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+		EntryStatusWidget->SetAnchorsInViewport(FAnchors(0.5f, 0.2f, 0.5f, 0.2f));
+		
+		EntryStatusWidget->AddToViewport();
+		
+	}
+
+	// 오버랩 된 플레이어의 수와 전체 플레이어의 수 전송
+	if (EntryStatusWidget->Implements<UEntryStatusWidgetInterface>())
+	{
+		IEntryStatusWidgetInterface::Execute_SendCurrentOverlappedPlayersNum(EntryStatusWidget, OverlappedPlayersNum);
+		IEntryStatusWidgetInterface::Execute_SendMaxPlayersNum(EntryStatusWidget, MaxPlayersNum);
+	}	
+}
+
 void ABrandNewPlayerController::Input_AbilityInputPressed(FGameplayTag InInputTag)
 {
 	const ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
@@ -254,6 +309,9 @@ void ABrandNewPlayerController::Input_Interact()
 		ControlledCharacter->InteractIfPossible();
 	}
 }
+
+
+
 
 void ABrandNewPlayerController::Input_OpenInGameMenu()
 {

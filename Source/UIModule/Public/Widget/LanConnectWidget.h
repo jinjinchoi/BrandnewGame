@@ -7,7 +7,7 @@
 #include "LanConnectWidget.generated.h"
 
 /**
- * 
+ * 렌 연결할때 실패시 함수 호출하는 위젯
  */
 UCLASS()
 class UIMODULE_API ULanConnectWidget : public UUserWidget

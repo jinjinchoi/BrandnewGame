@@ -22,22 +22,22 @@ class CHARACTERMODULE_API ABrandNewPlayerController : public APlayerController, 
 
 public:
 	ABrandNewPlayerController();
+
+	/* begin IBnPlayerControllerInterface */
+	virtual void AddInputMappingForWeapon(const ECombatWeaponType InWeaponType) override;
+	virtual void RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove) override;
+	virtual void HandlePlayerMapEntryOverlap(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum) override;
+	/* end IBnPlayerControllerInterface */
+
+	/* begin IGenericTeamAgentInterface */
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	/* end IGenericTeamAgentInterface */
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_Pawn() override;
-
-	/* begin IBnPlayerControllerInterface */
-	virtual void AddInputMappingForWeapon(const ECombatWeaponType InWeaponType) override;
-	virtual void RemoveInputMappingForWeapon(const ECombatWeaponType WeaponTypeToRemove) override;
-	/* end IBnPlayerControllerInterface */
-
-	/* begin IGenericTeamAgentInterface */
-	virtual FGenericTeamId GetGenericTeamId() const override;
-	/* end IGenericTeamAgentInterface */
-
 
 private:
 	bool CanNotInteraction() const;
@@ -81,6 +81,18 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UUserWidget> InGameMenuWidget;
+
+	void CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum);
+	
+	UFUNCTION(Client, Unreliable)
+	void Client_CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum);
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|UI", meta = (MustImplement = "EntryStatusWidgetInterface"))
+	TSubclassOf<UUserWidget> EntryStatusWidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<UUserWidget> EntryStatusWidget;
+	
 
 	void Input_OpenInGameMenu();
 	

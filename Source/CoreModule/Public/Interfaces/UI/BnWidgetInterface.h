@@ -23,4 +23,5 @@ class COREMODULE_API IBnWidgetInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetUIWidgetController(UObject* ControllerToSet) = 0;
+
 };
