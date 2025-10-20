@@ -53,12 +53,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "Brandnew|Component")
 	TObjectPtr<UAudioComponent> LoopingSoundComponent;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|SFX")
-	TObjectPtr<USoundBase> LoopingSound;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|SFX")
 	TObjectPtr<USoundBase> ImpactSound;
 
@@ -107,10 +104,12 @@ private:
 	/* Target ASC와 Hit 방향을 직접 설정해야함.*/
 	FDamageEffectParams DamageEffectParams;
 
+	/* 프로젝타일 활성화 여부 클라이언트도 알게 하기 위한 변수 */
 	UPROPERTY(ReplicatedUsing = OnRep_IsActivated)
 	bool IsActivated = false;
 
 	UFUNCTION()
 	void OnRep_IsActivated();
+
 	
 };

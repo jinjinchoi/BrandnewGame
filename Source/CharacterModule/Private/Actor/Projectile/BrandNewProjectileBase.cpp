@@ -35,6 +35,11 @@ ABrandNewProjectileBase::ABrandNewProjectileBase()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement Component"));
 	ProjectileMovementComponent->StopMovementImmediately();
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+
+	LoopingSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	LoopingSoundComponent->SetupAttachment(GetRootComponent());
+	LoopingSoundComponent->bAutoActivate = false;
+	LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
 	
 }
 
@@ -53,12 +58,6 @@ void ABrandNewProjectileBase::BeginPlay()
 
 	SetReplicateMovement(true);
 	
-	if (!LoopingSoundComponent && LoopingSound)
-	{
-		LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
-		LoopingSoundComponent->bStopWhenOwnerDestroyed = true;
-	}
-
 }
 
 void ABrandNewProjectileBase::InitProjectile(AActor* ProjectileOwner, const FDamageEffectParams& InDamageEffectParams)
@@ -255,8 +254,26 @@ void ABrandNewProjectileBase::OnRep_IsActivated()
 {
 	SetActorHiddenInGame(!IsActivated);
 	SetActorEnableCollision(IsActivated);
-	if (NiagaraComponent && IsActivated)
+	
+	if (IsActivated)
 	{
 		NiagaraComponent->Activate();
+		LoopingSoundComponent->Play();
 	}
+	else
+	{
+		NiagaraComponent->Deactivate();
+		LoopingSoundComponent->Stop();
+		
+		if (DestructionEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, DestructionEffect, GetActorLocation(), GetActorRotation());
+		}
+
+		if (DestructionSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, DestructionSound, GetActorLocation(), GetActorRotation());
+		}
+	}
+	
 }
