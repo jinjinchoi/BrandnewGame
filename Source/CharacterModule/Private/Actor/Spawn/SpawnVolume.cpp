@@ -36,6 +36,8 @@ void ASpawnVolume::BeginPlay()
 	{
 		NumOfSpawn += SpawnPrams.NumOfEnemy; // 스폰할 에너미의 수를 계산
 	}
+
+	SpawnExtension = (BoxCollision->GetScaledBoxExtent().X + BoxCollision->GetScaledBoxExtent().Y) / 2.f;
 	
 	BoxCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	

@@ -44,9 +44,6 @@ protected:
 	TObjectPtr<UBoxComponent> BoxCollision;
 	
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Spawn")
-	float SpawnExtension = 500.f;
-
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Spawn")
 	TArray<FEnemySpawnPrams> EnemyInfoToSpawn;
 
 private:
@@ -56,5 +53,7 @@ private:
 	bool IsLocationFree(const FVector& LocationToCheck, const float CapsuleRadius) const;
 	void SpawnEnemy(const FEnemySpawnPrams& SpawnParams, const FVector& SpawnLocation) const;
 
+	
+	float SpawnExtension = 0.f;
 	int32 NumOfSpawn = 0;
 };
