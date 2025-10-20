@@ -23,7 +23,10 @@ public class CoreModule : ModuleRules
                 "Slate",
                 "SlateCore",
                 "EnhancedInput",
-                "MotionWarping"
+                "MotionWarping",
+                "LevelSequence",
+                "MovieScene",
+                
             }
         );
     }

@@ -14,7 +14,6 @@
 #include "DataAssets/DataAsset_AttributeInfo.h"
 #include "DataAssets/DataAsset_DefaultPlayerAbilities.h"
 #include "DataAssets/DataAsset_LevelUpInfo.h"
-#include "Engine/AssetManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/Player/BnPlayerControllerInterface.h"
@@ -32,6 +31,7 @@
 #include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
 #include "Inventory/BrandNewInventory.h"
 #include "Kismet/GameplayStatics.h"
+#include "Manager/Sequnce/SequenceManager.h"
 #include "PickupItems/BrandNewPickupItem.h"
 #include "Player/BrandNewPlayerState.h"
 
@@ -109,14 +109,17 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
+	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함
+	BindAttributeDelegates();
 	if (IsLocallyControlled())
 	{
+		InitHUDAndBroadCastInitialValue();
+		
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
-	BindAttributeDelegates();
-	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함.
+	
 }
 
 void ABrandNewPlayerCharacter::OnRep_PlayerState()
@@ -129,12 +132,13 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 
 	if (IsLocallyControlled())
 	{
+		InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
+		
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	
-	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
 }
 
 
@@ -143,13 +147,16 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 
-	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동일 경우 이동 직전 데이터 복구
+	// 맵 이동인지 접속인지 확인
+	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) 
 	{
+		// 맵 이동일 경우 최신 데이터로 복구
 		LoadCharacterData(SaveSlotPrams);
 		SaveSubsystem->RemoveLatestPlayerData(PlayerId);
 	}
 	else
 	{
+		// 접속인 경우 로드인지 뉴게임인지 확인하고 데이터 복구
 		InitializeCharacterInfo(PlayerId);
 	}
 	
@@ -169,15 +176,40 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
 		
 		LoadCharacterData(SavedData);
-		
+		return;
 	}
-	else // NewGame으로 시작한 경우 Default 데이터 설정.
+	
+	// NewGame으로 시작한 경우 Default 데이터 설정.
+	ApplyPrimaryAttributeFromDataTable();
+	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+
+	if (IsLocallyControlled())
 	{
-		ApplyPrimaryAttributeFromDataTable();
-		ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
-		ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+		// 완전 처음 게임을 시작. 시네마틱 재생
+		PlayFirstEntranceSequence();
 	}
+	else
+	{
+		Client_PlayFirstEntranceSequence();
+	}
+	
 }
+
+void ABrandNewPlayerCharacter::PlayFirstEntranceSequence() const
+{
+	USequenceManager* SequenceManager = GetGameInstance<UBrandNewGameInstance>()->GetSequenceManager();
+	if (!SequenceManager) return;
+
+	SequenceManager->PlayFirstEntranceSequence();
+	
+}
+
+void ABrandNewPlayerCharacter::Client_PlayFirstEntranceSequence_Implementation()
+{
+	PlayFirstEntranceSequence();
+}
+
 
 void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedDataToApply)
 {
@@ -356,30 +388,12 @@ void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(con
 
 void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 {
-	if (!HasAuthority() || DefaultAbilitiesDataAsset.IsNull() || !AbilitySystemComponent) return;
+	if (!HasAuthority() || !IsValid(DefaultAbilitiesDataAsset) || !AbilitySystemComponent) return;
 
-	TWeakObjectPtr WeakThis = this;
-
-	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-	Streamable.RequestAsyncLoad(
-		DefaultAbilitiesDataAsset.ToSoftObjectPath(),
-		FStreamableDelegate::CreateLambda([WeakThis]()
-		{
-			const ABrandNewPlayerCharacter* PlayerCharacter = WeakThis.Get();
-			if (!IsValid(PlayerCharacter))  return;
-			
-			const UDataAsset_DefaultPlayerAbilities* LoadedData = PlayerCharacter->DefaultAbilitiesDataAsset.Get();
-			if (IsValid(LoadedData) && IsValid(PlayerCharacter->AbilitySystemComponent))
-			{
-				PlayerCharacter->AbilitySystemComponent->GrantAbilities(LoadedData->PassiveAbilities, true);
-				PlayerCharacter->AbilitySystemComponent->GrantAbilities(LoadedData->ReactAbilities, false);
-				PlayerCharacter->AbilitySystemComponent->GrantPlayerInputAbilities(LoadedData->InputAbilities);
-			}
-			
-			PlayerCharacter->InitHUDAndBroadCastInitialValue();
-			
-		})
-	);
+	AbilitySystemComponent->GrantAbilities(DefaultAbilitiesDataAsset->PassiveAbilities, true);
+	AbilitySystemComponent->GrantAbilities(DefaultAbilitiesDataAsset->PassiveAbilities, true);
+	AbilitySystemComponent->GrantAbilities(DefaultAbilitiesDataAsset->ReactAbilities, false);
+	AbilitySystemComponent->GrantPlayerInputAbilities(DefaultAbilitiesDataAsset->InputAbilities);
 }
 
 
@@ -643,6 +657,8 @@ void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
 {
 	OnEquippedWeaponChanged();
 }
+
+
 
 FText ABrandNewPlayerCharacter::GetCurrentTimeText() const
 {

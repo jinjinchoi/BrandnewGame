@@ -3,12 +3,37 @@
 
 #include "HUD/BrandNewHUD.h"
 
+#include "Game/GameInstance/BrandNewGameInstance.h"
+#include "Manager/Sequnce/SequenceManager.h"
 #include "Widget/BrandNewWidget.h"
 #include "WidgetController/CharacterInfoWidgetController.h"
 #include "WidgetController/DialogueWidgetController.h"
 #include "WidgetController/InventoryWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
 #include "WidgetController/GameOverWidgetController.h"
+
+
+
+void ABrandNewHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (USequenceManager* SequenceManager = GetGameInstance<UBrandNewGameInstance>()->GetSequenceManager())
+	{
+		SequenceManager->OnSequencePlayStateChangedDelegate.AddWeakLambda(this, [this](const bool bIsPlaying)
+		{
+			if (this->OverlayWidget)
+			{
+				this->OverlayWidget->SetVisibility(bIsPlaying ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+			}
+		});
+	}
+}
+
+void ABrandNewHUD::RequestInitHUD()
+{
+	InitHUD();
+}
 
 void ABrandNewHUD::InitHUD()
 {
@@ -30,11 +55,6 @@ void ABrandNewHUD::InitHUD()
 	OverlayWidget->SetWidgetController(OverlayWidgetController);
 	OverlayWidget->AddToViewport();
 	
-}
-
-void ABrandNewHUD::RequestInitHUD()
-{
-	InitHUD();
 }
 
 void ABrandNewHUD::HideMainOverlay()
@@ -118,3 +138,4 @@ UGameOverWidgetController* ABrandNewHUD::GetGameOverWidgetController()
 	return GameOverWidgetController;
 	
 }
+

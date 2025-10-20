@@ -26,10 +26,10 @@ protected:
 	UFUNCTION()
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(VisibleAnywhere, Category = "Brandnew|Component")
+	UPROPERTY(VisibleAnywhere, Category = "Component")
 	TObjectPtr<UBoxComponent> BoxCollision;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UWidgetComponent> InteractionWidgetComponent;
 	
 	// 해당 Entrance로 이동할 맵 클래스

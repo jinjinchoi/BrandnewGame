@@ -3,6 +3,7 @@
 
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "DataAssets/DataAsset_MapInfo.h"
+#include "Manager/Sequnce/SequenceManager.h"
 
 FText UBrandNewGameInstance::GetMapName(const FString& MapPath) const
 {
@@ -43,8 +44,8 @@ void UBrandNewGameInstance::Init()
 {
 	Super::Init();
 
-	check(ItemDataTable)
-	if (!ItemDataTable) return;
+	check(ItemDataTable && SequenceManagerClass)
+	if (!ItemDataTable || !SequenceManagerClass) return;
 
 	// 데이터 테이블의 Row 구조체가 설정한 구조체와 맞는지 확인
 	if (ItemDataTable->GetRowStruct() == FItemDataRow::StaticStruct())
@@ -55,4 +56,8 @@ void UBrandNewGameInstance::Init()
 			ItemIdMap.Add(ItemData->ID, *ItemData);
 		}
 	}
+
+	// 시퀀스 매니저 생성
+	SequenceManager = NewObject<USequenceManager>(this, SequenceManagerClass);
+	
 }

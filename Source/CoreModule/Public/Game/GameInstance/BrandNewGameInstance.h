@@ -7,6 +7,7 @@
 #include "Engine/GameInstance.h"
 #include "BrandNewGameInstance.generated.h"
 
+class USequenceManager;
 class UDataAsset_MapInfo;
 /**
  * 
@@ -23,6 +24,9 @@ public:
 
 protected:
 	virtual void Init() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Manager")
+	TSubclassOf<USequenceManager> SequenceManagerClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|DataAsset")
 	TObjectPtr<UDataAsset_MapInfo> MapInfoDataAsset;
@@ -46,6 +50,9 @@ protected:
 #pragma endregion
 
 private:
+	UPROPERTY()
+	TObjectPtr<USequenceManager> SequenceManager;
+	
 	/* 아이템의 아이디를 기반으로 아이템 정보를 저장하는 TMap */
 	TMap<int32, FItemDataRow> ItemIdMap;
 
@@ -54,5 +61,6 @@ public:
 	FORCEINLINE UDataTable* GetSequenceDialogueDataTable() const { return SequenceDialogueDataTable; }
 	FORCEINLINE UDataTable* GetChoiceDialogueDataTable() const { return ChoiceDialogueDataTable; }
 	FORCEINLINE UDataTable* GetConditionDialogueDataTable() const { return ConditionDialogueDataTable; }
+	FORCEINLINE USequenceManager* GetSequenceManager() const { return SequenceManager; }
 	
 };

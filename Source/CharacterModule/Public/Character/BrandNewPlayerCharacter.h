@@ -147,7 +147,7 @@ protected:
 
 	/** 플레이어에게 부여할 어빌리티를 저장하는 데이터 에셋 **/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Data Asset")
-	TSoftObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
+	TObjectPtr<UDataAsset_DefaultPlayerAbilities> DefaultAbilitiesDataAsset;
 	
 	/* Attribute와 GameplayTag를 연결하는 데이터 에셋 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|Data Asset")
@@ -155,6 +155,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
+
+	
 
 private:
 	/* Attribute 변화를 바인딩 하는 함수 */
@@ -196,11 +198,23 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_RequestUpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams);
 
+	/* 최초 게임 접속시 시네마틱 재생 */
+	void PlayFirstEntranceSequence() const;
+	UFUNCTION(Client, Reliable)
+	void Client_PlayFirstEntranceSequence();
+
+	
+	void OnCinematicComplete();
+
 	FText GetCurrentTimeText() const;
 
 #pragma region SaveAndLoad
 	
-	// 클라이언트가 서버에 Unique Id를 넘겨 Attribute 로드를 요청하는 함수
+	/**
+	 * Attribute를 로드하는 함수.
+	 * 로드 데이터는 Player Id마다 다르게 설정해야하고 바른 아이디를 가져오기 위해
+	 * 클라이언트가 서버로 아이디를 보내고 서버는 이를 받아서 처리
+	 */
 	UFUNCTION(Server, Reliable)
 	void Server_RequestInitCharacterInfo(const FString& PlayerId);
 

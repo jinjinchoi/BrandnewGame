@@ -36,12 +36,14 @@ public:
 	UGameOverWidgetController* GetGameOverWidgetController();
 	
 protected:
+	virtual void BeginPlay() override;
+	void OnCinematicPlaying(const bool bIsPlaying);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
 	TSubclassOf<UBrandNewWidget> OverlayWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
 	TSubclassOf<UBrandNewWidget> DialogueWidgetClass;
-
 	
 	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
