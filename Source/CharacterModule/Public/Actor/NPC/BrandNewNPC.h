@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCapsuleComponent> CapsuleComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Component")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<USkeletalMeshComponent> SkeletalMeshComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Component")

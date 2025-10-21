@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "SequenceManager.generated.h"
 
+class ULevelSequencePlayer;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSequencePlayStateChanged, const bool /* Is Playing? */);
 
 class ULevelSequence;
@@ -18,16 +19,23 @@ class COREMODULE_API USequenceManager : public UObject
 	GENERATED_BODY()
 
 public:
-	void PlayFirstEntranceSequence();
+	void PlayFirstEntranceSequence() const;
+	void PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay);
 
 	FOnSequencePlayStateChanged OnSequencePlayStateChangedDelegate;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cinematics")
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Cinematics")
 	TSoftObjectPtr<ULevelSequence> FirstEntranceSequence;
+
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Cinematics")
+	bool bShouldPlayFirstEntranceSequence = false;
 
 private:
 	UFUNCTION()
 	void OnCinematicFinishedPlaying();
+	
+	UPROPERTY()
+	TObjectPtr<ULevelSequencePlayer> LastSequencePlayer;
 	
 };

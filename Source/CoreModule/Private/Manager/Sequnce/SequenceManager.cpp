@@ -8,9 +8,9 @@
 #include "LevelSequencePlayer.h"
 #include "Engine/AssetManager.h"
 
-void USequenceManager::PlayFirstEntranceSequence()
+void USequenceManager::PlayFirstEntranceSequence() const
 {
-	if (!GetWorld() ||FirstEntranceSequence.IsNull()) return;
+	if (!GetWorld() ||FirstEntranceSequence.IsNull() || !bShouldPlayFirstEntranceSequence) return;
 
 	TWeakObjectPtr WeakThis = this;
 
@@ -42,6 +42,47 @@ void USequenceManager::PlayFirstEntranceSequence()
 	
 		
 	});
+}
+
+void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay)
+{
+	if (SequenceToPlay.IsNull()) return;
+	
+	TWeakObjectPtr WeakThis = this;
+
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+	Streamable.RequestAsyncLoad(SequenceToPlay.ToSoftObjectPath(), [WeakThis, SequenceToPlay]()
+	{
+		if (!WeakThis.IsValid()) return;
+		ULevelSequence* LoadedSequence = SequenceToPlay.Get();
+		APlayerController* PC = WeakThis->GetWorld()->GetFirstPlayerController();
+		if (!PC) return;
+
+		FMovieSceneSequencePlaybackSettings Settings;
+		Settings.bDisableLookAtInput = true;
+		Settings.bDisableMovementInput = true;
+		Settings.bHidePlayer = true;
+		Settings.bPauseAtEnd = true;
+		
+		ALevelSequenceActor* OutActor = nullptr;
+
+		ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(
+			WeakThis->GetWorld(),LoadedSequence, Settings, OutActor);
+
+		if (Player)
+		{
+			Player->Play();
+
+			if (WeakThis->LastSequencePlayer)
+			{
+				WeakThis->LastSequencePlayer->Stop();
+			}
+			
+			WeakThis->LastSequencePlayer = Player;
+		}
+		
+	});
+	
 }
 
 void USequenceManager::OnCinematicFinishedPlaying()

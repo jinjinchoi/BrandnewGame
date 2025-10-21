@@ -3,8 +3,11 @@
 
 #include "WidgetController/DialogueWidgetController.h"
 
+#include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Manager/DialogueSubSystem.h"
+#include "Manager/Sequnce/SequenceManager.h"
 #include "Node/BnDialogueChoiceNode.h"
+#include "Node/BnDialogueSequenceNode.h"
 #include "Node/BnDialogueTextNode.h"
 
 void UDialogueWidgetController::BroadCastInitialValue()
@@ -26,10 +29,11 @@ void UDialogueWidgetController::BroadCastDialogue()
 		break;
 		
 	case EDialogueType::Text:
-		HandleTextDialogue();
+		HandleTextNode();
 		break;
 		
 	case EDialogueType::Sequence:
+		HandleSequenceNode();
 		break;
 		
 	case EDialogueType::Choice:
@@ -47,7 +51,7 @@ void UDialogueWidgetController::BroadCastDialogue()
 	
 }
 
-void UDialogueWidgetController::HandleTextDialogue()
+void UDialogueWidgetController::HandleTextNode()
 {
 	const UDialogueSubSystem* DialogueSubSystem = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueSubSystem>();
 	const UBnDialogueTextNode* TextNode = DialogueSubSystem->GetDialogueNodeById<UBnDialogueTextNode>(DialogueId);
@@ -62,6 +66,27 @@ void UDialogueWidgetController::HandleTextDialogue()
 	TextDialogueReceivedDelegate.Broadcast(DialogueParams);
 	
 }
+
+void UDialogueWidgetController::HandleSequenceNode()
+{
+	const UBrandNewGameInstance* BnGameInstance = GetWorld()->GetGameInstance<UBrandNewGameInstance>();
+	const UDialogueSubSystem* DialogueSubSystem = BnGameInstance->GetSubsystem<UDialogueSubSystem>();
+	const UBnDialogueSequenceNode* SequenceNode = DialogueSubSystem->GetDialogueNodeById<UBnDialogueSequenceNode>(DialogueId);
+	USequenceManager* SequenceManager = BnGameInstance->GetSequenceManager();
+	if (!SequenceNode) return;
+
+	DialogueId = SequenceNode->NextNodeId;
+
+	FTextDialogueParams DialogueParams;
+	DialogueParams.Dialogue = SequenceNode->DialogueText;
+	DialogueParams.SpeakerName = SequenceNode->SpeakerName;
+	SequenceManager->PlayDialogueSequence(SequenceNode->Sequence);
+
+	TextDialogueReceivedDelegate.Broadcast(DialogueParams);
+	
+	
+}
+
 
 void UDialogueWidgetController::HandleChoiceNode() const
 {
@@ -91,8 +116,9 @@ void UDialogueWidgetController::HandleChoiceNode() const
 }
 
 
+
 void UDialogueWidgetController::ChoiceButtonClick(const FName& NextNodeId)
 {
 	DialogueId = NextNodeId;
-	HandleTextDialogue();
+	HandleTextNode();
 }

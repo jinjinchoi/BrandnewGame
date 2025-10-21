@@ -71,7 +71,8 @@ public:
 	FOnDialogueEnded DialogueEndedDelegate;
 
 private:
-	void HandleTextDialogue();
+	void HandleTextNode();
 	void HandleChoiceNode() const;
+	void HandleSequenceNode();
 	
 };
