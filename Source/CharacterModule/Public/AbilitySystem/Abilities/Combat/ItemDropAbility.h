@@ -23,6 +23,10 @@ struct FDropItemParams
 	/* 드랍할 확률 가중치 */
 	UPROPERTY(EditDefaultsOnly)
 	float Weight = 1.f;
+
+	/* 아이템 드랍 갯수 편차 */
+	UPROPERTY(EditDefaultsOnly)
+	int32 RandomDeviation = 0;
 	
 };
 

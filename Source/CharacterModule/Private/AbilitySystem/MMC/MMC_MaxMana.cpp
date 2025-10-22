@@ -14,12 +14,12 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 
 	float Vitality = 0.0f;
 	GetCapturedAttributeMagnitude(VitalityDef, Spec, EvaluationParams, Vitality);
-
-	float Intelligence = 0.f;
-	GetCapturedAttributeMagnitude(IntelligenceDef, Spec, EvaluationParams, Intelligence);
-
+	
 	float ItemVitality = 0.0f;
 	GetCapturedAttributeMagnitude(ItemVitalityDef, Spec, EvaluationParams, ItemVitality);
+	
+	float Intelligence = 0.f;
+	GetCapturedAttributeMagnitude(IntelligenceDef, Spec, EvaluationParams, Intelligence);
 
 	float ItemIntelligence = 0.f;
 	GetCapturedAttributeMagnitude(ItemIntelligenceDef, Spec, EvaluationParams, ItemIntelligence);

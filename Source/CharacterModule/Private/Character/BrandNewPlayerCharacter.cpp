@@ -147,10 +147,10 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 
-	// 맵 이동인지 접속인지 확인
-	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) 
+	
+	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동인지 접속인지 확인
 	{
-		// 맵 이동일 경우 최신 데이터로 복구
+		// 맵 이동일 경우 SaveSubsystem에 있는 LatestPlayerData로 복구
 		LoadCharacterData(SaveSlotPrams);
 		SaveSubsystem->RemoveLatestPlayerData(PlayerId);
 	}
@@ -170,11 +170,12 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
 	
-	if (SaveSubsystem->IsLoadedWorld()) // 로드된 세상일 로드 슬롯에 맞는 데이터를 복구
+	if (SaveSubsystem->IsLoadedWorld()) // 로드로 접속인지 확인
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId);
 		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
-		
+
+		// 처음 접속인데 로드를 통해 들어온 것이면 SavedData를 가져와서 데이터 복구
 		LoadCharacterData(SavedData);
 		return;
 	}
@@ -183,6 +184,7 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 	ApplyPrimaryAttributeFromDataTable();
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
 
 	if (IsLocallyControlled())
 	{
@@ -217,6 +219,7 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	
 	ApplyPrimaryAttributeFromSaveData(SavedDataToApply.AttributePrams);
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
+	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
 	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 	LoadInventory(SavedDataToApply.InventoryContents); // 인벤토리 로드
 

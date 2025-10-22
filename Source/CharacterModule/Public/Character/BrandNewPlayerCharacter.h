@@ -122,6 +122,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> VitalOverrideEffect;
+	
+	/* 체력 및 마나 자동 재생 Gameplay Effect */
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	TSubclassOf<UGameplayEffect> RegenerationEffect;
 
 	/* 경험치를 올리기 위한 Gameplay Effect */
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")

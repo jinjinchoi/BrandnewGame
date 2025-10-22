@@ -27,8 +27,10 @@ void UItemDropAbility::DropItem()
 	{
 		IPickupItemInterface* PickupItemInterface = CastChecked<IPickupItemInterface>(PickupItemActor);
 
+		const int32 Quantity = ItemParams.Quantity + FMath::RandRange(0, ItemParams.RandomDeviation);
+		
 		PickupItemInterface->SetId(ItemParams.ItemId);
-		PickupItemInterface->SetQuantity(ItemParams.Quantity);
+		PickupItemInterface->SetQuantity(Quantity);
 
 		PickupItemActor->FinishSpawning(SpawnTransform);
 	}
