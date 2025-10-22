@@ -21,6 +21,7 @@ class COREMODULE_API USequenceManager : public UObject
 public:
 	void PlayFirstEntranceSequence() const;
 	void PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay);
+	void FinishDialogueSequence();
 
 	FOnSequencePlayStateChanged OnSequencePlayStateChangedDelegate;
 

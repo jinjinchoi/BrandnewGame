@@ -4,6 +4,7 @@
 #include "WidgetController/DialogueWidgetController.h"
 
 #include "Game/GameInstance/BrandNewGameInstance.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Manager/DialogueSubSystem.h"
 #include "Manager/Sequnce/SequenceManager.h"
 #include "Node/BnDialogueChoiceNode.h"
@@ -44,7 +45,7 @@ void UDialogueWidgetController::BroadCastDialogue()
 		break;
 		
 	case EDialogueType::End:
-		DialogueEndedDelegate.Broadcast();
+		HandleEndNode();
 		break;
 	}
 	
@@ -76,6 +77,11 @@ void UDialogueWidgetController::HandleSequenceNode()
 	if (!SequenceNode) return;
 
 	DialogueId = SequenceNode->NextNodeId;
+	
+	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn))
+	{
+		PlayerInterface->SetCombatWeaponVisible(false);
+	}
 
 	FTextDialogueParams DialogueParams;
 	DialogueParams.Dialogue = SequenceNode->DialogueText;
@@ -86,7 +92,6 @@ void UDialogueWidgetController::HandleSequenceNode()
 	
 	
 }
-
 
 void UDialogueWidgetController::HandleChoiceNode() const
 {
@@ -115,10 +120,25 @@ void UDialogueWidgetController::HandleChoiceNode() const
 	
 }
 
-
-
 void UDialogueWidgetController::ChoiceButtonClick(const FName& NextNodeId)
 {
 	DialogueId = NextNodeId;
 	HandleTextNode();
+}
+
+
+void UDialogueWidgetController::HandleEndNode() const
+{
+	DialogueEndedDelegate.Broadcast();
+	
+	// Note: 마지막 노드가 시퀀스 노드였는지 확인하고 작업들 진행하게 바꿀 수도 있음
+	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn))
+	{
+		PlayerInterface->SetCombatWeaponVisible(true);
+	}
+	
+	const UBrandNewGameInstance* BnGameInstance = GetWorld()->GetGameInstance<UBrandNewGameInstance>();
+	USequenceManager* SequenceManager = BnGameInstance->GetSequenceManager();
+	SequenceManager->FinishDialogueSequence();
+	
 }

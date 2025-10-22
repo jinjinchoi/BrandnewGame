@@ -11,7 +11,19 @@ void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWo
 	if (LevelClass.IsNull()) return;
 	
 	const FSoftObjectPath& SoftObjectPath = LevelClass.ToSoftObjectPath();
-	const FString PackageName = SoftObjectPath.GetLongPackageName();
+	FString PackageName = SoftObjectPath.GetLongPackageName();
+
+#if WITH_EDITOR
+	if (const UWorld* World = GWorld)
+	{
+		if (GIsEditor && World->IsPlayInEditor())
+		{
+			const FString Prefix = World->StreamingLevelsPrefix;
+			PackageName = UWorld::StripPIEPrefixFromPackageName(PackageName, Prefix);
+		}
+	}
+#endif
+
 	const FName PackageFName(*PackageName);
 	TargetLevelPath = PackageFName;
 }

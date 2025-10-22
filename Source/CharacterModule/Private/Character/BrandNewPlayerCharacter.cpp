@@ -1083,6 +1083,15 @@ void ABrandNewPlayerCharacter::RemoveOverlappedNPC(AActor* EndOverlappedNPC)
 	
 }
 
+void ABrandNewPlayerCharacter::SetCombatWeaponVisible(const bool bIsVisible)
+{
+	if (CombatWeapon)
+	{
+		CombatWeapon->SetWeaponVisible(bIsVisible);
+	}
+	
+}
+
 void ABrandNewPlayerCharacter::InteractIfPossible()
 {
 

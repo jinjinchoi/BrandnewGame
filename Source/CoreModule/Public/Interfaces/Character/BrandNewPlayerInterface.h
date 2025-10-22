@@ -98,4 +98,8 @@ public:
 
 	virtual void AddOverlappedNPC(AActor* OverlappedNPC) = 0;
 	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) = 0;
+
+	/* 무기를 숨겨진 상태로 만들 것인지 설정하는 함수 */
+	virtual void SetCombatWeaponVisible(const bool bIsVisible) = 0; 
+	
 };

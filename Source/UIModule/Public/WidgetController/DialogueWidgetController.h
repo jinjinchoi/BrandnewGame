@@ -74,5 +74,6 @@ private:
 	void HandleTextNode();
 	void HandleChoiceNode() const;
 	void HandleSequenceNode();
+	void HandleEndNode() const;
 	
 };

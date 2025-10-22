@@ -112,7 +112,7 @@ void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 			WeakThis.Get()->bIsActivated = false;
 			if (WeakThis.Get()->CombatWeapon)
 			{
-				WeakThis.Get()->CombatWeapon->HideWeapon(true);
+				WeakThis.Get()->CombatWeapon->SetWeaponVisible(false);
 			}
 			
 			PoolManager->ReturnObject(WeakThis.Get());
@@ -168,7 +168,7 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	
 	if (CombatWeapon)
 	{
-		CombatWeapon->HideWeapon(false);
+		CombatWeapon->SetWeaponVisible(true);
 	}
 
 	if (bIsDead && AbilitySystemComponent)
@@ -302,7 +302,7 @@ void ABrandNewEnemyCharacter::GiveAbilitiesToEnemy()
 
 			if (WeakThis.Get()->CombatWeapon && !WeakThis.Get()->bIsActivated)
 			{
-				WeakThis.Get()->CombatWeapon->HideWeapon(true);
+				WeakThis.Get()->CombatWeapon->SetWeaponVisible(false);
 			}
 			
 		})

@@ -60,6 +60,7 @@ public:
 	virtual void RevivePlayerCharacter() override;
 	virtual void AddOverlappedNPC(AActor* OverlappedNPC) override;
 	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) override;
+	virtual void SetCombatWeaponVisible(const bool bIsVisible) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -202,10 +203,7 @@ private:
 	void PlayFirstEntranceSequence() const;
 	UFUNCTION(Client, Reliable)
 	void Client_PlayFirstEntranceSequence();
-
 	
-	void OnCinematicComplete();
-
 	FText GetCurrentTimeText() const;
 
 #pragma region SaveAndLoad

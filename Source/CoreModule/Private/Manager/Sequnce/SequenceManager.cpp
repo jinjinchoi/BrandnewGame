@@ -38,8 +38,6 @@ void USequenceManager::PlayFirstEntranceSequence() const
 			WeakThis->OnSequencePlayStateChangedDelegate.Broadcast(true);
 			Player->OnFinished.AddUniqueDynamic(WeakThis.Get(), &ThisClass::OnCinematicFinishedPlaying);
 		}
-
-	
 		
 	});
 }
@@ -54,18 +52,16 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 	Streamable.RequestAsyncLoad(SequenceToPlay.ToSoftObjectPath(), [WeakThis, SequenceToPlay]()
 	{
 		if (!WeakThis.IsValid()) return;
+		
 		ULevelSequence* LoadedSequence = SequenceToPlay.Get();
-		APlayerController* PC = WeakThis->GetWorld()->GetFirstPlayerController();
-		if (!PC) return;
-
+		ALevelSequenceActor* OutActor = nullptr;
+		
 		FMovieSceneSequencePlaybackSettings Settings;
 		Settings.bDisableLookAtInput = true;
 		Settings.bDisableMovementInput = true;
 		Settings.bHidePlayer = true;
 		Settings.bPauseAtEnd = true;
 		
-		ALevelSequenceActor* OutActor = nullptr;
-
 		ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(
 			WeakThis->GetWorld(),LoadedSequence, Settings, OutActor);
 
@@ -85,12 +81,30 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 	
 }
 
+void USequenceManager::FinishDialogueSequence()
+{
+	if (LastSequencePlayer)
+	{
+		LastSequencePlayer->Stop();
+		LastSequencePlayer = nullptr;
+		
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (APawn* Pawn = PC->GetPawn())
+		{
+			PC->SetViewTarget(Pawn);
+		}
+	}
+	
+}
+
 void USequenceManager::OnCinematicFinishedPlaying()
 {
 	OnSequencePlayStateChangedDelegate.Broadcast(false);
+	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
 	PC->SetCinematicMode(false, true, true, true, true);
+	
 	if (APawn* Pawn = PC->GetPawn())
 	{
 		PC->SetViewTarget(Pawn);

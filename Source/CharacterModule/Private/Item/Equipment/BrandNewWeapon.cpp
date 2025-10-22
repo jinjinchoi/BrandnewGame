@@ -52,9 +52,9 @@ void ABrandNewWeapon::ToggleCollisionEnable(const bool bIsEnable)
 	}
 }
 
-void ABrandNewWeapon::HideWeapon(const bool bIsHidden)
+void ABrandNewWeapon::SetWeaponVisible(const bool bIsVisible)
 {
-	SetActorHiddenInGame(bIsHidden);
+	SetActorHiddenInGame(!bIsVisible);
 }
 
 void ABrandNewWeapon::CollisionBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
