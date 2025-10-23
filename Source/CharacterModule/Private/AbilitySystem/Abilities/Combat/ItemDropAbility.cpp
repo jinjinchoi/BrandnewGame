@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/Combat/ItemDropAbility.h"
 
 #include "CharacterFunctionLibrary.h"
+#include "DebugHelper.h"
 #include "Interfaces/Actor/PickupItemInterface.h"
 
 void UItemDropAbility::DropItem()
@@ -12,6 +13,14 @@ void UItemDropAbility::DropItem()
 
 	const FDropItemParams ItemParams = GetItemPram();
 	if (ItemParams.ItemId <= 0)	return; // 아이디 0번 이하로 설정되어있으면 생성 방지. 이걸로 드랍 확률 설정.
+	
+	if (ItemParams.Quantity <= 0)
+	{
+		const FString WarningMessage = FString::Printf(TEXT("Item Quantity is 0 or negative! Class: %s"),  *GetClass()->GetName());
+		DebugHelper::Print(WarningMessage, FColor::Red);
+		return;
+	}
+	
 	
 	const FRotator SpawnRotation = FRotator::ZeroRotator;
 	FVector SpawnLocation = FVector::ZeroVector;
