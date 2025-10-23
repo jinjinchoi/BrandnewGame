@@ -26,13 +26,22 @@ void ABrandNewPlayerState::OnRep_PlayerId()
 
 FInventoryContents ABrandNewPlayerState::GetInventoryContents() const
 {
-	return Inventory->GetInventoryContents();
+	if (Inventory)
+	{
+		return Inventory->GetInventoryContents();
+	}
+
+	return FInventoryContents();
 }
 
 
 UBrandNewInventory* ABrandNewPlayerState::GetInventory() const
 {
-	return Inventory;
+	if (IsValid(Inventory))
+	{
+		return Inventory;
+	}
+	return nullptr;
 }
 
 

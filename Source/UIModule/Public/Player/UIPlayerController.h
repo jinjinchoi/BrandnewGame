@@ -18,11 +18,10 @@ class UIMODULE_API AUIPlayerController : public APlayerController
 public:
 	/* 맵 로드가 완료될때 서버에서 게임스테이트에 알려주는 함수 */
 	UFUNCTION(BlueprintCallable, Category = "Brandnew|Map", meta = (DisplayName ="Notify Map Loaded"))
-	void K2_NotifyMapLoaded();
+	void BP_NotifyMapLoaded();
 
 private:
 	UFUNCTION(Server, Reliable)
-	void Server_NotifyMapLoaded();
-	void NotifyMapLoaded() const;
+	void Server_NotifyMapLoaded(const int32 PlayerId);
 	
 };

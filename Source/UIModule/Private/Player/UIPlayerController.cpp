@@ -6,29 +6,19 @@
 #include "Game/GameState/BrandNewGameState.h"
 #include "GameFramework/PlayerState.h"
 
-void AUIPlayerController::K2_NotifyMapLoaded()
+void AUIPlayerController::BP_NotifyMapLoaded()
 {
-	if (HasAuthority())
-	{
-		NotifyMapLoaded();
-	}
-	else
-	{
-		Server_NotifyMapLoaded();
-	}	
-}
-
-void AUIPlayerController::Server_NotifyMapLoaded_Implementation()
-{
-	NotifyMapLoaded();
+	const int32 PlayerId = GetPlayerState<APlayerState>()->GetPlayerId();
 	
+	Server_NotifyMapLoaded(PlayerId);
+
 }
 
-void AUIPlayerController::NotifyMapLoaded() const
+void AUIPlayerController::Server_NotifyMapLoaded_Implementation(const int32 PlayerId)
 {
 	if (ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState()))
 	{
-		const int32 PlayerId = GetPlayerState<APlayerState>()->GetPlayerId();
 		BrandNewGameState->RegisterPlayerLoaded(PlayerId);
 	}
+	
 }
