@@ -159,24 +159,14 @@ void ABrandNewPlayerController::HandlePlayerMapEntryOverlap(const int32 Overlapp
 {
 	check(EntryStatusWidgetClass)
 	
-	// 함수 자체는 서버에서만 실행중이라 불필요하지만 로직 보기 싶게 하기 위해 체크
-	if (!HasAuthority() || !EntryStatusWidgetClass) return;
+	if (!EntryStatusWidgetClass) return;
 
-	if (IsLocalController()) // 리슨서버 호스트용
+	// 이미 로컬 컨트롤러에서만 호출되도록 설정되어 있지만 가독성 향상을 위해 if 체크  
+	if (IsLocalController())
 	{
 		CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
 	}
-	else
-	{
-		Client_CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
-	}
 	
-}
-
-
-void ABrandNewPlayerController::Client_CreateOrUpdateEntryStatusWidget_Implementation(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum)
-{
-	CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
 }
 
 void ABrandNewPlayerController::CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum)

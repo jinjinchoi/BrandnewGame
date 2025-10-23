@@ -41,26 +41,23 @@ void AMapEntrance::BeginPlay()
 	Super::BeginPlay();
 	
 	check(!LevelToTravelClass.IsNull() || !TransitionLevelClass.IsNull());
-	
 	if (LevelToTravelClass.IsNull() || TransitionLevelClass.IsNull()) return;
 
 	BoxCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
-
-	if (HasAuthority())
-	{
-		ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
-		check(BrandNewGameState);
-		BrandNewGameState->PlayerJoinDelegate.AddDynamic(this, &ThisClass::OnPlayerJoined);
-		BrandNewGameState->PlayerExitDelegate.AddDynamic(this, &ThisClass::OnPlayerExited);
-	}
+	
+	ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
+	check(BrandNewGameState);
+	BrandNewGameState->PlayerJoinDelegate.AddDynamic(this, &ThisClass::OnPlayerJoined);
+	BrandNewGameState->PlayerExitDelegate.AddDynamic(this, &ThisClass::OnPlayerExited);
+	
 }
 
 void AMapEntrance::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 	
-	if (HasAuthority() && OtherActor->Implements<UBrandNewPlayerInterface>() && !OtherActor->IsPendingKillPending() && !OtherActor->IsActorBeingDestroyed())
+	if (OtherActor->Implements<UBrandNewPlayerInterface>() && !OtherActor->IsPendingKillPending() && !OtherActor->IsActorBeingDestroyed())
 	{
 		OverlappingActors.Add(OtherActor);
 		CheckAllPlayersOverlapped();
@@ -81,7 +78,7 @@ void AMapEntrance::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 	
-	if (HasAuthority() && OverlappingActors.Contains(OtherActor))
+	if (OverlappingActors.Contains(OtherActor))
 	{
 		OverlappingActors.Remove(TWeakObjectPtr<AActor>(OtherActor));
 		CreateOrUpdateEntryStatusWidget();
@@ -139,6 +136,8 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 {
 	CleanupInvalidActors();
 
+	if (!HasAuthority()) return;
+
 	const ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
 	if (!BrandNewGameState) return;
 	
@@ -178,7 +177,7 @@ void AMapEntrance::CreateOrUpdateEntryStatusWidget() const
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PlayerController = It->Get();
-		if (!IsValid(PlayerController)) continue;
+		if (!IsValid(PlayerController) || !PlayerController->IsLocalController()) continue;
 
 		IBnPlayerControllerInterface* PlayerControllerInterface = Cast<IBnPlayerControllerInterface>(PlayerController);
 		if (!PlayerControllerInterface) continue;

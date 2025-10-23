@@ -86,9 +86,6 @@ private:
 
 	void CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum);
 	
-	UFUNCTION(Client, Unreliable)
-	void Client_CreateOrUpdateEntryStatusWidget(const int32 OverlappedPlayersNum, const int32 MaxPlayersNum);
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|UI", meta = (MustImplement = "EntryStatusWidgetInterface"))
 	TSubclassOf<UUserWidget> EntryStatusWidgetClass;
 	
