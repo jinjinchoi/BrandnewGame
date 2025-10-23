@@ -5,11 +5,11 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
-#include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Interfaces/Player/BnPlayerControllerInterface.h"
 
@@ -46,8 +46,14 @@ void AMapEntrance::BeginPlay()
 
 	BoxCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereEndOverlap);
-	
-	
+
+	if (HasAuthority())
+	{
+		ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
+		check(BrandNewGameState);
+		BrandNewGameState->PlayerJoinDelegate.AddDynamic(this, &ThisClass::OnPlayerJoined);
+		BrandNewGameState->PlayerExitDelegate.AddDynamic(this, &ThisClass::OnPlayerExited);
+	}
 }
 
 void AMapEntrance::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -57,8 +63,6 @@ void AMapEntrance::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 	if (HasAuthority() && OtherActor->Implements<UBrandNewPlayerInterface>() && !OtherActor->IsPendingKillPending() && !OtherActor->IsActorBeingDestroyed())
 	{
 		OverlappingActors.Add(OtherActor);
-		OtherActor->OnDestroyed.AddUniqueDynamic(this, &ThisClass::OnActorDestroyed);
-		
 		CheckAllPlayersOverlapped();
 		CreateOrUpdateEntryStatusWidget();
 	}
@@ -80,7 +84,6 @@ void AMapEntrance::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 	if (HasAuthority() && OverlappingActors.Contains(OtherActor))
 	{
 		OverlappingActors.Remove(TWeakObjectPtr<AActor>(OtherActor));
-		OtherActor->OnDestroyed.RemoveDynamic(this, &ThisClass::OnActorDestroyed);
 		CreateOrUpdateEntryStatusWidget();
 	}
 
@@ -95,16 +98,30 @@ void AMapEntrance::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, 
 }
 
 
-void AMapEntrance::OnActorDestroyed(AActor* DestroyedActor)
+void AMapEntrance::OnPlayerJoined(const APlayerState* NewPlayerState)
 {
-	if (!IsValid(this) || HasAnyFlags(RF_BeginDestroyed))
+	if (OverlappingActors.Num() > 0)
 	{
-		return; // 이미 파괴 중이면 아무 것도 하지 않음
+		CreateOrUpdateEntryStatusWidget();
+		CheckAllPlayersOverlapped();
 	}
 	
-	OverlappingActors.Remove(TWeakObjectPtr<AActor>(DestroyedActor));
-	CheckAllPlayersOverlapped();
-	CreateOrUpdateEntryStatusWidget();
+}
+
+void AMapEntrance::OnPlayerExited(const APlayerState* ExitedPlayerState)
+{
+	if (!ExitedPlayerState) return;
+	
+	if (OverlappingActors.Contains(ExitedPlayerState->GetPawn()))
+	{
+		OverlappingActors.Remove(ExitedPlayerState->GetPawn());
+	}
+	
+	if (OverlappingActors.Num() > 0)
+	{
+		CreateOrUpdateEntryStatusWidget();
+		CheckAllPlayersOverlapped();
+	}
 }
 
 void AMapEntrance::CleanupInvalidActors()
@@ -123,9 +140,8 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 	CleanupInvalidActors();
 
 	const ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
-	check(BrandNewGameState);
 	if (!BrandNewGameState) return;
-
+	
 	// 오버랩 된 액터와 플레이어의 수가 같으면 맵 이동
 	if (OverlappingActors.Num() == BrandNewGameState->PlayerArray.Num())
 	{
@@ -142,7 +158,6 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 					PlayerInterface->SavePlayerDataForTravel();
 				}
 				
-				Actor->OnDestroyed.RemoveDynamic(this, &ThisClass::OnActorDestroyed);
 			}
 		}
 

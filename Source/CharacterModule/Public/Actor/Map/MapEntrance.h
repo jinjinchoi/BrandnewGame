@@ -57,7 +57,10 @@ private:
 
 	/* 액터가 제거되었다는 것은 플레이어가 나갔다는 것이기 때문에 Set에서 제외하고 다시 체크하여 맵 이동할지 여부를 확인 */
 	UFUNCTION()
-	void OnActorDestroyed(AActor* DestroyedActor);
+	void OnPlayerJoined(const APlayerState* NewPlayerState);
+
+	UFUNCTION()
+	void OnPlayerExited(const APlayerState* ExitedPlayerState);
 
 	void CleanupInvalidActors();
 
