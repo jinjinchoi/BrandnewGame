@@ -30,7 +30,7 @@ protected:
 	TSoftObjectPtr<ULevelSequence> FirstEntranceSequence;
 
 	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Cinematics")
-	bool bShouldPlayFirstEntranceSequence = false;
+	bool bShouldPlayEntranceSequenceInEditor = false;
 
 private:
 	UFUNCTION()

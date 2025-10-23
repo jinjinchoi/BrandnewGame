@@ -69,14 +69,15 @@ void ASpawnVolume::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent
 				continue; // NavMesh 랜덤 뽑기 실패 → 다시 시도
 			}
 
-			DrawDebugPoint(GetWorld(), SpawnLocation, 6.f, FColor::Blue, false, 5.f); // 소환 시도한 위치 Debug
+			if (bShowDebugSphere) DrawDebugPoint(GetWorld(), SpawnLocation, 6.f, FColor::Blue, false, 5.f); // 소환 시도한 위치 Debug
 
 			if (!IsLocationFree(SpawnLocation, 100.f))
 			{
 				continue; // 겹침 → 다시 시도
 			}
 
-			DrawDebugSphere(GetWorld(), SpawnLocation, 100.f, 12, FColor::Red, false, 5.f); // 실제 소환 위치 Debug
+			if (bShowDebugSphere) DrawDebugSphere(GetWorld(), SpawnLocation, 100.f, 12, FColor::Red, false, 5.f); // 실제 소환 위치 Debug
+			
 			SpawnEnemy(SpawnParams, SpawnLocation);
 			++SpawnedCount;
 		}

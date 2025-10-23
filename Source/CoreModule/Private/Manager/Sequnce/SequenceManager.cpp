@@ -10,7 +10,12 @@
 
 void USequenceManager::PlayFirstEntranceSequence() const
 {
-	if (!GetWorld() ||FirstEntranceSequence.IsNull() || !bShouldPlayFirstEntranceSequence) return;
+	if (GIsPlayInEditorWorld && !bShouldPlayEntranceSequenceInEditor)
+	{
+		return;
+	}
+	
+	if (!GetWorld() ||FirstEntranceSequence.IsNull()) return;
 
 	TWeakObjectPtr WeakThis = this;
 

@@ -31,7 +31,7 @@ protected:
 	float TargetLockRotationInterpSpeed = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Target Lock")
-	float TargetLockCameraOffsetDistance = 10.f;	
+	float TargetLockCameraOffsetDistance = 25.f;	
 
 private:
 	void TryLockOnTarget();

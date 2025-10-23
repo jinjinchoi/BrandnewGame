@@ -45,6 +45,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Spawn")
 	TArray<FEnemySpawnPrams> EnemyInfoToSpawn;
+	
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Debug")
+	bool bShowDebugSphere = false;
 
 private:
 	/* Nav Mesh 내에서 유효한 위치를 구하는 함수 */
@@ -52,7 +55,6 @@ private:
 	/* 해당 위치에 Pawn이 존재하는지 여부를 구분하는 함수 */
 	bool IsLocationFree(const FVector& LocationToCheck, const float CapsuleRadius) const;
 	void SpawnEnemy(const FEnemySpawnPrams& SpawnParams, const FVector& SpawnLocation) const;
-
 	
 	float SpawnExtension = 0.f;
 	int32 NumOfSpawn = 0;
