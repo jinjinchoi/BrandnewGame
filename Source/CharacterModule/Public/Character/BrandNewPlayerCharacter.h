@@ -74,6 +74,7 @@ public:
 	void OnAbilityInputReleased(const FGameplayTag& InInputTag) const;
 
 	void InteractIfPossible();
+	void CameraScroll(const float InputValue);
 	
 	/* Delegates */
 	UPROPERTY(BlueprintAssignable, Category = "Branenew|Delegates")
@@ -161,6 +162,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
 
+	void ZoomInterpTick();
 	
 
 private:
@@ -307,13 +309,31 @@ private:
 
 #pragma endregion Movement
 
-#pragma region CameraComponent
+#pragma region Camera
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> FollowCamera;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent> CameraBoom;
-#pragma endregion CameraComponent
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Camera", meta=(ClampMin="0.0"))
+	float CameraZoomSpeed = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Camera")
+	float ZoomInterpSpeed = 7.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Camera")
+	float MinZoom = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Camera")
+	float MaxZoom = 800.f;
+	
+	FTimerHandle ZoomInterpTimerHandle;
+	float TargetArmLength = 500.f;
+	bool bIsZooming = false;
+
+#pragma endregion Camera
 	
 	
 };

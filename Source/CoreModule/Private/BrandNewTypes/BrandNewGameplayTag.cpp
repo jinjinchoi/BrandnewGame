@@ -45,6 +45,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(Input_Walk, "Input.Walk")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Run, "Input.Run")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Interact, "Input.Interact")
+	UE_DEFINE_GAMEPLAY_TAG(Input_CameraScroll, "Input.CameraScroll")
 	
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Equip, "Input.Ability.Equip")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Ability_Unequip, "Input.Ability.Unequip")

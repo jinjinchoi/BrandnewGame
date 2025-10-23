@@ -119,6 +119,9 @@ void ABrandNewPlayerController::SetupInputComponent()
 		BrandNewInputComponent->BindLocomotionInputAction(
 			InputConfig, this, BrandNewGamePlayTag::Input_UI_OpenInGameMenu, ETriggerEvent::Triggered, &ThisClass::Input_OpenInGameMenu);
 
+		BrandNewInputComponent->BindLocomotionInputAction(
+			InputConfig, this, BrandNewGamePlayTag::Input_CameraScroll, ETriggerEvent::Triggered, &ThisClass::Input_CameraScroll);
+
 		BrandNewInputComponent->BindAbilityInputAction(InputConfig, this, &ThisClass::Input_AbilityInputPressed, &ThisClass::Input_AbilityInputReleased);
 		
 	}
@@ -310,7 +313,13 @@ void ABrandNewPlayerController::Input_Interact()
 	}
 }
 
-
+void ABrandNewPlayerController::Input_CameraScroll(const FInputActionValue& InputActionValue)
+{
+	if (ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn()))
+	{
+		ControlledCharacter->CameraScroll(InputActionValue.Get<float>());
+	}
+}
 
 
 void ABrandNewPlayerController::Input_OpenInGameMenu()

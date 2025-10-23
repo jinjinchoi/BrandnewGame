@@ -71,6 +71,8 @@ private:
 
 	void Input_Interact();
 
+	void Input_CameraScroll(const FInputActionValue& InputActionValue);
+	
 #pragma endregion
 	
 ////////////////////////////////////

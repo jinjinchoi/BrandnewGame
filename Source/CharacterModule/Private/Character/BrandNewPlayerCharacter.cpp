@@ -400,7 +400,6 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 }
 
 
-
 void ABrandNewPlayerCharacter::BindAttributeDelegates()
 {
 	if (!IsLocallyControlled() || !AbilitySystemComponent || !AttributeSet) return;
@@ -1191,6 +1190,34 @@ void ABrandNewPlayerCharacter::AcquireItem()
 	
 }
 
+void ABrandNewPlayerCharacter::CameraScroll(const float InputValue)
+{
+	const float ScrollValue = InputValue * -CameraZoomSpeed;
+	const float NewTargetArmLength =  CameraBoom->TargetArmLength + ScrollValue;
+	
+	TargetArmLength = FMath::Clamp(NewTargetArmLength, MinZoom, MaxZoom);
+
+	if (!bIsZooming)
+	{
+		bIsZooming = true;
+		GetWorld()->GetTimerManager().SetTimer(ZoomInterpTimerHandle, this, &ThisClass::ZoomInterpTick, 0.016f, true);
+	}
+}
+
+void ABrandNewPlayerCharacter::ZoomInterpTick()
+{
+	const float CurrentLength = CameraBoom->TargetArmLength;
+	const float NewLength = FMath::FInterpTo(CurrentLength, TargetArmLength, GetWorld()->GetDeltaSeconds(), ZoomInterpSpeed);
+
+	CameraBoom->TargetArmLength = NewLength;
+
+	if (FMath::IsNearlyEqual(NewLength, TargetArmLength, 0.5f))
+	{
+		CameraBoom->TargetArmLength = TargetArmLength;
+		GetWorld()->GetTimerManager().ClearTimer(ZoomInterpTimerHandle);
+		bIsZooming = false;
+	}
+}
 
 #pragma region Movement
 void ABrandNewPlayerCharacter::Server_RequestUpdateMovementMode_Implementation(const EGate NewGate)
