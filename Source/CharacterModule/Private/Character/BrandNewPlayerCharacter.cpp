@@ -957,44 +957,6 @@ void ABrandNewPlayerCharacter::UseEquipmentItem(const int32 SlotIndex, const EIt
 	
 }
 
-void ABrandNewPlayerCharacter::ReviveCharacter()
-{
-	bIsDead = false;
-	
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-		
-	FGameplayTagContainer GameplayTags;
-	GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
-	AbilitySystemComponent->CancelAbilities(&GameplayTags);
-
-	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
-	MoveCharacterToValidLocation(SafeLocation);
-}
-
-void ABrandNewPlayerCharacter::Server_ReviveCharacter_Implementation()
-{
-	ReviveCharacter();
-}
-
-void ABrandNewPlayerCharacter::RevivePlayerCharacter()
-{
-	if (!bIsDead) return;
-	
-	if (HasAuthority())
-	{
-		ReviveCharacter();
-	}
-	else
-	{
-		bIsDead = false; // 서버는 따로 설정하기 때문에 클라에서만 설정
-		Server_ReviveCharacter();
-	}
-	
-}
-
 void ABrandNewPlayerCharacter::Server_EquipItem_Implementation(const int32 SlotIndex, const EItemType ItemType)
 {
 	EquipItem(SlotIndex, ItemType);
@@ -1069,6 +1031,43 @@ void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool
 }
 
 
+void ABrandNewPlayerCharacter::ReviveCharacter()
+{
+	bIsDead = false;
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		
+	FGameplayTagContainer GameplayTags;
+	GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+	AbilitySystemComponent->CancelAbilities(&GameplayTags);
+
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	MoveCharacterToValidLocation(SafeLocation);
+}
+
+void ABrandNewPlayerCharacter::Server_ReviveCharacter_Implementation()
+{
+	ReviveCharacter();
+}
+
+void ABrandNewPlayerCharacter::RevivePlayerCharacter()
+{
+	if (!bIsDead) return;
+	
+	if (HasAuthority())
+	{
+		ReviveCharacter();
+	}
+	else
+	{
+		bIsDead = false; // 서버는 따로 설정하기 때문에 클라에서만 설정
+		Server_ReviveCharacter();
+	}
+	
+}
 
 void ABrandNewPlayerCharacter::AddOverlappedNPC(AActor* OverlappedNPC)
 {
