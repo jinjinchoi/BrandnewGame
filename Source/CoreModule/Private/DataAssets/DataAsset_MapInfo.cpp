@@ -9,7 +9,7 @@ FText UDataAsset_MapInfo::GetDisplayName(const TSoftObjectPtr<UWorld> MapAsset) 
 	{
 		if (Data.MapAsset.ToSoftObjectPath() == MapAsset.ToSoftObjectPath())
 		{
-			return FText::FromStringTable("ST_MapNames", Data.DisplayNameKey.ToString());
+			return Data.DisplayName;
 		}
 	}
 

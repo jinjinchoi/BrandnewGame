@@ -16,9 +16,6 @@ struct FMapInfo
 
 	UPROPERTY(EditDefaultsOnly)
 	FText DisplayName = FText(); // 표시할 이름
-
-	UPROPERTY(EditDefaultsOnly)
-	FName DisplayNameKey;
 	
 };
 
