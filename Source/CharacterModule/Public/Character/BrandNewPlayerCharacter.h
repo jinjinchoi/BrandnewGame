@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "DataTableStruct/DataTableRowStruct.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
+#include "Delegates/Delegate.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
 class ABrandNewPickupItem;
@@ -28,6 +29,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	/* end Actor Interface */
 
 	/* begin Player Interface */
@@ -50,6 +52,7 @@ public:
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) override;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
 	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() override;
+	virtual FOnDataSavedDelegate& GetOnDataSavedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
 	virtual void SavePlayerDataForTravel() override;
@@ -97,6 +100,7 @@ public:
 	
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
 	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
+	FOnDataSavedDelegate OnDataSavedDelegate;
 	
 
 protected:
@@ -182,12 +186,6 @@ private:
 	
 	/* 부활할때 사용할 마지막으로 저장하거나 로드된 위치. 서버에서만 설정됨. */
 	FVector SafeLocation;
-
-	UFUNCTION(Client, Reliable)
-	void Client_RecoveryDataAfterMapTravel();
-	
-	UFUNCTION(Server, Reliable)
-	void Server_RecoveryDataAfterMapTravel(const FString& PlayerName);
 	
 	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
 	UPROPERTY()
@@ -212,8 +210,14 @@ private:
 	
 	FText GetCurrentTimeText() const;
 
+	bool bIsWaitingTravel = false;
+
+
 #pragma region SaveAndLoad
 	
+	// 플레이어의 아이디로 서버에서만 설정됨.
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = true))
+	FString PlayerUniqueId;
 	/**
 	 * Attribute를 로드하는 함수.
 	 * 로드 데이터는 Player Id마다 다르게 설정해야하고 바른 아이디를 가져오기 위해
@@ -244,13 +248,6 @@ private:
 	
 	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
 	FSaveSlotPrams MakeSaveSlotPrams() const;
-
-	UFUNCTION(Client, Reliable)
-	void Client_SaveInSlot(const FString& SlotName, const int32 SlotIndex);
-	
-	// 캐릭터 데이터를 슬롯에 저장
-	UFUNCTION(Server, Reliable)
-	void Server_RequestSave(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
 
 #pragma endregion
 

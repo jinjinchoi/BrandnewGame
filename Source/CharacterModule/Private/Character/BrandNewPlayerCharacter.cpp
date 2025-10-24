@@ -58,8 +58,6 @@ ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 	
 }
 
-
-
 void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -82,6 +80,8 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 	}
 }
 
+
+
 void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -100,6 +100,26 @@ void ABrandNewPlayerCharacter::BeginPlay()
 
 	// 처음 시작할때 위치를 저장하여 맵을 이동하더라도 이동 된 월드의 초기 Location을 알 수 있게 함.
 	SafeLocation = GetActorLocation();
+	
+}
+
+void ABrandNewPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (bIsWaitingTravel || !HasAuthority()) return;
+	
+	if (EndPlayReason == EEndPlayReason::EndPlayInEditor) return;
+
+	/**
+	 * 플레이어 접속 종료하면 세이브 매니저 서브클래스에 있는 정보 삭제.
+	 * 클라이언트의 재접속시 맵 이동과 혼돈되는 상황 막기 위해서이며,
+	 * 호스트 접속는 접속 종료하면 자동으로 LatestPlayerData 초기화 되지만 EndPlay 함수에서 IsLocallyControlled 체크 불가능해서 호스트도 호출됨.
+	 * 로직에는 문제없음.
+	 */
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	SaveSubsystem->RemoveLatestPlayerData(PlayerUniqueId);
+	
+	Super::EndPlay(EndPlayReason);
 	
 }
 
@@ -146,13 +166,12 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 {
 
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-
+	PlayerUniqueId = PlayerId; // 클라이언트의 아이디를 캐릭터 클래스에 설정. 세이브 작업시 RPC가 아닌 해당 아이디를 사용.
 	
-	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동인지 접속인지 확인
+	if (const FSaveSlotPrams LatestPlayerData = SaveSubsystem->GetLatestPlayerData(PlayerId); LatestPlayerData.bIsValid) // 맵 이동인지 접속인지 확인
 	{
 		// 맵 이동일 경우 SaveSubsystem에 있는 LatestPlayerData로 복구
-		LoadCharacterData(SaveSlotPrams);
-		SaveSubsystem->RemoveLatestPlayerData(PlayerId);
+		LoadCharacterData(LatestPlayerData);
 	}
 	else
 	{
@@ -297,13 +316,13 @@ void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& Inventory
 	
 	Inventory->SetInventoryContents(InventoryData);
 	
-	if (Inventory->GetLastWeaponSlotIndex() != INDEX_NONE)
+	if (Inventory->GetLastEquippedWeaponSlotIndex() != INDEX_NONE)
 	{
-		EquipItem(Inventory->GetLastWeaponSlotIndex(), EItemType::Weapon);
+		EquipItem(Inventory->GetLastEquippedWeaponSlotIndex(), EItemType::Weapon);
 	}
-	if (Inventory->GetLastArmorSlotIndex() != INDEX_NONE)
+	if (Inventory->GetLastEquippedArmorSlotIndex() != INDEX_NONE)
 	{
-		EquipItem(Inventory->GetLastArmorSlotIndex(), EItemType::Armor);
+		EquipItem(Inventory->GetLastEquippedArmorSlotIndex(), EItemType::Armor);
 	}
 		
 }
@@ -739,6 +758,11 @@ FOnOverlappedItemChangedDelegate& ABrandNewPlayerCharacter::GetOnOverlapChangedD
 	return OnOverlappedItemChangedDelegate;
 }
 
+FOnDataSavedDelegate& ABrandNewPlayerCharacter::GetOnDataSavedDelegate()
+{
+	return OnDataSavedDelegate;
+}
+
 float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const
 {
 	if (!AbilitySystemComponent) return 0;
@@ -762,44 +786,15 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
 {
 	if (!HasAuthority() || !AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
-
-	if (IsLocallyControlled()) // Host
-	{
-		// 호스트의 경우 바로 세이브 작업 실행
-		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-		if (!SaveSubsystem) return;
 	
-		Server_RequestSave(SlotName, SlotIndex, SaveSubsystem->GetUniqueIdentifier());
-	}
-	else // 클라이언트
-	{
-		/* 본 함수 호출이 서버에서만 되기 때문에 클라이언트의 아이디를 알 수 없어서
-		 * 클라이언트 RPC로 서버에 자신의 아이디를 보내도록 요청. */
-		Client_SaveInSlot(SlotName, SlotIndex);
-	}
-	
-}
-
-void ABrandNewPlayerCharacter::Client_SaveInSlot_Implementation(const FString& SlotName, const int32 SlotIndex)
-{
-	// 클라이언트의 SubSystem 획득
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
 
-	const FString ClientId = SaveSubsystem->GetUniqueIdentifier();
-	Server_RequestSave(SlotName, SlotIndex, ClientId); // 서버에 아이디를 보내고 저장 요청
-}
-
-void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
-{
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
+	SafeLocation = SaveSlotPrams.CharacterLocation;
 	
-	if (const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>())
-	{
-		SafeLocation = SaveSlotPrams.CharacterLocation;
-		
-		SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, ClientId);
-	}
+	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, PlayerUniqueId);
+	
 }
 
 void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
@@ -807,30 +802,13 @@ void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 	// 해당 함수는 서버에서만 호출되지만 만약을 대비한 방어 코드
 	if (!HasAuthority()) return;
 	
-	if (IsLocallyControlled())
-	{
-		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-		if (!SaveSubsystem) return;
-		Server_RecoveryDataAfterMapTravel(SaveSubsystem->GetUniqueIdentifier());
-	}
-	else
-	{
-		Client_RecoveryDataAfterMapTravel();
-	}
-	
-}
-
-void ABrandNewPlayerCharacter::Client_RecoveryDataAfterMapTravel_Implementation()
-{
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
-	Server_RecoveryDataAfterMapTravel(SaveSubsystem->GetUniqueIdentifier());
-}
-
-void ABrandNewPlayerCharacter::Server_RecoveryDataAfterMapTravel_Implementation(const FString& PlayerName)
-{
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	SaveSubsystem->UpdateLatestPlayerDataMap(PlayerName, MakeSaveSlotPrams());
+	if (!SaveSubsystem) return;
+	
+	SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
+	bIsWaitingTravel = true;
+	OnDataSavedDelegate.Broadcast(this);
+	
 }
 
 
