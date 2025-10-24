@@ -758,11 +758,6 @@ FOnOverlappedItemChangedDelegate& ABrandNewPlayerCharacter::GetOnOverlapChangedD
 	return OnOverlappedItemChangedDelegate;
 }
 
-FOnDataSavedDelegate& ABrandNewPlayerCharacter::GetOnDataSavedDelegate()
-{
-	return OnDataSavedDelegate;
-}
-
 float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const
 {
 	if (!AbilitySystemComponent) return 0;
@@ -807,7 +802,6 @@ void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 	
 	SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
 	bIsWaitingTravel = true;
-	OnDataSavedDelegate.Broadcast(this);
 	
 }
 

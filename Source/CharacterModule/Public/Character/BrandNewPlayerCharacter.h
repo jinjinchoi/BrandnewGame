@@ -52,7 +52,6 @@ public:
 	virtual void UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams) override;
 	virtual FOnWeaponChangedDelegate& GetWeaponChangedDelegate() override;
 	virtual FOnOverlappedItemChangedDelegate& GetOnOverlapChangedDelegate() override;
-	virtual FOnDataSavedDelegate& GetOnDataSavedDelegate() override;
 	virtual float GetRequiredAbilityMana(const FGameplayTag& AbilityTag) const override;
 	virtual void RequestSave(const FString& SlotName, const int32 SlotIndex = 1) override;
 	virtual void SavePlayerDataForTravel() override;
@@ -100,7 +99,6 @@ public:
 	
 	FOnWeaponChangedDelegate WeaponChangedDelegate;
 	FOnOverlappedItemChangedDelegate OnOverlappedItemChangedDelegate;
-	FOnDataSavedDelegate OnDataSavedDelegate;
 	
 
 protected:
