@@ -47,6 +47,6 @@ private:
 	
 public:
 	FORCEINLINE FInventoryContents GetInventoryContents() const { return ItemInventory; }
-	FORCEINLINE int32 GetLastWeaponSlotIndex() const { return LastEquippedWeaponSlotIndex; } 
-	FORCEINLINE int32 GetLastArmorSlotIndex() const { return LastEquippedArmorSlotIndex; } 
+	FORCEINLINE int32 GetLastEquippedWeaponSlotIndex() const { return LastEquippedWeaponSlotIndex; } 
+	FORCEINLINE int32 GetLastEquippedArmorSlotIndex() const { return LastEquippedArmorSlotIndex; } 
 };
