@@ -372,7 +372,7 @@ PlayerControllerInterface->HandlePlayerMapEntryOverlap(OverlappedPlayerCount, Ma
   PlayerUniqueId = PlayerId;
     ```
     이후 게임이 시작 되면 클라이언트는 세이버 서브시스템에서 설정했던 아이디를 가져와 서버로 보내고 서버 캐릭터 클래스는 해당 아이디를 저장합니다.<br>  
-    위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅하지 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
+    위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅치 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
 
 
 - **Save**  
@@ -577,3 +577,289 @@ SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
 
 ```
   마찬가지로 맵 이동 전 데이터 세이브도 임시 데이터를 저장하는 방식으로 진행하며 이때 세이브 시 사용하는 구조체를 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
+
+### 04.5 Dialogue System
+- **Dialogue Node**  
+다이얼로그 시스템은 노드를 기반으로 구현되었습니다. 현재 구현된 노드는 일반 텍스트 노드와 스퀀스 기반의 대화 노드, 선택지 노드, 엔드 노드가 있으며 추가로 필요시 분기 노드를 구현할 수 있습니다.
+```c++
+// 텍스트노드
+USTRUCT(BlueprintType)
+struct FTextDialogueDataRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName NodeId = NAME_None; // 노드 아이디
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText SpeakerName = FText(); // 현재 말하고 있는 캐릭터 이름
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText DialogueText = FText(); // 대화 내용
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName NextNodeId = NAME_None; // 다음 노드
+	
+};
+
+// 시퀀스 노드 (텍스트노드를 상속 받음)
+USTRUCT(BlueprintType)
+struct FSequenceDialogueDataRow : public FTextDialogueDataRow
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<ULevelSequence> Sequence = nullptr; // 재생할 시퀀스
+	
+};
+
+// 선택지 노드
+USTRUCT(BlueprintType)
+struct FChoiceDialogueDataRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	/* 선택지를 여러개 보여줄 것이기 때문에 선택지를 그룹으로 묶어서 관리. 대화 노드에서 다음 노드로 선택할 노드 이름 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName ChoiceGroupId = NAME_None; // 현재 선택지 그룹
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName NodeId = NAME_None; // 선택지 하나의 Id
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText ChoiceText = FText(); // 선택지에 들어갈 텍스트
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName NextNodeId = FName(); // 선택시 갈 다음 노드
+
+};
+```
+![데이터 테이블 이미지](GameImg/TextNodeSheet.png)
+
+노드의 구조는 위와 같으며 데이터 테이블에서 이를 설정할 수 있게 하였습니다. 대화 시스템에 기본적인 로직은 노드를 가져오고 해당 노드의 정보를 UI에 보여준 뒤 다시 대화를 요청하면 다음 노드로 넘어가는 방식으로 진행합니다.
+
+```c++
+
+// 노드를 생성하는 예시 (텍스트 노드)
+void UBnDialogueGraph::CreateTextNode()
+{
+	const UBrandNewGameInstance* BrandNewGameInstance =  GetWorld()->GetGameInstance<UBrandNewGameInstance>();
+	if (!BrandNewGameInstance || !BrandNewGameInstance->GetTextDialogueDataTable()) return;
+	
+	// 데이터 테이블의 구조체 타입과 원래 의도하던 구조체 타입과 동일한지 확인
+	if (BrandNewGameInstance->GetTextDialogueDataTable()->GetRowStruct() == FTextDialogueDataRow::StaticStruct())
+	{
+	    // Row 순회
+		for (const TPair<FName, unsigned char*>& RowMap : BrandNewGameInstance->GetTextDialogueDataTable()->GetRowMap())
+		{
+		    // 위에서 이미 타입 확인을 끝내기 때문에 reinterpret_cast 가능. unsigned char 값을 구조체로 변환한 후 노드 설정
+			const FTextDialogueDataRow* TextData = reinterpret_cast<FTextDialogueDataRow*>(RowMap.Value);
+			UBnDialogueTextNode* TextNode = NewObject<UBnDialogueTextNode>();
+			TextNode->NodeId = TextData->NodeId;
+			TextNode->NodeType = EDialogueType::Text;
+			
+			TextNode->DialogueText = TextData->DialogueText;
+			TextNode->NextNodeId = TextData->NextNodeId;
+			TextNode->SpeakerName = TextData->SpeakerName;
+
+			NodeMap.Add(TextData->NodeId, TextNode);
+		}
+	}
+}
+```
+노드의 생성 부분 로직입니다.<br>  
+게임 인스턴스에 저장된 데이터 테이블을 가져와 올바르게 가져온지 확인한 다음 데이터 테이블을 순회하여 모든 Row에 해당하는 Node들을 만듭니다.<br>   
+그 후 Node Id와 Node Class를 묶은 Map에 노드를 저장합니다. 이때 선택지 노드는 그룹 아이디로 저장을 합니다. <br>  
+
+
+> Github Link  
+> - [전체 노드생성 로직](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/DialogueModule/Private/Graph/BnDialogueGraph.cpp)
+
+- **일반 대화 노드**  
+대화 로직 실행은 제일 처음 가져올 대화의 Node Id를 통해 그에 맞는 Node를 가져오는 것으로 시작합니다.
+```c++
+// 대화 위젯을 생성하는 함수
+void ABrandNewHUD::CreateDialogueWidget(const FName& FirstDialogueId)
+{
+	check(DialogueWidgetControllerClass && DialogueWidgetClass);
+	if (!DialogueWidgetControllerClass || !DialogueWidgetClass) return;
+	
+	// 위젯 컨트롤러 생성
+	if (!DialogueWidgetController)
+	{
+		DialogueWidgetController = NewObject<UDialogueWidgetController>(this, DialogueWidgetControllerClass);
+		DialogueWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+		DialogueWidgetController->BindCallbacksToDependencies();
+	}
+	
+	// 위젯 생성
+	if (!DialogueWidget)
+	{
+		DialogueWidget = CreateWidget<UBrandNewWidget>(GetWorld(), DialogueWidgetClass);
+	}
+	
+	// 첫 대화 노드 ID 설정
+	DialogueWidgetController->DialogueId = FirstDialogueId;
+	DialogueWidget->SetWidgetController(DialogueWidgetController);
+	DialogueWidget->AddToViewport();
+	
+}
+```
+
+대화를 하기 위해서 첫 시작 노드의 아이디를 보내며 위젯 생성을 합니다.
+
+```c++
+void UDialogueWidgetController::BroadCastDialogue()
+{
+	if (DialogueId.IsNone()) return;
+	
+	const UDialogueSubSystem* DialogueSubSystem = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueSubSystem>();
+	if (!DialogueSubSystem) return;
+	
+	switch (DialogueSubSystem->GetDialogueTypeById(DialogueId))
+	{
+	case EDialogueType::Text:
+		HandleTextNode();
+		break;
+		
+		// ... 나머지 case 생략
+	}
+	
+}
+```
+
+그 이후 해당 아이디의 주인 노드의 타입을 가려 로직을 처리합니다.
+
+```c++
+void UDialogueWidgetController::HandleTextNode()
+{
+    // 노드를 가져오는 작업 진행
+	const UDialogueSubSystem* DialogueSubSystem = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueSubSystem>();
+	const UBnDialogueTextNode* TextNode = DialogueSubSystem->GetDialogueNodeById<UBnDialogueTextNode>(DialogueId);
+	if (!TextNode) return;
+
+	DialogueId = TextNode->NextNodeId;
+	
+	// 대화 내용과 말하는 캐릭터 이름 설정
+	FTextDialogueParams DialogueParams;
+	DialogueParams.Dialogue = TextNode->DialogueText;
+	DialogueParams.SpeakerName = TextNode->SpeakerName;
+	
+	// 위젯으로 데이터 전송
+	TextDialogueReceivedDelegate.Broadcast(DialogueParams);
+	
+}
+```
+![대화 장면 스크린샷](GameImg/TextDialogue.png)
+위젯에서는 델리게이트를 바인딩하고 있어 위젯 컨트롤러에서 BroadCast하면 이 대화를 화면에 보여줍니다.
+
+- **시퀀스 노드**  
+시퀀스 노드는 기본적으로 텍스트 노드와 동일하지만 시퀀스를 재생한다는 부분만 다릅니다.
+```c++
+// 시퀀스 플레이 요청
+SequenceManager->PlayDialogueSequence(SequenceNode->Sequence);
+```
+노드에 재생할 시퀀스 정보가 담겨있기 때문에 이를 그대로 시퀀스 매니저 클래스로 보내 재생을 요청합니다.
+
+```c++
+void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay)
+{
+	if (SequenceToPlay.IsNull()) return;
+	
+	TWeakObjectPtr WeakThis = this;
+	
+	// 소프트 클래스 로드 작업 실행
+	FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+	Streamable.RequestAsyncLoad(SequenceToPlay.ToSoftObjectPath(), [WeakThis, SequenceToPlay]()
+	{
+		if (!WeakThis.IsValid()) return;
+		
+		ULevelSequence* LoadedSequence = SequenceToPlay.Get();
+		ALevelSequenceActor* OutActor = nullptr;
+		
+		FMovieSceneSequencePlaybackSettings Settings;
+		Settings.bDisableLookAtInput = true;
+		Settings.bDisableMovementInput = true;
+		Settings.bHidePlayer = true;
+		Settings.bPauseAtEnd = true; // 시퀀스가 종료되도 대화창 열려있으면 시퀀스 종료안하고 대기
+		
+		ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(
+			WeakThis->GetWorld(),LoadedSequence, Settings, OutActor);
+
+		if (Player)
+		{
+			Player->Play();
+
+			if (WeakThis->LastSequencePlayer)
+			{
+				WeakThis->LastSequencePlayer->Stop();
+			}
+			
+			WeakThis->LastSequencePlayer = Player;
+		}
+		
+	});
+	
+}
+```
+
+시퀀스는 메모리 낭비를 막기 위해 소프트 오브젝트로 가지고 있으며 이를 로드한 뒤 사용합니다. 전에 재생중이었던 시퀀스가 있으면 종료시키고 새로 시퀀스를 재생하는 작업을 진행합니다.
+
+```c++
+void USequenceManager::FinishDialogueSequence()
+{
+	if (LastSequencePlayer)
+	{
+		LastSequencePlayer->Stop();
+		LastSequencePlayer = nullptr;
+		
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (APawn* Pawn = PC->GetPawn())
+		{
+			PC->SetViewTarget(Pawn);
+		}
+	}
+	
+}
+```
+다이얼로그가 종료되면 시퀀스도 종료시킵니다. 이때 다이얼로그의 종료 타이밍은 EndNode를 만나는 시기입니다.
+
+- **선택지 노드**  
+위에서 생략된 선택지 노드는 다음과 같은 방식으로 생성됩니다.
+```c++
+// 선택지 노드 생성 코드 중 발췌
+
+// Node Id와 Node Class가 묶여 저장된 Map에 동일한 그룹 아이디를 가진 이미 존재하는지 확인
+if (UBnDialogueNodeBase** ExistedNodePtr = NodeMap.Find(ChoiceDialogueData->ChoiceGroupId))
+{
+    if (UBnDialogueChoiceNode* ChoiceNode = Cast<UBnDialogueChoiceNode>(*ExistedNodePtr))
+    {
+        // 이미 선택지 배열이 존재하면 배열에 추가 선택지를 배열에 추가
+        ChoiceNode->DialogueChoices.Add(ChoiceNodeInfo);
+    }
+}
+else // 배열이 아직 존재하지 않으면 새로 만들어서 추가.
+{
+    UBnDialogueChoiceNode* ChoiceNode = NewObject<UBnDialogueChoiceNode>();
+    ChoiceNode->NodeId = ChoiceDialogueData->ChoiceGroupId; // 선택지 노드 자체의 아이디는 그룹 아이디로 설정
+    ChoiceNode->NodeType = EDialogueType::Choice;
+    ChoiceNode->DialogueChoices.Add(ChoiceNodeInfo);
+    NodeMap.Add(ChoiceDialogueData->ChoiceGroupId, ChoiceNode);
+}
+
+```
+```c++
+// 선택지 노드 클래스로 선택지 정보를 배열로 저장해 한번에 여러 선택지를 보여줄 수 있게 됩니다.
+UCLASS()
+class DIALOGUEMODULE_API UBnDialogueChoiceNode : public UBnDialogueNodeBase
+{
+	GENERATED_BODY()
+
+public:
+	TArray<FChoiceNodeInfo> DialogueChoices;
+	
+};
+```
+
+선택지 노드는 배열로 이루어져 있으며  ChoiceGroupId가 동일한 Row들이 이 배열에 추가됩니다. 일반 또는 시퀀스 대화 노드에서 진행하다 선택지가 필요할 시 Next Node로 ChoiceGroupId를 설정합니다.<br>  
+선택지 노드에는 그룹 아이디와 별개로 개별 노드 아이디도 존재하는데 이를 통해 어떠한 선택지를 골랐는지 알 수 있고 멀티 엔딩 등과 같이 선택지에 따라 엔딩이 갈리는 게임을 제작할 수 있도록 만들었습니다.
