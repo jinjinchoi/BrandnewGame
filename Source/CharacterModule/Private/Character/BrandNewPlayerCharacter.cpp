@@ -761,23 +761,22 @@ float ABrandNewPlayerCharacter::GetRequiredAbilityMana(const FGameplayTag& Abili
 
 void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 SlotIndex)
 {
-	if (!AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
+	if (!HasAuthority() || !AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
 
-	if (IsLocallyControlled() && HasAuthority())
+	if (IsLocallyControlled()) // Host
 	{
 		// 호스트의 경우 바로 세이브 작업 실행
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		if (!SaveSubsystem) return;
 	
-		SaveCharacterData(SlotName, SlotIndex, SaveSubsystem->GetUniqueIdentifier());
+		Server_RequestSave(SlotName, SlotIndex, SaveSubsystem->GetUniqueIdentifier());
 	}
-	else if (HasAuthority())
+	else // 클라이언트
 	{
-		/* 세이브 작업은 서버에서만 하기 때문에 클라이언트의 아이디를 알 수 없어서
+		/* 본 함수 호출이 서버에서만 되기 때문에 클라이언트의 아이디를 알 수 없어서
 		 * 클라이언트 RPC로 서버에 자신의 아이디를 보내도록 요청. */
 		Client_SaveInSlot(SlotName, SlotIndex);
 	}
-
 	
 }
 
@@ -792,11 +791,6 @@ void ABrandNewPlayerCharacter::Client_SaveInSlot_Implementation(const FString& S
 }
 
 void ABrandNewPlayerCharacter::Server_RequestSave_Implementation(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
-{
-	SaveCharacterData(SlotName, SlotIndex, ClientId);
-}
-
-void ABrandNewPlayerCharacter::SaveCharacterData(const FString& SlotName, const int32 SlotIndex, const FString& ClientId)
 {
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	

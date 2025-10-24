@@ -245,12 +245,10 @@ private:
 	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
 	FSaveSlotPrams MakeSaveSlotPrams() const;
 
-	// 캐릭터 데이터를 슬롯에 저장
-	void SaveCharacterData(const FString& SlotName, int32 SlotIndex, const FString& ClientId);
-
 	UFUNCTION(Client, Reliable)
 	void Client_SaveInSlot(const FString& SlotName, const int32 SlotIndex);
-
+	
+	// 캐릭터 데이터를 슬롯에 저장
 	UFUNCTION(Server, Reliable)
 	void Server_RequestSave(const FString& SlotName, const int32 SlotIndex, const FString& ClientId);
 
