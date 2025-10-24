@@ -52,18 +52,10 @@ public:
 	FSaveSlotPrams GetLatestPlayerData(const FString& PlayerName) const;
 	
 	/**
-	 * 맵 이동후 기존 데이터를 가져왔으면 Map에서 제외.
-	 * 최신 데이터가 그대로 남아있으면 맵 이동 후 로드시 잘못된 데이터를 가져올 가능성이 있음.
-	 * 로드 로직에서 로드시 LatestPlayerDataMap를 초기화해도 되지만 로드 로직을 블루프린트에서 설정하고 있어
-	 * C++에서 해결하기 위해 본 함수를 사용해 데이터를 초기화 하는 방식을 채택.
+	 * LatestPlayerDataMap에서 특정 플레이어의 정보를 삭제하는 작업.
+	 * 현재 캐릭터의 연결이 종료될때 해당 함수를 호출하도록 구현하였음.
 	 */
 	void RemoveLatestPlayerData(const FString& PlayerName);
-
-	/**
-	 * 맵 이동시 사용할 플레이어의 맵 이동 직전 데이터.
-	 * 로드시 이 맵의 Len을 확인하여 내부 데이터가 있으면 맵 이동으로 판단하여
-	 * 로드 로직을 해당 맵에서 데이터를 가져와 하는 것으로 진행.
-	 */
 
 private:
 	/**
@@ -77,11 +69,16 @@ private:
 	int32 CurrentSlotIndex = 0;
 
 	bool bIsLoadedWorld = false;
-	
+
+	/**
+	 *  LatestPlayerData란 맵 이동 직전 플레이어가 가지고 있던 데이터를 말함.
+	 * 로드시 이 변수의 유효성을 확인하여 내부 데이터가 있으면 맵 이동으로 판단하여
+	 * 로드 로직을 해당 맵에서 데이터를 가져와 하는 것으로 진행.
+	 */
 	TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
 	
 
 public:
 	FORCEINLINE bool IsLoadedWorld() const { return bIsLoadedWorld; }
-	
+	FORCEINLINE void ClearLatestPlayerDataMap() { LatestPlayerDataMap.Empty(); }
 };

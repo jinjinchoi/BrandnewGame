@@ -68,10 +68,11 @@ void UBrandNewSaveSubsystem::ResetPlayerData()
 FString UBrandNewSaveSubsystem::TryGetMapAssetNameAndSaveSlotInfo(const FString& SlotName, const int32 SlotIndex)
 {
 	const FSaveSlotPrams SaveSlotPrams = GetSaveDataById(SlotName, SlotIndex, UniqueIdentifier);
-	bIsLoadedWorld = SaveSlotPrams.bIsValid;
 	
 	if (SaveSlotPrams.bIsValid)
 	{
+		bIsLoadedWorld = SaveSlotPrams.bIsValid;
+		LatestPlayerDataMap.Empty(); // 로드할 경우 최신 플레이어 데이터 초기화
 		SetCurrentSlotNameAndIndex(SlotName, SlotIndex);
 		return SaveSlotPrams.MapPackageName;
 	}
