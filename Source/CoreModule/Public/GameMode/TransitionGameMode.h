@@ -15,6 +15,7 @@ class COREMODULE_API ATransitionGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+	/* 트랜지션 맵에 있을때 플레이어가 접속하면 이동할 Map Path 통보 */
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 };

@@ -4,6 +4,7 @@
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
 
 #include "DebugHelper.h"
+#include "Interfaces/Player/UIPlayerControllerInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass)
@@ -31,6 +32,8 @@ void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWo
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravelByString(const FString& MapName)
 {
 	if (MapName.IsEmpty()) return;
+
+	// TODO: 맵 에셋 네임 클라이언트 전부에게 설정해야함
 	
 	TargetLevelPath = FName(*MapName);
 }
@@ -45,7 +48,8 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 	
 	if (TargetLevelPath == NAME_None)
 	{
-		DebugHelper::Print(TEXT("맵 에셋 네임이 올바르게 설정되지 않았습니다."), FColor::Red);
+		const FString DebugString = FString::Printf(TEXT("%hs 맵 에셋 네임이 올바르게 설정되지 않았습니다."), __FUNCTION__);
+		DebugHelper::Print(DebugString, FColor::Red);
 		return;
 	}
 	
@@ -60,6 +64,22 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 	// GetWorld()->GetTimerManager().SetTimer(LoadingPercentTimerHandle, this, &ThisClass::OnLoadPackageUpdated, 0.2f,true, 0.2f);
 }
 
+void UBrandNewLevelManagerSubsystem::RequestAsyncLoadToAllClient() const
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (!PlayerController) continue;
+
+		// 서버에서 현재 접속 중인 모든 클라이언트들의 서버측 플레이어 컨트롤러를 순회
+		if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(PlayerController))
+		{
+			UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath.ToString());
+		}
+	}
+	
+}
+
 void UBrandNewLevelManagerSubsystem::TravelMap() const
 {
 	if (GetWorld()->GetNetMode() == NM_Standalone)
@@ -68,7 +88,8 @@ void UBrandNewLevelManagerSubsystem::TravelMap() const
 	}
 	else
 	{
-		GetWorld()->ServerTravel(TargetLevelPath.ToString());
+		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *TargetLevelPath.ToString());
+		GetWorld()->ServerTravel(TravelURL);
 	}
 }
 
@@ -84,7 +105,8 @@ void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<
 	}
 	else
 	{
-		GetWorld()->ServerTravel(PackageString);
+		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *PackageString);
+		GetWorld()->ServerTravel(TravelURL);
 	}
 }
 

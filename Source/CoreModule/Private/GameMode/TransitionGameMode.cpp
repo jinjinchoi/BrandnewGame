@@ -3,11 +3,18 @@
 
 #include "GameMode/TransitionGameMode.h"
 
-void ATransitionGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId,
-	FString& ErrorMessage)
-{
-	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+#include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
+#include "Interfaces/Player/UIPlayerControllerInterface.h"
 
-	ErrorMessage = TEXT("Server is loading. Please try again later.");
+void ATransitionGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	
+	const FString TargetLevelPath = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>()->GetTraveledLevelPath().ToString();
+
+	if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(NewPlayer))
+	{
+		UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath);
+	}
 	
 }

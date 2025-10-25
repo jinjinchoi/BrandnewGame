@@ -39,6 +39,9 @@ class COREMODULE_API UDataAsset_InputConfig : public UDataAsset
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<ECombatWeaponType, UInputMappingContext*> MappingContextMap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(TitleProperty="InputTag"))

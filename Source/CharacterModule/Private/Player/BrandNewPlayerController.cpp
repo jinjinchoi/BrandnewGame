@@ -35,19 +35,13 @@ void ABrandNewPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	check(InputConfig);
-
-	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		const ABrandNewPlayerCharacter* ControlledCharacter = Cast<ABrandNewPlayerCharacter>(GetPawn());
-		if (!ControlledCharacter) return;
-		
-		if (UInputMappingContext** FoundMappingContext = InputConfig->MappingContextMap.Find(ControlledCharacter->GetCurrentEquippedWeaponType()))
-		{
-			SubSystem->AddMappingContext(*FoundMappingContext, 0);
-		}
-	}
+	check(InputConfig && InputConfig->DefaultMappingContext);
 	
+	if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+    {
+    	SubSystem->AddMappingContext(InputConfig->DefaultMappingContext, 0);
+    }
+ 
 }
 
 void ABrandNewPlayerController::OnPossess(APawn* InPawn)
