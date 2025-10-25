@@ -47,6 +47,21 @@ void USequenceManager::PlayFirstEntranceSequence() const
 	});
 }
 
+void USequenceManager::OnCinematicFinishedPlaying()
+{
+	OnSequencePlayStateChangedDelegate.Broadcast(false);
+	
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return;
+	PC->SetCinematicMode(false, true, true, true, true);
+	
+	if (APawn* Pawn = PC->GetPawn())
+	{
+		PC->SetViewTarget(Pawn);
+	}
+}
+
+
 void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay)
 {
 	if (SequenceToPlay.IsNull()) return;
@@ -100,18 +115,4 @@ void USequenceManager::FinishDialogueSequence()
 		}
 	}
 	
-}
-
-void USequenceManager::OnCinematicFinishedPlaying()
-{
-	OnSequencePlayStateChangedDelegate.Broadcast(false);
-	
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC) return;
-	PC->SetCinematicMode(false, true, true, true, true);
-	
-	if (APawn* Pawn = PC->GetPawn())
-	{
-		PC->SetViewTarget(Pawn);
-	}
 }
