@@ -1,5 +1,11 @@
-﻿## 01. 목차
-
+﻿## 01. 목차  
+- [04. 핵심 기능 및 구현 내용](#04-핵심-기능-및-구현-내용)
+	- [04.1 Gameplay Ability System](#041-gameplay-ability-system)
+		- [04.2 Inventory System](#042-inventory-system)
+		- [04.3 Map Travel](#043-map-travel)
+		- [04.4 Object Pooling](#044-object-pooling)
+		- [04.5 Save System](#045-save-system)
+		- [04.6 Dialogue System](#046-dialogue-system)
 ---
 ## 02. 개요
 - **프로젝트소개**
@@ -35,8 +41,16 @@
   - **다이얼로그 시스템**  
   노드 기반의 다이얼로그 시스템을 구현하여 다양한 분기의 대화를 쉽게 처리할 수 있도록 하였습니다.
 ---
-## 04. 핵심 기능 및 구현 내용
-### 04.1 Gameplay Ability System
+# 04. 핵심 기능 및 구현 내용
+
+- [04.1 Gameplay Ability System](#041-gameplay-ability-system)
+- [04.2 Inventory System](#042-inventory-system)
+- [04.3 Map Travel](#043-map-travel)
+- [04.4 Object Pooling](#044-object-pooling)
+- [04.5 Save System](#045-save-system)
+- [04.6 Dialogue System](#046-dialogue-system)
+      
+## 04.1 Gameplay Ability System
 GAS를 사용하여 Attribute와 Ability 기능을 구현하였으며 Attribute의 경우 Primary Attribute를 기반으로 Secondary Attribute를 설정하여 과거 주류 RPC 게임처럼 스탯을 올려 캐릭터를 강화시킬 수 있도록 구현하였습니다.
 
 - **Attribute 및 Ability 적용**  
@@ -64,12 +78,13 @@ void UCharacterInfoWidgetController::UpgradeAttribute(const TMap<FGameplayTag, f
     
 	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
 	if (!PlayerInterface) return;
-
+	
+	// TMap을 구조체로 변환
 	TArray<FAttributeUpgradePrams> UpgradePrams;
 	for (const TPair<FGameplayTag, float>& UpgradeData : AttributeUpgradeMap)
 	{
 		if (!UpgradeData.Key.IsValid()) continue;
-		FAttributeUpgradePrams UpgradePram(UpgradeData.Key, UpgradeData.Value); // TMap을 구조체로 변환
+		FAttributeUpgradePrams UpgradePram(UpgradeData.Key, UpgradeData.Value);
 
 		UpgradePrams.Add(UpgradePram);
 		
@@ -111,7 +126,9 @@ void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(con
 }
 ```
 위젯 컨트롤러에서 플레이어 캐릭터로 강화 정보를 보내는 로직입니다.<br>  
-RPC로는 TMap을 바로 보낼 수 없기 때문에 구조체로 변환하여 서버로 데이터를 보냅니다. 서버에서는 강화를 하기 전 Stat Point를 확인하여 부정한 Attribute 강화를 차단하고 Gameplay Effect를 통해 Attribute를 강화합니다.
+RPC로는 TMap을 바로 보낼 수 없기 때문에 구조체로 변환하여 서버로 데이터를 보냅니다. 서버에서는 강화를 하기 전 Stat Point를 확인하여 부정한 Attribute 강화를 차단하고 Gameplay Effect를 통해 Attribute를 강화합니다.  
+
+[⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
 ### 04.2 Inventory System
 인벤토리 클래스는 Player State에 저장되어 있습니다. 
@@ -195,11 +212,29 @@ FInventoryContents ItemInventory;
 
 - **아이템 장착 및 사용**  
 소비 아이템의 경우 Instance Gameplay Effect를 주어 즉각적으로 체력등 Attribute에 영향을 줍니다.<br>  
-장비 아이템의 경우 Infinite Gameplay Effect를 주고 Effect Handle을 저장하여 무기 변경시 Effect를 제거하고 새로 주는 방식으로 효과를 바꿔주었습니다. 또한 아이템 장착 여부를 인벤토리 클래스에 저장하여 세이브, 로드시에 장착중이였던 아이템을 알기 쉽게 알도록 구현하였습니다. 
+장비 아이템의 경우 Infinite Gameplay Effect를 주고 Effect Handle을 저장하여 무기 변경시 Effect를 제거하고 새로 주는 방식으로 효과를 바꿔주었습니다.<br>
+```c++
+// 아이템용 Attribute 예시
+UPROPERTY(ReplicatedUsing = OnRep_ItemStrength)
+FGameplayAttributeData ItemStrength;
+ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
+```
+장비 아이템은 Primary Attribute를 직접 올리는 것이 아니라 Item 전용 Attribute를 올리도록 설계하였습니다. <br>
+
+<div style="display:flex; gap:10px;">
+  <img src="GameImg/Equip.png" width="50%">
+  <img src="GameImg/EquipSpec.png" width="50%">
+</div>
+
+
+이렇게하여 세이브시 기존 캐릭터 Attribute만 저장하고, UI에도 장비 아이템으로 올린 수치만 따로 보여줄 수가 있습니다.
+
 > Github Link
 > 
 > - [아이템 소비 함수](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L914)  
 > - [아이템 장착 함수](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L959)
+
+[⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
 ### 04.3 Map Travel
 현재 레벨은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식을 구현하였습니다. 
@@ -209,7 +244,6 @@ FInventoryContents ItemInventory;
   <img src="GameImg/loading.png" width="50%">
   <img src="GameImg/loadComplete.png" width="50%">
 </div>
-
 
 Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적으로 다음 이동할 맵을 로드하며 모든 클라이언트가 로드가 완료되면 서버(호스트)가 다음 맵으로 이동하는 작업을 진행합니다.<br>  
 
@@ -395,6 +429,8 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 > Github Link
 > - [Map Entrance.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Map/MapEntrance.h)
 > - [Map Entrance.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Actor/Map/MapEntrance.cpp)
+
+[⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
 ### 04.4 Object Pooling
 오브젝트 풀링 시스템을 구현하여 자주 사용하는 액터는 Pool에서 관리하도록 하였습니다.
@@ -630,7 +666,7 @@ SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
 ```
   마찬가지로 맵 이동 전 데이터 세이브도 임시 데이터를 저장하는 방식으로 진행하며 이때 세이브 시 사용하는 구조체를 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
 
-### 04.5 Dialogue System
+### 04.6 Dialogue System
 - **Dialogue Node**  
 다이얼로그 시스템은 노드를 기반으로 구현되었습니다. 현재 구현된 노드는 일반 텍스트 노드와 스퀀스 기반의 대화 노드, 선택지 노드, 엔드 노드가 있으며 추가로 필요시 분기 노드를 구현할 수 있습니다.
 ```c++
@@ -701,7 +737,7 @@ void UBnDialogueGraph::CreateTextNode()
 	// 데이터 테이블의 구조체 타입과 원래 의도하던 구조체 타입과 동일한지 확인
 	if (BrandNewGameInstance->GetTextDialogueDataTable()->GetRowStruct() == FTextDialogueDataRow::StaticStruct())
 	{
-	    // Row 순회
+	    // 데이터 테이블 Row 순회
 		for (const TPair<FName, unsigned char*>& RowMap : BrandNewGameInstance->GetTextDialogueDataTable()->GetRowMap())
 		{
 		    // 위에서 이미 타입 확인을 끝내기 때문에 reinterpret_cast 가능. unsigned char 값을 구조체로 변환한 후 노드 설정
@@ -720,7 +756,7 @@ void UBnDialogueGraph::CreateTextNode()
 }
 ```
 노드의 생성 부분 로직입니다.<br>  
-게임 인스턴스에 저장된 데이터 테이블을 가져와 올바르게 가져온지 확인한 다음 데이터 테이블을 순회하여 모든 Row에 해당하는 Node들을 만듭니다.<br>   
+게임 인스턴스에 저장된 데이터 테이블을 가져와 올바르게 가져온지 확인한 다음 데이터 테이블을 순회하여 모든 Row들을 Node로 만듭니다.<br>   
 그 후 Node Id와 Node Class를 묶은 Map에 노드를 저장합니다. 이때 선택지 노드는 그룹 아이디로 저장을 합니다. <br>  
 
 
@@ -765,9 +801,11 @@ void UDialogueWidgetController::BroadCastDialogue()
 {
 	if (DialogueId.IsNone()) return;
 	
+	// 다이얼로그를 관리하는 서브시스템을 가져옵니다.
 	const UDialogueSubSystem* DialogueSubSystem = GetWorld()->GetGameInstance()->GetSubsystem<UDialogueSubSystem>();
 	if (!DialogueSubSystem) return;
 	
+	// 현재 보여줘야할 다이얼로그가 어떤 노드인지 아이디를 기반으로 찾아내어 처리합니다.
 	switch (DialogueSubSystem->GetDialogueTypeById(DialogueId))
 	{
 	case EDialogueType::Text:
@@ -829,6 +867,7 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 		ULevelSequence* LoadedSequence = SequenceToPlay.Get();
 		ALevelSequenceActor* OutActor = nullptr;
 		
+		// 시퀀스 재생 동안 입력 등을 방지하는 설정
 		FMovieSceneSequencePlaybackSettings Settings;
 		Settings.bDisableLookAtInput = true;
 		Settings.bDisableMovementInput = true;
@@ -840,13 +879,16 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 
 		if (Player)
 		{
+		    // 시퀀스 재생
 			Player->Play();
-
+			
+			// 이미 재생중이었던 시퀀스가 있으면 재생 종료
 			if (WeakThis->LastSequencePlayer)
 			{
 				WeakThis->LastSequencePlayer->Stop();
 			}
 			
+			// 차후 종료하기 위하여 재생한 시퀀스 저장
 			WeakThis->LastSequencePlayer = Player;
 		}
 		
@@ -858,6 +900,7 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 시퀀스는 메모리 낭비를 막기 위해 소프트 오브젝트로 가지고 있으며 이를 로드한 뒤 사용합니다. 전에 재생중이었던 시퀀스가 있으면 종료시키고 새로 시퀀스를 재생하는 작업을 진행합니다.
 
 ```c++
+// 다이얼로그 시퀀스를 종료 시키기 위해 호출하는 함수
 void USequenceManager::FinishDialogueSequence()
 {
 	if (LastSequencePlayer)
@@ -874,12 +917,14 @@ void USequenceManager::FinishDialogueSequence()
 	
 }
 ```
-다이얼로그가 종료되면 시퀀스도 종료시킵니다. 이때 다이얼로그의 종료 타이밍은 EndNode를 만나는 시기입니다.
+EndNode를 만나면 다이얼로그가 종료되었다고 판단하고 시퀀스 종료 함수를 호출한 뒤 다이얼로그를 종료합니다.
 
 - **선택지 노드**  
 위에서 생략된 선택지 노드는 다음과 같은 방식으로 생성됩니다.
 ```c++
 // 선택지 노드 생성 코드 중 발췌
+
+// ... (데이터 데이블 Row 순회중)
 
 // Node Id와 Node Class가 묶여 저장된 Map에 동일한 그룹 아이디를 가진 이미 존재하는지 확인
 if (UBnDialogueNodeBase** ExistedNodePtr = NodeMap.Find(ChoiceDialogueData->ChoiceGroupId))
@@ -914,4 +959,6 @@ public:
 ```
 
 선택지 노드는 배열로 이루어져 있으며  ChoiceGroupId가 동일한 Row들이 이 배열에 추가됩니다. 일반 또는 시퀀스 대화 노드에서 진행하다 선택지가 필요할 시 Next Node로 ChoiceGroupId를 설정합니다.<br>  
-선택지 노드에는 그룹 아이디와 별개로 개별 노드 아이디도 존재하는데 이를 통해 어떠한 선택지를 골랐는지 알 수 있고 멀티 엔딩 등과 같이 선택지에 따라 엔딩이 갈리는 게임을 제작할 수 있도록 만들었습니다.
+선택지 노드에는 그룹 아이디와 별개로 개별 노드 아이디도 존재하는데 이를 통해 어떠한 선택지를 골랐는지 알 수 있고 멀티 엔딩 등과 같이 선택지에 따라 엔딩이 갈리는 게임을 제작할 수 있도록 만들었습니다.  
+
+[⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
