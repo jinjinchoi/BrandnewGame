@@ -214,8 +214,8 @@ private:
 #pragma region SaveAndLoad
 	
 	// 플레이어의 아이디로 서버에서만 설정됨.
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess = true))
 	FString PlayerUniqueId;
+	
 	/**
 	 * Attribute를 로드하는 함수.
 	 * 로드 데이터는 Player Id마다 다르게 설정해야하고 바른 아이디를 가져오기 위해

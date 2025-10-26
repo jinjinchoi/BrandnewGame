@@ -105,9 +105,11 @@ void ABrandNewPlayerCharacter::BeginPlay()
 
 void ABrandNewPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (bIsWaitingTravel || !HasAuthority()) return;
-	
-	if (EndPlayReason == EEndPlayReason::EndPlayInEditor) return;
+	if (bIsWaitingTravel || !HasAuthority() || EndPlayReason == EEndPlayReason::EndPlayInEditor)
+	{
+		Super::EndPlay(EndPlayReason);
+		return;
+	}
 
 	/**
 	 * 플레이어 접속 종료하면 세이브 매니저 서브클래스에 있는 정보 삭제.

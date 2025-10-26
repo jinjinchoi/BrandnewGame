@@ -119,5 +119,5 @@ private:
 
 public:
 	FORCEINLINE UBrandNewAttributeSet* GetAttributeSet() const { return AttributeSet; }
-
+	
 };
