@@ -202,100 +202,151 @@ FInventoryContents ItemInventory;
 > - [아이템 장착 함수](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L959)
 
 ### 04.3 Map Travel
-- **Level Manager Subsystem**  
-맵(Level) 이동을 관리하는 서브시스템입니다.
-```c++
-// Level Manager Subsystem
-// 맵 이동 로직은 아래 함수들을 상황에 맞게 실행시키는 방식으로 진행됩니다.
+현재 레벨은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식을 구현하였습니다. 
+- **Transition Map**
 
-// 맵 경로를 설정하는 함수 (본문 생략)
-void UBrandNewLevelManagerSubsystem::SetMapNameToTravelByString();
+<div style="display:flex; gap:10px;">
+  <img src="GameImg/loading.png" width="50%">
+  <img src="GameImg/loadComplete.png" width="50%">
+</div>
 
-// Transition Map으로 이동하는 함수 (본문 생략)
-void UBrandNewLevelManagerSubsystem::TravelToTransitionMap();
 
-// 맵 비동기 로드 시작
-void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
-{
-	// ... 생략
-	
-    LoadPackageAsync(
+Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적으로 다음 이동할 맵을 로드하며 모든 클라이언트가 로드가 완료되면 서버(호스트)가 다음 맵으로 이동하는 작업을 진행합니다.<br>  
+
+
+![트랜지션 맵에서 서브시스템에 비동기 로드 요청](GameImg/ServerMapLoad.png) <br>
+
+트랜지션 맵에 도착하면 서버(호스트)는 먼저 레벨매니저 서브시스템에 비동기 로드를 요청합니다. 레벨 매니저 서브 시스템은 미리 저장해놓았던 에셋 패키지 네임을 바탕으로 비동기 로드 작업을 수행합니다.
+
+- **Level Manager SubSystem**  
+레벨 매니저 서브시스템은 실제 비동기 작업을 수행하고 완료 결과를 위젯에 알리는 역할을 합니다.
+    ```c++
+    // 실제 비동기 로드를 진행시키는 함수
+    void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
+    {
+        // ... (유효성 확인 부분 생략)
+  
+      // 비동기 로드
+      LoadPackageAsync(
         TargetLevelPath.ToString(),
         FLoadPackageAsyncDelegate::CreateUObject(this, &UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted),
         0,
         PKG_ContainsMap);
+    
+    }
+    
+    // 비동기 로드 완료시 위젯에 성공 여부 Broad Cast
+    void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
+    {
+        if (Result == EAsyncLoadingResult::Succeeded)
+        {
+            OnAsyncLoadingCompleteDelegate.Broadcast(true);
+        }
+        else
+        {
+            OnAsyncLoadingCompleteDelegate.Broadcast(false);
+        }
+    }
+    ```
+  트랜지션맵의 위젯은 로딩 완료후 플레이어가 키보드 입력을 하면 레벨 매니저 서브 시스템에 로드 여부를 알리고 레벨 매니저 서브시스템은 모든 클라이언트의 로딩이 완료되면 실제 레벨 이동을 진행합니다.
 
-}
+> - Gibug Link  
+>   - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)
+>   - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp)
 
-/**
-* 맵 로딩 성공 여부 확인. 성공 여부를 각각의 클라이언트들이 서버에 전송하고
-* 서버(호스트)는 모든 클라이언트가 맵 로드에 성공하면 맵을 이동할 수 있게 됩니다.
-*/
-void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
-{
-	GetWorld()->GetTimerManager().ClearTimer(LoadingPercentTimerHandle);
-	if (Result == EAsyncLoadingResult::Succeeded)
-	{
-		OnAsyncLoadingCompleteDelegate.Broadcast(true);
-	}
-	else
-	{
-		OnAsyncLoadingCompleteDelegate.Broadcast(false);
-	}
-}
-```
-> 전체 코드 Github Link  
-> - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)  
-> - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewLevelManagerSubsystem.cpp)
-
-맵 이동 로직은 다음과 같습니다. 먼저 맵 이동전 이동할 맵 경로를 `TargetLevelPath` 변수에 설정합니다. 해당 변수를 설정한 뒤 트랜지션 맵으로 이동하고 이곳에서 비동기적으로 월드 에셋을 로드합니다. 바로 맵을 Open 하는 것이 아닌 비동기 로드를 하기 때문에 게임이 멈추는 시간을 최소화하며 사용자에게 로딩화면을 보여주어 더 나은 게임 환경을 느낄 수 있게 하였습니다.
-
-리슨 서버를 사용하기 때문에 모든 플레이어가 함께 이동하는 것이 중요하고 그렇기 때문에 로딩이 완료될 때 클라이언트들은 서버에 이를 알립니다. 서버에서는 모든 플레이어의 로딩이 끝나면 맵을 이동시킵니다.
+- **Client 맵 이동**  
+트랜지션 맵에 클라이언트의 로그인이 감지되면 서버(호스트)에서 Map Asset Name을 넘겨 클라이언트에서 맵 로딩을 할 수 있도록 해줍니다.
 ```c++
-// 메인 메뉴 및 로딩 화면 등에서 사용하는 Player Controller Class
-
-// 클라이언트 또는 호스트에서 로딩이 완료되면 실행하는 함수로 RPC를 통해 서버로 자신이 로딩이 완료되었다는 것을 알립니다.
-void AUIPlayerController::BP_NotifyMapLoaded()
+// 트랜지션 게임 모드 클래스
+void ATransitionGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	const int32 PlayerId = GetPlayerState<APlayerState>()->GetPlayerId();
+	Super::PostLogin(NewPlayer);
 	
-	Server_NotifyMapLoaded(PlayerId);
-
-}
-
-void AUIPlayerController::Server_NotifyMapLoaded_Implementation(const int32 PlayerId)
-{
-	if (ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState()))
+	const FString TargetLevelPath = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>()->GetTraveledLevelPath().ToString();
+	
+	// 서버에서 로그인을 감지하면 플레이어 컨트롤러에 로드할 에셋 경로를 알려줍니다.
+	if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(NewPlayer))
 	{
-		BrandNewGameState->RegisterPlayerLoaded(PlayerId);
+		UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath);
 	}
 	
 }
-```
-```c++
-// Game State 클래스에서 모든 유저가 로드 되었는지 확인하고 전부 완료되면 맵을 이동합니다.
-void ABrandNewGameState::CheckAllPlayersLoaded()
+
+// 트랜지션 플레이어 컨트롤러 클래스
+void AUIPlayerController::SetTraveledMapPathToClient(const FString& MapPath)
 {
 	if (!HasAuthority()) return;
 	
-	if (LoadedPlayerIdSet.Num() >= PlayerArray.Num()) // 로딩 완료된 플레이어 수와 전체 플레이어 수 비교
+	// RPC로 클라이언트에 에셋 경로를 보냅니다.
+	Client_SetTraveledMapPath(MapPath);
+	
+}
+
+void AUIPlayerController::Client_SetTraveledMapPath_Implementation(const FString& MapPath)
+{
+    // 클라이언트 자신의 서브시스템에 접근하여 맵 로딩을 시작합니다.
+	if (UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>())
 	{
-		LoadedPlayerIdSet.Empty();
-		
-		// 맵 이동
-		const UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>();
-		check(LevelManagerSubsystem);
-		LevelManagerSubsystem->TravelMap();
-		
+		LevelManagerSubsystem->SetMapNameToTravelByString(MapPath);
+		LevelManagerSubsystem->StartAsyncLoading();
+	}
+	
+}
+```
+서버의 서브시스템에서 바로 클라이트의 서브시스템에 접근할 방법이 없기 때문에 플레이어 컨트롤러를 통해 우회작업을 진행하였습니다.<br>  
+맵 이동 전 클라이언트에게 Map Asset Name을 설정하지 않은 이유는 현재 Non Seamless Travel을 사용하기 때문에 트랜지션 맵으로 이동할 때 네트워크 연결이 다시 일어나고 서버는 클라이언트가 처음부터 같이 있었는지 트랜지션 맵에서 합류하였는지 알 방법이 없어집니다.<br>  
+그렇기에 호스트가 트랜지션 맵에 있을 때 새로운 클라이언트의 참여를 막을 방법이 없다고 생각하여 트랜지션 맵에 있을때 로딩할 맵을 모르는 새로운 클라이언트가 접속하여도 문제가 없도록 설계하였습니다.<br>  
+
+물론 트랜지션 맵 이름을 모르는 클라이언트는 Kick 하는 방식으로도 대비가 가능하긴 하지만 또 다른 문제로는 맵 이동전에 클라이언트에게 RPC로 알려주면 클라이언트가 설정 완료 여부를 다시 서버에 RPC로 알려줘야 하는데 이때 네트워크 환경에 따라 딜레이가 발생할 수 있으며 이러한 딜레이는 트랜지션 맵에서는 발생해도 유저 경험을 비교적 덜 해친다고 생각하여 위와 같은 방식을 선택하였습니다.
+```c++
+// 로드 완료된 클라이언트 등록
+void UBrandNewLevelManagerSubsystem::RegisterPlayerLoaded(const APlayerController* NewPlayer)
+{
+	LoadedPlayerControllerSet.Add(NewPlayer);
+	CheckAllPlayersLoaded();
+	
+}
+// 로드가 완료된 플레이어가 트랜지션 맵에 있을때 접속을 종료하면 배열에서 제거
+void UBrandNewLevelManagerSubsystem::UnregisterPlayerLoaded(const APlayerController* ExitingPlayer)
+{
+	LoadedPlayerControllerSet.Remove(ExitingPlayer);
+	CheckAllPlayersLoaded();
+}
+
+// 모든 클라이언트가 준비 완료되면 맵 이동
+void UBrandNewLevelManagerSubsystem::CheckAllPlayersLoaded()
+{
+	if (LoadedPlayerControllerSet.Num() >= GetWorld()->GetNumPlayerControllers())
+	{
+		// 이동 작업
+		LoadedPlayerControllerSet.Empty();
+		TravelMap();
 	}
 }
 ```
+
+클라이언트는 로딩이 완료되면 서버에 RPC로 자신의 로딩이 완료되었다는 것을 알리고 서버는 모든 클라이언트가 준비가 되면 맵을 이동합니다.  
+이때 클라이언트가 트랜지션 맵에서 나가는 것을 대비하여 게임모드 클래스의 Logout함수를 오버라이드하여 함수 호출시 배열에서 제거하는 작업을 진행합니다.
 
 - **Map Entrance Actor**  
   Map Entrance Actor는 모든 플레이어가 오버랩 되면 레벨 매니저 서브시스템에 이동할 맵 경로를 설정하여 맵 이동 작업을 준비합니다.
 ```c++
+// 유효하지 않은 플레이어(중간에 나간 플레이어) 제외
+void AMapEntrance::CleanupInvalidActors()
+{
+	for (auto It = OverlappingActors.CreateIterator(); It; ++It)
+	{
+		if (!It->IsValid())
+		{
+			It.RemoveCurrent();
+		}
+	}
+}
+
 void AMapEntrance::CheckAllPlayersOverlapped()
 {
+	CleanupInvalidActors(); // 유효하지 않은 플레이어 처리
+
 	if (!HasAuthority()) return;
 
 	const ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
@@ -307,7 +358,7 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 		UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>();
 		if (!LevelManagerSubsystem) return;
 		
-		// 맵 이동 전 플레이어들의 데이터를 저장
+		// 맵 이동 전 모든 플레이어 데이터 저장
 		for (TWeakObjectPtr<AActor>& WeakActor : OverlappingActors)
 		{
 			if (AActor* Actor = WeakActor.Get())
@@ -319,15 +370,15 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 				
 			}
 		}
-		
-		// 레벨 매니저에 맵 경로를 설정하고 트랜지션 맵으로 이동하며 이후 로직은 레벨 매니저 클래스에서 처리. 
+
 		LevelManagerSubsystem->SetMapNameToTravel(LevelToTravelClass);
 		LevelManagerSubsystem->TravelToTransitionMap(TransitionLevelClass);
 	}
 	
 }
 ```
-Map Entrace Class는 아래와 같이 오버랩 된 플레이어와 전체 플레이어 수를 위젯에 보내 화면에 보여주는 역할도 합니다.
+플레이어가 오버랩 될 때 마다 CheckAllPlayersOverlapped 함수를 호출하여 먼저 오버랩 되었지만 나간 플레이어를 제외해주고 그 후 오버랩 된 액터 배열과 전체 플레이어 수를 비교하여 둘이 동일해지면 맵 이동을 시작합니다.<br>
+
 ```c++
 //Widget Update 함수 간단 예시
 
@@ -337,7 +388,8 @@ const int32 MaxPlayersCount = BrandNewGameState->PlayerArray.Num(); // 전체 �
 // 위젯 생성 요청 및 플레이어 수들 전송
 PlayerControllerInterface->HandlePlayerMapEntryOverlap(OverlappedPlayerCount, MaxPlayersCount);
 ```
-- 현재 오버랩 된 플레이어 수를 보여주는 위젯 이미지
+Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯도 보여줍니다. 이때 Game State에 유저가 접속하거나 나갈때마다 호출되는 델리게이트를 생성한 뒤 구독해두어 위젯이 생성된 후 유저가 새로 나가거나 들어와도 대응이 가능하게 구현하였습니다.
+
 ![Map Entrance 이미지](GameImg/MapEntrace.png)
 
 > Github Link
