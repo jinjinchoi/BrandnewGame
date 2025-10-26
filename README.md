@@ -4,11 +4,11 @@
 - [03. 프로젝트 요약](#03-프로젝트-요약)
 - [04. 핵심 기능 및 구현 내용](#04-핵심-기능-및-구현-내용)
 	- [04.1 Gameplay Ability System](#041-gameplay-ability-system)
-		- [04.2 Inventory System](#042-inventory-system)
-		- [04.3 Map Travel](#043-map-travel)
-		- [04.4 Object Pooling](#044-object-pooling)
-		- [04.5 Save System](#045-save-system)
-		- [04.6 Dialogue System](#046-dialogue-system)
+    - [04.2 Inventory System](#042-inventory-system)
+    - [04.3 Map Travel](#043-map-travel)
+    - [04.4 Object Pooling](#044-object-pooling)
+    - [04.5 Save System](#045-save-system)
+    - [04.6 Dialogue System](#046-dialogue-system)
 ---
 ## 02. 개요
 - **프로젝트소개**
@@ -224,11 +224,8 @@ ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
 ```
 장비 아이템은 Primary Attribute를 직접 올리는 것이 아니라 Item 전용 Attribute를 올리도록 설계하였습니다. <br>
 
-<div style="display:flex; gap:10px;">
-  <img src="GameImg/Equip.png" width="50%">
-  <img src="GameImg/EquipSpec.png" width="50%">
-</div>
-
+![아이템창](GameImg/Equip.png)
+![장비효과](GameImg/EquipSpec.png)
 
 이렇게하여 세이브시 기존 캐릭터 Attribute만 저장하고, UI에도 장비 아이템으로 올린 수치만 따로 보여줄 수가 있습니다.
 
@@ -243,10 +240,7 @@ ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
 현재 레벨은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식을 구현하였습니다. 
 - **Transition Map**
 
-<div style="display:flex; gap:10px;">
-  <img src="GameImg/loading.png" width="50%">
-  <img src="GameImg/loadComplete.png" width="50%">
-</div>
+![로딩중](GameImg/loading.png)
 
 Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적으로 다음 이동할 맵을 로드하며 모든 클라이언트가 로드가 완료되면 서버(호스트)가 다음 맵으로 이동하는 작업을 진행합니다.<br>  
 
