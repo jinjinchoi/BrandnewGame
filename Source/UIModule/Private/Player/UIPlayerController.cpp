@@ -2,10 +2,8 @@
 
 
 #include "Player/UIPlayerController.h"
-
-#include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
-#include "GameFramework/PlayerState.h"
+
 
 void AUIPlayerController::SetTraveledMapPathToClient(const FString& MapPath)
 {
@@ -26,19 +24,10 @@ void AUIPlayerController::Client_SetTraveledMapPath_Implementation(const FString
 }
 
 
-void AUIPlayerController::BP_NotifyMapLoaded()
+void AUIPlayerController::Server_NotifyMapLoaded_Implementation()
 {
-	const int32 PlayerId = GetPlayerState<APlayerState>()->GetPlayerId();
-	
-	Server_NotifyMapLoaded(PlayerId);
-
-}
-
-void AUIPlayerController::Server_NotifyMapLoaded_Implementation(const int32 PlayerId)
-{
-	if (ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState()))
+	if (UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>())
 	{
-		BrandNewGameState->RegisterPlayerLoaded(PlayerId);
+		LevelManagerSubsystem->RegisterPlayerLoaded(this);
 	}
-	
 }

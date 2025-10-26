@@ -4,7 +4,6 @@
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
 
 #include "DebugHelper.h"
-#include "Interfaces/Player/UIPlayerControllerInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass)
@@ -64,21 +63,6 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 	// GetWorld()->GetTimerManager().SetTimer(LoadingPercentTimerHandle, this, &ThisClass::OnLoadPackageUpdated, 0.2f,true, 0.2f);
 }
 
-void UBrandNewLevelManagerSubsystem::RequestAsyncLoadToAllClient() const
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController* PlayerController = It->Get();
-		if (!PlayerController) continue;
-
-		// 서버에서 현재 접속 중인 모든 클라이언트들의 서버측 플레이어 컨트롤러를 순회
-		if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(PlayerController))
-		{
-			UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath.ToString());
-		}
-	}
-	
-}
 
 void UBrandNewLevelManagerSubsystem::TravelMap() const
 {
@@ -89,23 +73,6 @@ void UBrandNewLevelManagerSubsystem::TravelMap() const
 	else
 	{
 		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *TargetLevelPath.ToString());
-		GetWorld()->ServerTravel(TravelURL);
-	}
-}
-
-void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass)
-{
-	const FSoftObjectPath& SoftObjectPath = TransitionMapClass.ToSoftObjectPath();
-	const FString PackageString = SoftObjectPath.GetLongPackageName();
-
-	if (GetWorld()->GetNetMode() == NM_Standalone)
-	{
-		const FName PackageFName(*PackageString);
-		UGameplayStatics::OpenLevel(GetWorld(), PackageFName);
-	}
-	else
-	{
-		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *PackageString);
 		GetWorld()->ServerTravel(TravelURL);
 	}
 }
@@ -127,5 +94,44 @@ void UBrandNewLevelManagerSubsystem::OnLoadPackageUpdated()
 {
 	float LoadPercentage = GetAsyncLoadPercentage(TargetLevelPath);
 	OnAsyncLoadingUpdateDelegate.Broadcast(LoadPercentage);
+}
+
+void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass)
+{
+	const FSoftObjectPath& SoftObjectPath = TransitionMapClass.ToSoftObjectPath();
+	const FString PackageString = SoftObjectPath.GetLongPackageName();
+
+	if (GetWorld()->GetNetMode() == NM_Standalone)
+	{
+		const FName PackageFName(*PackageString);
+		UGameplayStatics::OpenLevel(GetWorld(), PackageFName);
+	}
+	else
+	{
+		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *PackageString);
+		GetWorld()->ServerTravel(TravelURL);
+	}
+}
+
+void UBrandNewLevelManagerSubsystem::RegisterPlayerLoaded(const APlayerController* NewPlayer)
+{
+	LoadedPlayerControllerSet.Add(NewPlayer);
+	CheckAllPlayersLoaded();
 	
+}
+
+void UBrandNewLevelManagerSubsystem::UnregisterPlayerLoaded(const APlayerController* ExitingPlayer)
+{
+	LoadedPlayerControllerSet.Remove(ExitingPlayer);
+	CheckAllPlayersLoaded();
+}
+
+void UBrandNewLevelManagerSubsystem::CheckAllPlayersLoaded()
+{
+	if (LoadedPlayerControllerSet.Num() >= GetWorld()->GetNumPlayerControllers())
+	{
+		// 이동 작업
+		LoadedPlayerControllerSet.Empty();
+		TravelMap();
+	}
 }

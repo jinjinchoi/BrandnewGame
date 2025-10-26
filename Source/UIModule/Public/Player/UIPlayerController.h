@@ -21,16 +21,12 @@ public:
 	virtual void SetTraveledMapPathToClient(const FString& MapPath) override;
 	/* end IUIPlayerControllerInterface */
 	
-	/* 맵 로드가 완료될때 서버에서 게임스테이트에 알려주는 함수 */
-	UFUNCTION(BlueprintCallable, Category = "Brandnew|Map", meta = (DisplayName ="Notify Map Loaded"))
-	void BP_NotifyMapLoaded();
+	/* 맵 로드가 완료될때 레벨 매니저 서브시스템에 알리는 서버함수 */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Brandnew|Map", meta = (DisplayName ="Server Notify Map Loaded"))
+	void Server_NotifyMapLoaded();
 
-	
 
 private:
-	UFUNCTION(Server, Reliable)
-	void Server_NotifyMapLoaded(const int32 PlayerId);
-
 	/* Map Asset Name을 클라이언트측의 Subsystem에 설정해야하기 때문에 RPC 사용 */
 	UFUNCTION(Client, Reliable)
 	void Client_SetTraveledMapPath(const FString& MapPath);

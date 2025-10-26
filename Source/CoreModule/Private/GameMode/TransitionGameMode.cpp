@@ -18,3 +18,14 @@ void ATransitionGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 	
 }
+
+void ATransitionGameMode::Logout(AController* Exiting)
+{
+
+	if (const APlayerController* PC = Cast<APlayerController>(Exiting))
+	{
+		GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>()->UnregisterPlayerLoaded(PC);
+	}
+	
+	Super::Logout(Exiting);
+}
