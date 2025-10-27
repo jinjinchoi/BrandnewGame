@@ -1,4 +1,4 @@
-﻿## 01. 목차
+﻿# 01. 목차
 - [01. 목차](#01-목차)
 - [02. 목차](#02-개요)
 - [03. 프로젝트 요약](#03-프로젝트-요약)
@@ -10,7 +10,7 @@
     - [04.5 Save System](#045-save-system)
     - [04.6 Dialogue System](#046-dialogue-system)
 ---
-## 02. 개요
+# 02. 개요
 - **프로젝트소개**
     - 리슨 서버 기반 멀티플레이 RPG 게임
 - **개발인원**
@@ -20,7 +20,7 @@
 - **작업 기간**
   - 2025년 8월 21일 ~
 ---
-## 03. 프로젝트 요약
+# 03. 프로젝트 요약
 - **장르**
   - 3D Action RPG Game
 
@@ -54,29 +54,50 @@
 - [04.6 Dialogue System](#046-dialogue-system)
       
 ## 04.1 Gameplay Ability System
-GAS를 사용하여 Attribute와 Ability 기능을 구현하였으며 Attribute의 경우 Primary Attribute를 기반으로 Secondary Attribute를 설정하여 스탯을 올려 캐릭터를 강화시킬 수 있도록 하였습니다.
+GAS를 사용하여 Attribute와 Ability 기능을 구현하였습니다.
 
-- **Attribute 및 Ability 적용**  
-Attribute는 Gameplay Effect를 통해 적용되며 최초의 Attribute는 데이터 테이블에서 설정하고 값을 가져오도록 하였습니다. <br>   
-Abilty는 Data Asset에서 설정되는데 이중 Active어빌리티는 Input Tag와 연결하였으며 또 이 Input Tag는 Input Action과 연결되어 키보드 바인딩이 변경될 일이 있어도 어빌리티 로직 수정 없이 Input Action만 바꾸면 되게 구현하였습니다.
+### 04.1.1 Attribute 적용  
+Attribute는 1차 속성(힘, 지능, 민첩, 활력)과 이에 파생되는 2차 속성으로 나누어 집니다. 1차 Attribute는 데이터 테이블에서 관리하고 있으며 캐릭터마다 네임을 설정하여 Row 데이터를 가져와 적용합니다.
 
-> Github Link 
-> 
-> - [어빌리티 정보가 저장된 Data Asset Class](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/DataAssets/DataAsset_DefaultPlayerAbilities.h)
+```c++
+// 데이터 테이블에서 Attribute를 가져와 적용하는 로직
+void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromDataTable() const
+{
+	if (!HasAuthority()) return;
+	
+	// ... (유효성 확인부분 생략)
+	
+	static const FString ContextString(TEXT("Primary Attribute Data"));
+	if (const FPrimaryAttributeDataRow* FoundRow = AttributeDataTable->FindRow<FPrimaryAttributeDataRow>(AttributeTableKeyName, ContextString))
+	{
+		FBaseAttributePrams AttributePrams;
+		AttributePrams.Strength = FoundRow->Strength;
+		AttributePrams.Dexterity = FoundRow->Dexterity;
+		AttributePrams.Intelligence = FoundRow->Intelligence;
+		AttributePrams.Vitality = FoundRow->Vitality;
+		AttributePrams.Level = 1.f;
+		
+		UCharacterFunctionLibrary::ApplyPrimaryAttributesSetByCaller(AttributePrams, AbilitySystemComponent, PrimaryAttributeEffect);
+	}
+}
+```
+데이터 테이블에서 Attribute를 설정한 이유는 다수의 캐릭터가 존재하게 되더라도 외부에서 쉽게 각각의 캐릭터마다 다른 초기 속성을 지정하게 하고 싶었기 때문입니다.
 
-- **능력치 강화**
+1차 속성이 설정되면 이후 2차 속성이 적용되며 2차 속성의 경우 Gameplay Mod Magnitude Calculation (MMC)를 통해 설정하여 다양한 공식을 적용할 수 있게 하였습니다.
+
+### 04.1.2 능력치 강화
 
 ![능력치 강화 화면](GameImg/AttributeInfoWindow.png)
 
 캐릭터 인포메이션에 있는 각각의 위젯에는 Gameplay Tag와 FGameplayAttribute 구조체가 연결되어 있어 Gameplay Tag만 지정하면 Attribute 값을 가져올 수 있게 설정하였습니다.<br>
 
-스탯 포인트가 0 이상일 경우 강화 버튼이 활성화 되며 +버튼이나 -버튼을 누르면 TMap에 Gameplay Tag와 float 값을 저장하고 서버에 보내 Attribute를 강화할 수 있도록 구현하였습니다.
+스탯 포인트가 0 이상일 경우 강화 버튼이 활성화 되며 +버튼이나 -버튼을 누르면 Map에 Gameplay Tag와 float 값을 저장하고 서버에 보내 Attribute를 강화할 수 있도록 구현하였습니다.
 
 ```c++
 // Widget Controller Class
 
 // 위젯에서 위젯 컨트롤러에 강화할 Attribute의 정보가 담긴 TMap을 보냄. 
-void UCharacterInfoWidgetController::UpgradeAttribute(const TMap<FGameplayTag, float>& AttributeUpgradeMap)
+void UCharacterInfoWidgetController::UpgradeAttribute(const TMap<FGameplayTag /* 강화할 스탯의 태그 */, float /* 강화할 수치 */>& AttributeUpgradeMap)
 {
     
 	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(ControlledPawn);
@@ -92,49 +113,65 @@ void UCharacterInfoWidgetController::UpgradeAttribute(const TMap<FGameplayTag, f
 		UpgradePrams.Add(UpgradePram);
 		
 	}
-
-	PlayerInterface->UpgradeAttribute(UpgradePrams); // 캐릭터 클래스에 데이터 전송
+	
+	// 인터페이스를 통해 캐릭터 클래스에 데이터 전송
+	PlayerInterface->UpgradeAttribute(UpgradePrams);
 	
 }
 	
 // Character Class
 void ABrandNewPlayerCharacter::UpgradeAttribute(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams)
 {
-	// ... null check 생략
+	// ... (null check)
 	
-	Server_RequestUpgradeAttribute(AttributeUpgradePrams); // 서버 RPC로 Attribute 강화 요청.
+	// 서버 RPC로 Attribute 강화 요청
+	Server_RequestUpgradeAttribute(AttributeUpgradePrams);
 	
 }
 
 void ABrandNewPlayerCharacter::Server_RequestUpgradeAttribute_Implementation(const TArray<FAttributeUpgradePrams>& AttributeUpgradePrams)
 {
-	// ... Effect Context 및 Spect Handle 생성 부분 생략
+	// ... (Effect Context 및 Spect Handle 생성)
 
 	int32 ConsumedStatPoint = 0;
 	
 	for (const FAttributeUpgradePrams& UpgradePrams : AttributeUpgradePrams)
 	{
 		if (!UpgradePrams.TagToUpgrade.IsValid()) continue;
-
+		
+		// 사용한 스탯 포인트 저장
 		ConsumedStatPoint += UpgradePrams.UpgradeAmount;
+		
 		// Set by Caller를 사용해 강화 수치 설정
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,UpgradePrams.TagToUpgrade, UpgradePrams.UpgradeAmount);
 	}
 	
-	// 유효한 강화 시도인지 확인
+	// 강화에 사용한 스탯 포인트와 현재 남은 스탯포인트 비교해서 강화 가능한지 확인
 	if (GetAttributeValueByTag(BrandNewGamePlayTag::Attribute_Experience_AttributePoint) < ConsumedStatPoint) return;
 	
-	//  ... 실제 Effect 적용 부분 생략
+	//  ... (실제 Effect 적용)
 	
 }
 ```
 위젯 컨트롤러에서 플레이어 캐릭터로 강화 정보를 보내는 로직입니다.<br>  
-RPC로는 TMap을 바로 보낼 수 없기 때문에 구조체로 변환하여 서버로 데이터를 보냅니다. 서버에서는 강화를 하기 전 Stat Point를 확인하여 부정한 Attribute 강화를 차단하고 Gameplay Effect를 통해 Attribute를 강화합니다.  
+RPC로는 TMap을 바로 보낼 수 없기 때문에 구조체로 변환하여 서버로 데이터를 보냅니다. 서버에서는 강화를 하기 전 Stat Point를 확인하여 부정한 Attribute 강화를 차단하고 Gameplay Effect를 통해 Attribute를 강화합니다.
+
+### 04.1.3 Ability  
+
+플레이어나 에너미의 어빌리티는 데이터에셋에 지정되고 게임 시작시 데이터 에셋을 순회하여 어빌리티를 적용합니다.
+
+Active Ability는 태그를 통해 Input Action과 매핑이 되어 있어 Input Action이 Trigger되면 어빌리티가 발동됩니다.
+
+> [Ability 소개 문서]()
+
+어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
-### 04.2 Inventory System
-인벤토리는 Actor Componen로 구현하였으며 플레이어 스테이트 클래스에서 보관하고 있습니다.<br>
+---
+
+## 04.2 Inventory System
+인벤토리는 Actor Componen로 구현하였으며 플레이어 스테이트 클래스에서 보관하고 있습니다.<br>  
 플레이어 스테이트에서 보관하는 이유는 비록 본 프로젝트는 단 하나의 캐릭터만 조종하지만 실제 상용 게임임들은 여러 캐릭터를 조종하는 경우가 많고 이때 인벤토리는 공유하는 경우가 대부분이기 때문에 캐릭터 클래스에서 인벤토리를 보관하기 부적절하다고 판단하여 플레이어 스테이트 클래스에 보관하게 되었습니다.
 
 - **Iten Info Data Table**  
@@ -232,7 +269,8 @@ struct FInventoryContents
 UPROPERTY(Replicated)
 FInventoryContents ItemInventory;
 ```
-아이템 저장은 인벤토리 클래스에 Id와 Quantity를 넘기면 인벤토리 클래스에서 배열을 추가하는 방식으로 구현하였습니다.
+아이템 저장은 인벤토리 클래스에 Id와 Quantity를 넘기면 인벤토리 클래스에서 배열을 추가하는 방식으로 구현하였습니다.<br>  
+인벤토리는 복제가 설정되어 있어 서버에서 설정하면 클라이언트로 전파가 됩니다. 이때 인벤토리는 현재 자기 자신의 인벤토리밖에 볼 수 없기되어있기 때문에 `DOREPLIFETIME_CONDITION(ThisClass, ItemInventory, COND_OwnerOnly);` 조건을 주어 네트워크 최적화를 이루었습니다. 
 
 - **아이템 장착 및 사용**  
 소비 아이템의 경우 Instance Gameplay Effect를 주어 즉각적으로 체력등 Attribute에 영향을 줍니다.<br>  
@@ -257,7 +295,7 @@ ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
-### 04.3 Map Travel
+## 04.3 Map Travel
 Level Travel은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식으로 구현하였습니다. 
 - **Transition Map**
 
@@ -460,7 +498,7 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
-### 04.4 Object Pooling
+## 04.4 Object Pooling
 오브젝트 풀링 시스템을 구현하여 자주 사용하는 액터는 Pool에서 관리하도록 하였습니다.
 
 - **Objet Pool Manger**  
@@ -688,7 +726,7 @@ SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
 ```
   마찬가지로 맵 이동 전 데이터 세이브도 임시 데이터를 저장하는 방식으로 진행하며 이때 세이브 시 사용하는 구조체를 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
 
-### 04.6 Dialogue System
+## 04.6 Dialogue System
 - **Dialogue Node**  
 다이얼로그 시스템은 노드를 기반으로 구현되었습니다. 현재 구현된 노드는 일반 텍스트 노드와 스퀀스 기반의 대화 노드, 선택지 노드, 엔드 노드가 있습니다.
 ```c++
