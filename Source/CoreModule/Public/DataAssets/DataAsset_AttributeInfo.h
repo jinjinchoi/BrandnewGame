@@ -22,7 +22,7 @@ struct FBrandNewAttributeInfo
 };
 
 /**
- * 
+ * Attribute의 정보를 UI에 보여줄 때 사용하는 데이터 에셋
  */
 UCLASS()
 class COREMODULE_API UDataAsset_AttributeInfo : public UDataAsset

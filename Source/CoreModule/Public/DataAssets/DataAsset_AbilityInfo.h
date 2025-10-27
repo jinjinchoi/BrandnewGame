@@ -29,7 +29,7 @@ struct FAbilityInfoParams
 
 
 /**
- * 
+ * 어빌리티 정보를 UI에 보여주기 위해 사용하는 데이터 에셋입니다.
  */
 UCLASS()
 class COREMODULE_API UDataAsset_AbilityInfo : public UDataAsset

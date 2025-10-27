@@ -20,7 +20,7 @@ struct FMapInfo
 };
 
 /**
- * 
+ * 레벨에 이름을 지정할 수 있게 하여 세이브 슬롯에서 현재 지역을 보여줄 때 사용하는 데이터 에셋
  */
 UCLASS()
 class COREMODULE_API UDataAsset_MapInfo : public UDataAsset
