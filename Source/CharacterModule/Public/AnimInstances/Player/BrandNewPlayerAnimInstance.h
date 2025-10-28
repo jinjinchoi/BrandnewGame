@@ -115,5 +115,6 @@ private:
 	void CalculatePivotAngle();
 	void CalculateJumpState();
 	void CalculateFallingTime(const float DeltaTime);
+	void UpdateStrafingState();
 
 };

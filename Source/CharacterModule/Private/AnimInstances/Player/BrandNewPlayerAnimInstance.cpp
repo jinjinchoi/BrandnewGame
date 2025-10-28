@@ -3,9 +3,11 @@
 
 #include "AnimInstances/Player/BrandNewPlayerAnimInstance.h"
 
+#include "CharacterFunctionLibrary.h"
 #include "Character/BrandNewBaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "KismetAnimationLibrary.h"
+#include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UBrandNewPlayerAnimInstance::NativeInitializeAnimation()
@@ -33,6 +35,8 @@ void UBrandNewPlayerAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSec
 	UpdateCharacterLocation();
 	CalculatePivotAngle();
 	CalculateFallingTime(DeltaSeconds);
+	UpdateStrafingState();
+	
 }
 
 void UBrandNewPlayerAnimInstance::CalculateJumpState()
@@ -63,6 +67,15 @@ void UBrandNewPlayerAnimInstance::CalculateFallingTime(const float DeltaTime)
 	}
 
 	
+}
+
+void UBrandNewPlayerAnimInstance::UpdateStrafingState()
+{
+	if (!OwningCharacter) return;
+	
+	bIsStrafing =
+		UCharacterFunctionLibrary::DoseActorHasTag(OwningCharacter, BrandNewGamePlayTag::Status_Player_Fire) ||
+		UCharacterFunctionLibrary::DoseActorHasTag(OwningCharacter, BrandNewGamePlayTag::Status_Player_LockOn);
 }
 
 

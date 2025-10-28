@@ -87,7 +87,6 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, CurrentGate);
-	DOREPLIFETIME(ThisClass, EquippedWeaponType);
 	
 }
 
@@ -131,7 +130,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
-	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 해야함
+	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 구현 예정
 	BindAttributeDelegates();
 	if (IsLocallyControlled())
 	{
@@ -608,30 +607,49 @@ ECombatWeaponType ABrandNewPlayerCharacter::GetCurrentEquippedWeaponType() const
 
 void ABrandNewPlayerCharacter::OnWeaponEquipped_Implementation()
 {
-	if (!HasAuthority()) return;
-	
 	EquippedWeaponType = CombatWeapon->GetCombatWeaponType();
 	OnEquippedWeaponChanged();
 }
 
 void ABrandNewPlayerCharacter::OnWeaponUnequipped_Implementation()
 {
-	if (!HasAuthority()) return;
-	
+
 	EquippedWeaponType = ECombatWeaponType::Unequipped;
 	OnEquippedWeaponChanged();
 }
 
-void ABrandNewPlayerCharacter::SetStrafeState_Implementation()
-{
-	const bool bIsStrafing =
-		UCharacterFunctionLibrary::DoseActorHasTag(this, BrandNewGamePlayTag::Status_Player_Fire) ||
-		UCharacterFunctionLibrary::DoseActorHasTag(this, BrandNewGamePlayTag::Status_Player_LockOn);
 
-	if (IBnBaseAnimInstanceInterface* BaseAnimInterface = Cast<IBnBaseAnimInstanceInterface>(GetMesh()->GetAnimInstance()))
+void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
+{
+	// 무기 타입별 애님 레이어를 변경 
+	if (WeaponAnimLayerMap.Contains(EquippedWeaponType))
 	{
-		BaseAnimInterface->SetIsStrafing(bIsStrafing);
+		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
 	}
+
+	// 인풋 매핑 컨텍스트를 변경. 매핑 컨텍스트는 로컬 컨트롤러에서만 바꾸는 것이 의미 있음. (이 함수는 서버 클라이언트 모두에게 실행됨)
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC && PC->IsLocalController())
+	{
+		IBnPlayerControllerInterface* PlayerControllerInterface = Cast<IBnPlayerControllerInterface>(PC);
+		if (!PlayerControllerInterface) return;
+
+		if (LastEquippedWeaponType > ECombatWeaponType::Unequipped)
+		{
+			PlayerControllerInterface->RemoveInputMappingForWeapon(LastEquippedWeaponType);	
+		}
+
+		if (EquippedWeaponType > ECombatWeaponType::Unequipped)
+		{
+			PlayerControllerInterface->AddInputMappingForWeapon(EquippedWeaponType);
+		}
+
+		WeaponChangedDelegate.ExecuteIfBound(EquippedWeaponType);
+		
+	}
+
+	LastEquippedWeaponType = EquippedWeaponType;
+	
 }
 
 void ABrandNewPlayerCharacter::SetFireMode_Implementation(const bool IsFiring)
@@ -676,13 +694,6 @@ AActor* ABrandNewPlayerCharacter::GetCombatTargetActor_Implementation()
 }
 
 
-void ABrandNewPlayerCharacter::OnRep_CurrentEquippedWeaponType()
-{
-	OnEquippedWeaponChanged();
-}
-
-
-
 FText ABrandNewPlayerCharacter::GetCurrentTimeText() const
 {
 	const FDateTime Now = FDateTime::Now();
@@ -698,39 +709,6 @@ FText ABrandNewPlayerCharacter::GetCurrentTimeText() const
 	return FText::FromString(FormattedTime);
 }
 
-
-void ABrandNewPlayerCharacter::OnEquippedWeaponChanged()
-{
-	// 무기 타입별 애님 레이어를 변경 
-	if (WeaponAnimLayerMap.Contains(EquippedWeaponType))
-	{
-		GetMesh()->LinkAnimClassLayers(WeaponAnimLayerMap[EquippedWeaponType]);
-	}
-
-	// 인풋 매핑 컨텍스트를 변경. 매핑 컨텍스트는 로컬 컨트롤러에서만 바꾸는 것이 의미 있음. (이 함수는 서버 클라이언트 모두에게 실행됨)
-	APlayerController* PC = Cast<APlayerController>(GetController());
-	if (PC && PC->IsLocalController())
-	{
-		IBnPlayerControllerInterface* PlayerControllerInterface = Cast<IBnPlayerControllerInterface>(PC);
-		if (!PlayerControllerInterface) return;
-
-		if (LastEquippedWeaponType > ECombatWeaponType::Unequipped)
-		{
-			PlayerControllerInterface->RemoveInputMappingForWeapon(LastEquippedWeaponType);	
-		}
-
-		if (EquippedWeaponType > ECombatWeaponType::Unequipped)
-		{
-			PlayerControllerInterface->AddInputMappingForWeapon(EquippedWeaponType);
-		}
-
-		WeaponChangedDelegate.ExecuteIfBound(EquippedWeaponType);
-		
-	}
-
-	LastEquippedWeaponType = EquippedWeaponType;
-	
-}
 
 float ABrandNewPlayerCharacter::GetAttributeValueByTag(const FGameplayTag& AttributeTag) const
 {
