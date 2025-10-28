@@ -18,7 +18,7 @@
 - **사용엔진**
   - 언리얼 엔진 5.6.1
 - **작업 기간**
-  - 2025년 8월 21일 ~
+  - 2025년 8월 21일 ~ 2025년 10월 28일 (약 2달)
 ---
 # 03. 프로젝트 요약
 - **장르**
@@ -174,7 +174,7 @@ Active Ability는 태그를 통해 Input Action과 매핑이 되어 있어 Input
 인벤토리는 Actor Componen로 구현하였으며 플레이어 스테이트 클래스에서 보관하고 있습니다.<br>  
 플레이어 스테이트에서 보관하는 이유는 비록 본 프로젝트는 단 하나의 캐릭터만 조종하지만 실제 상용 게임임들은 여러 캐릭터를 조종하는 경우가 많고 이때 인벤토리는 공유하는 경우가 대부분이기 때문에 캐릭터 클래스에서 인벤토리를 보관하기 부적절하다고 판단하여 플레이어 스테이트 클래스에 보관하게 되었습니다.
 
-- **Iten Info Data Table**  
+### 04.2.1 Iten Info Data Table  
 
 ![아이템 정보를 저장하는 데이터 시트](GameImg/IntemInfoSheet.png)
 
@@ -199,7 +199,7 @@ void UBrandNewGameInstance::Init()
 ```
 아이템 정보를 데이터 테이블에 저장하고 이 데이터를 Game Instance 클래스에 Id 기반의 Map으로 저장하여 아이템 정보를 Id만 가지고 빠르게 접근할 수 있도록 하였습니다.
 
-- **Item 획득**
+### 04.2.2 Item 획득
 
 ![아이템 오버랩 이미지](GameImg/ItemOverlap.png) 
 
@@ -223,7 +223,7 @@ void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
 
 다만 클라이언트도 화면에 보여주고 제거할때 오버랩 된 아이템들이 어떤 것인지 알아야하기 때문에 클라이언트 전용 배열에 저장하였으며 이때 RPC나 Replication을 사용하지 않은 이유는 단순히 화면에만 보여주는 것이 목적이기 때문에 굳이 네트워크 트래픽을 증가시킬 필요가 없다고 판단하였기 때문입니다.
 
-- **Inventory**  
+### 04.2.3 Inventory  
 인벤토리 클래스에서는 구조체로 아이템 정보를 저장하고 있습니다.
 ```c++
 ////// 구조체 정보//////
@@ -272,7 +272,7 @@ FInventoryContents ItemInventory;
 아이템 저장은 인벤토리 클래스에 Id와 Quantity를 넘기면 인벤토리 클래스에서 배열을 추가하는 방식으로 구현하였습니다.<br>  
 인벤토리는 복제가 설정되어 있어 서버에서 설정하면 클라이언트로 전파가 됩니다. 이때 인벤토리는 현재 자기 자신의 인벤토리밖에 볼 수 없기되어있기 때문에 `DOREPLIFETIME_CONDITION(ThisClass, ItemInventory, COND_OwnerOnly);` 조건을 주어 네트워크 최적화를 이루었습니다. 
 
-- **아이템 장착 및 사용**  
+### 04.2.4 아이템 장착 및 사용  
 소비 아이템의 경우 Instance Gameplay Effect를 주어 즉각적으로 체력등 Attribute에 영향을 줍니다.<br>  
 장비 아이템의 경우 Infinite Gameplay Effect를 주고 Effect Handle을 저장하여 무기 변경시 Effect를 제거하고 새로 주는 방식으로 효과를 바꿔주었습니다.<br>
 ```c++
@@ -297,9 +297,10 @@ ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
 
 ## 04.3 Map Travel
 Level Travel은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식으로 구현하였습니다. 
-- **Transition Map**
 
-![로딩중](GameImg/loading.png)
+### 04.3.1 Transition Map
+
+![로딩중 이미지](GameImg/loading.png)
 
 Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적으로 다음 이동할 맵을 로드하며 모든 클라이언트가 로드가 완료되면 서버(호스트)가 다음 맵으로 이동하는 작업을 진행합니다.<br>  
 
@@ -307,7 +308,7 @@ Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적�
 
 트랜지션 맵에 도착하면 서버(호스트)는 레벨매니저 서브시스템에 비동기 로드를 요청합니다. 레벨 매니저 서브 시스템은 미리 저장해놓았던 에셋 경로를 바탕으로 비동기 로드 작업을 수행합니다.
 
-- **Level Manager SubSystem**  
+### 04.3.2 Level Manager SubSystem  
 레벨 매니저 서브시스템은 실제 비동기 작업을 수행하고 완료 결과를 위젯에 알리며 모든 클라이언트가 준비가 되면 맵을 이동시키는 역할을 수행합니다.
     ```c++
     // 실제 비동기 로드를 진행시키는 함수
@@ -343,7 +344,7 @@ Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적�
     >   - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)
     >   - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp)
 
-- **Client 맵 이동**  
+### 04.3.3 Client의 맵 이동  
 트랜지션 맵에 클라이언트의 로그인이 감지되면 서버에서 로드할 에셋 경로 알려주어 클라이언트에서 맵 로딩을 할 수 있도록 해줍니다.
 
 ```c++
@@ -420,7 +421,7 @@ void UBrandNewLevelManagerSubsystem::CheckAllPlayersLoaded()
 클라이언트는 로딩이 완료되면 서버에 RPC로 자신이 로딩이 완료되었다는 것을 알리고 서버는 모든 클라이언트가 준비가 되면 맵을 이동합니다.  
 이때 클라이언트가 트랜지션 맵에서 나가는 것을 대비하여 게임모드 클래스의 Logout함수를 오버라이드하여 플레이어가 게임에서 나갈때 배열에서 제거하는 작업을 진행합니다.
 
-- **Map Entrance Actor**  
+### 04.3.4 Map Entrance Actor  
   Map Entrance Actor는 모든 플레이어가 오버랩 되면 서버의 레벨 매니저 서브시스템에 이동할 맵 경로를 설정하고 트랜지션 맵으로 이동시킵니다.
 ```c++
 // 유효하지 않은 플레이어(중간에 나간 플레이어) 제외
@@ -501,7 +502,7 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 ## 04.4 Object Pooling
 오브젝트 풀링 시스템을 구현하여 자주 사용하는 액터는 Pool에서 관리하도록 하였습니다.
 
-- **Objet Pool Manger**  
+### 04.4.1 Objet Pool Manger  
 오브젝트 풀 매니저 클래스는 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 돕는 클래스입니다. 간단한 로직 설명은 다음과 같습니다. 게임이 시작되면(Begin Play) 액터들을 미리 원하는 만큼 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 풀 매니저 클래스에 접근하여 배열에서 액터들을 불러오는 방식을 사용하였습니다.<br>    
 풀 매니저는 게임모드에서 관리하는데 이는 현재 스폰 기능이 서버에서만 작동하게 되어 있으며 또한 월드를 이동할때 풀을 자동으로 초기화 하고 싶어 게임모드에서 이를 관리하도록 하였습니다.<br>  
 Projectile처럼 Spawn과 Destrory가 매우 빈번하게 일어나는 액터들에 대하여 풀링 시스템을 사용함으로써 GC에 부하를 줄이고 메모리 최적화를 이루었습니다.
@@ -510,10 +511,10 @@ Projectile처럼 Spawn과 Destrory가 매우 빈번하게 일어나는 액터들
 > - [Object Pool Manager.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Manager/Pooling/BrandNewObjectPoolManager.h)
 > - [Object Pool Manager.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Manager/Pooling/BrandNewObjectPoolManager.cpp)
 
-### 04.5 Save System
+## 04.5 Save System
 세이브 기능을 통해 플레이어의 Attribute와 Inventory, World,  Location을 저장합니다. 
 
-- **Login**
+### 04.5.1 Login
 ![로그인화면](GameImg/Login.png)로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.  
 로그인시 Save Subsystem에 입력 값이 저장됩니다.<br>
 
@@ -530,7 +531,7 @@ Projectile처럼 Spawn과 Destrory가 매우 빈번하게 일어나는 액터들
     위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅치 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
 
 
-- **Save**  
+### 04.5.2 Save  
 세이브 요청은 호스트만 할 수 있습니다. 클라이언트에서 요청해서 세이브 하는 것도 가능하지만 실제 온라인 게임의 경우 세이브 타이밍은 서버에서만 판단하고 비록 호스트의 경우 클라이언트로도 볼 수 있지만 서버 권한이 있기 때문에 호스트에게 세이브 권한을 주어도 된다고 판단하였습니다. <br>  
 
 ```c++
@@ -585,7 +586,7 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 > - [세이브 정보를 담은 구조체를 생성하는 MakeSaveSlotPrams 함수](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L837)
 > - [Save Subsystem에서 세이브 하는 함수](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp#L10)
 
-- **Load**  
+### 04.5.3 Load
 로드 작업 역시 서버에서만 진행합니다. 로드 슬롯을 선택하고 게임에 접속하면 세이브 서브시스템에 선택했던 슬롯 네임과 인덱스를 저장하여 둡니다.
 ```c++
 void ABrandNewPlayerCharacter::OnRep_PlayerState()
@@ -702,7 +703,7 @@ void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& Inventory
 인벤토리는 구조체 안에 아이템 정보가 담긴 배열을 저장하는 방식으로 구현되어 있는데 아이템 정보는 단순히 Integer와 Boolean 변수만 있기 때문에 Save Game에 통째로 저장이 가능하고 로드 역시 통째로 가져와 단순히 대입하는 방식으로 진행합니다.<br>  
 `SetInventoryContents()`함수에서는 불러오기와 동시에 장착 중인 아이템이 있는지를 확인합니다. 이후 캐릭터 클래스에서는 장착 중이었던 아이템이 있는지 확인하고 아이템이 존재하면 Gameplay Effect를 통해 아이템 효과를 부여합니다.  
 
-- **World Travel시 데이터 저장 및 복구**  
+### 04.5.4 World Travel시 데이터 저장 및 복구  
 맵 이동시 실제 데이터를 저장하는 것이 아니라 캐릭터 정보가 담긴 구조체를 아이디와 함께 Map에 저장합니다.
 ```c++
 // Save Subsystem에 존재하는 임시로 데이터를 저장하는 TMap
@@ -727,7 +728,8 @@ SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
   마찬가지로 맵 이동 전 데이터 세이브도 임시 데이터를 저장하는 방식으로 진행하며 이때 세이브 시 사용하는 구조체를 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
 
 ## 04.6 Dialogue System
-- **Dialogue Node**  
+
+### 04.6.1 Dialogue Node  
 다이얼로그 시스템은 노드를 기반으로 구현되었습니다. 현재 구현된 노드는 일반 텍스트 노드와 스퀀스 기반의 대화 노드, 선택지 노드, 엔드 노드가 있습니다.
 ```c++
 // 텍스트노드
@@ -822,7 +824,7 @@ void UBnDialogueGraph::CreateTextNode()
 > Github Link  
 > - [전체 노드생성 로직](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/DialogueModule/Private/Graph/BnDialogueGraph.cpp)
 
-- **일반 대화 노드**  
+### 04.6.2 일반 대화 노드  
 대화 로직 실행은 제일 처음 가져올 대화의 Node Id를 통해 그에 맞는 Node를 가져오는 것으로 시작합니다.
 ```c++
 // 대화 위젯을 생성하는 함수
@@ -903,7 +905,7 @@ void UDialogueWidgetController::HandleTextNode()
 
 위젯에서는 델리게이트를 바인딩하고 있어 위젯 컨트롤러에서 대화 정보를 BroadCast하면 이 대화를 화면에 보여줍니다.
 
-- **시퀀스 노드**  
+### 04.6.3 시퀀스 노드  
 시퀀스 노드는 기본적으로 텍스트 노드와 동일하지만 시퀀스를 재생한다는 부분만 다릅니다.
 ```c++
 // 시퀀스 플레이 요청
@@ -980,7 +982,7 @@ void USequenceManager::FinishDialogueSequence()
 ```
 EndNode를 만나면 다이얼로그가 종료되었다고 판단하고 시퀀스 종료 함수를 호출한 뒤 다이얼로그를 종료합니다.
 
-- **선택지 노드**  
+### 04.6.4 선택지 노드  
 위에서 생략된 선택지 노드는 다음과 같은 방식으로 생성됩니다.
 ```c++
 // 선택지 노드 생성 코드 중 발췌
@@ -1023,3 +1025,11 @@ public:
 선택지 노드에는 그룹 아이디와 별개로 개별 노드 아이디도 존재하는데 이를 통해 어떠한 선택지를 골랐는지 알 수 있고 멀티 엔딩 등과 같이 선택지에 따라 엔딩이 갈리는 게임을 제작할 수 있도록 하였습니다.  
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
+
+---
+
+## 05. 고찰 및 회고
+- 언리얼의 멀티 플레이 로직에 대해 더 많이 알 수 있게된 프로젝트였습니다.
+- 엔진에서 생각이상으로 멀티플레이에 도움을 주는 기능들을 많이 제공해준다는 것을 알았고 그런 기능들이 있는지 모르고 시작해 개발이 늦어지거나 불필요한 부분을 만든 경우도 있었지만 오히려 그러한 경험 덕분에 언리얼 엔진에 대해 더 알 수 있게된 시간이라 좋았다고 생각합니다.
+- 아쉬운 점으로는 리슨 서버를 기반으로 멀티플레이를 구현하다 보니 아무래도 데디케이트 서버 기반과 다른 점이 생길 수 밖에 없었다는 점 같습니다.
+- 하지만 그래도 대부분의 로직은 리슨서버나 데디케이트 서바나 크게 다를게 없다는 것을 깨달았고 리슨서버 기반이라고 해도 RPC나 Replication에 대해 더 자세히 알 수 있게 되어서 좋은 프로젝트라 생각합니다.
