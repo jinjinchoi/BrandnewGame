@@ -9,6 +9,8 @@
     - [04.4 Object Pooling](#044-object-pooling)
     - [04.5 Save System](#045-save-system)
     - [04.6 Dialogue System](#046-dialogue-system)
+- [05. 고찰 및 회고](#05-고찰-및-회고)
+
 ---
 # 02. 개요
 - **프로젝트소개**
@@ -162,9 +164,9 @@ RPC로는 TMap을 바로 보낼 수 없기 때문에 구조체로 변환하여 �
 
 Active Ability는 태그를 통해 Input Action과 매핑이 되어 있어 Input Action이 Trigger되면 어빌리티가 발동됩니다.
 
-> [Ability 소개 문서]()
+> [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
 
-어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.
+어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.~~~~
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
@@ -310,39 +312,39 @@ Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적�
 
 ### 04.3.2 Level Manager SubSystem  
 레벨 매니저 서브시스템은 실제 비동기 작업을 수행하고 완료 결과를 위젯에 알리며 모든 클라이언트가 준비가 되면 맵을 이동시키는 역할을 수행합니다.
-    ```c++
-    // 실제 비동기 로드를 진행시키는 함수
-    void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
-    {
-        // ... (유효성 확인 부분 생략)
-  
-      // 비동기 로드
-      LoadPackageAsync(
-        TargetLevelPath.ToString(),
-        FLoadPackageAsyncDelegate::CreateUObject(this, &UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted),
-        0,
-        PKG_ContainsMap);
-    
-    }
-    
-    // 비동기 로드 완료시 위젯에 성공 여부 Broad Cast
-    void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
-    {
-        if (Result == EAsyncLoadingResult::Succeeded)
-        {
-            OnAsyncLoadingCompleteDelegate.Broadcast(true);
-        }
-        else
-        {
-            OnAsyncLoadingCompleteDelegate.Broadcast(false);
-        }
-    }
-    ```
-  로딩 완료후 플레이어가 키보드 입력을 하면 레벨 매니저 서브 시스템에 로드 완료 여부를 알리고 레벨 매니저 서브시스템은 모든 클라이언트의 로딩이 완료되면 실제 레벨 이동을 진행합니다.
+```c++
+// 실제 비동기 로드를 진행시키는 함수
+void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
+{
+    // ... (유효성 확인 부분 생략)
 
-    > - Gibug Link  
-    >   - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)
-    >   - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp)
+  // 비동기 로드
+  LoadPackageAsync(
+    TargetLevelPath.ToString(),
+    FLoadPackageAsyncDelegate::CreateUObject(this, &UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted),
+    0,
+    PKG_ContainsMap);
+
+}
+
+// 비동기 로드 완료시 위젯에 성공 여부 Broad Cast
+void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
+{
+    if (Result == EAsyncLoadingResult::Succeeded)
+    {
+        OnAsyncLoadingCompleteDelegate.Broadcast(true);
+    }
+    else
+    {
+        OnAsyncLoadingCompleteDelegate.Broadcast(false);
+    }
+}
+```
+로딩 완료후 플레이어가 키보드 입력을 하면 레벨 매니저 서브 시스템에 로드 완료 여부를 알리고 레벨 매니저 서브시스템은 모든 클라이언트의 로딩이 완료되면 실제 레벨 이동을 진행합니다.
+
+> Gibug Link  
+> - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)
+> - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp)
 
 ### 04.3.3 Client의 맵 이동  
 트랜지션 맵에 클라이언트의 로그인이 감지되면 서버에서 로드할 에셋 경로 알려주어 클라이언트에서 맵 로딩을 할 수 있도록 해줍니다.
@@ -1028,7 +1030,7 @@ public:
 
 ---
 
-## 05. 고찰 및 회고
+# 05. 고찰 및 회고
 - 언리얼의 멀티 플레이 로직에 대해 더 많이 알 수 있게된 프로젝트였습니다.
 - 엔진에서 생각이상으로 멀티플레이에 도움을 주는 기능들을 많이 제공해준다는 것을 알았고 그런 기능들이 있는지 모르고 시작해 개발이 늦어지거나 불필요한 부분을 만든 경우도 있었지만 오히려 그러한 경험 덕분에 언리얼 엔진에 대해 더 알 수 있게된 시간이라 좋았다고 생각합니다.
 - 아쉬운 점으로는 리슨 서버를 기반으로 멀티플레이를 구현하다 보니 아무래도 데디케이트 서버 기반과 다른 점이 생길 수 밖에 없었다는 점 같습니다.
