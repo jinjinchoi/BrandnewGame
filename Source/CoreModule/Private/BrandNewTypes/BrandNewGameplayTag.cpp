@@ -139,6 +139,7 @@ namespace BrandNewGamePlayTag
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_GroundWarning, "GameplayCue.Effect.GroundWarning")
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_ArcaneShard, "GameplayCue.Effect.ArcaneShard")
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_LandingImpact, "GameplayCue.Effect.LandingImpact")
+	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Effect_Levelup, "GameplayCue.Effect.Levelup")
 
 	/**
 	 * Block Tags

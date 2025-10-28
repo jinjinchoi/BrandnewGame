@@ -143,6 +143,7 @@ namespace BrandNewGamePlayTag
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_GroundWarning);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_ArcaneShard);
 	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_LandingImpact);
+	COREMODULE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Effect_Levelup);
 
 	/**
 	 * Block Tags

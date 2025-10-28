@@ -28,7 +28,6 @@
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
-#include "Interfaces/Animation/BnBaseAnimInstanceInterface.h"
 #include "Inventory/BrandNewInventory.h"
 #include "Kismet/GameplayStatics.h"
 #include "Manager/Sequnce/SequenceManager.h"
@@ -356,6 +355,14 @@ void ABrandNewPlayerCharacter::ApplyLevelUpGameplayEffect(const int32 LevelToApp
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, BrandNewGamePlayTag::Attribute_Experience_AttributePoint, RewardAttributePoint);
 
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+	FGameplayCueParameters CueParameters;
+	CueParameters.SourceObject = this;
+	CueParameters.EffectCauser = this;
+	CueParameters.EffectContext = ContextHandle;
+	CueParameters.Location = GetActorLocation();
+	
+	AbilitySystemComponent->ExecuteGameplayCue(BrandNewGamePlayTag::GameplayCue_Effect_Levelup, CueParameters);
 	
 }
 
