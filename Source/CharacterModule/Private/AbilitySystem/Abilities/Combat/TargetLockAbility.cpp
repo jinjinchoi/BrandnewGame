@@ -116,16 +116,6 @@ void UTargetLockAbility::FindClosestActorToMouse()
 {
 	if (!HasAuthority(&CurrentActivationInfo)) return;
 	
-	const APlayerController* PlayerController = CurrentActorInfo->PlayerController.Get();
-
-	const FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-	const FVector TraceDirection = CameraRotation.Vector();
-	
-	const FVector TraceStart = GetAvatarActorFromActorInfo()->GetActorLocation();
-	const FVector TraceEnd = TraceStart + TraceDirection * 5000.f;
-
-	float MinDistance = FLT_MAX;
-
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetAvatarActorFromActorInfo());
 
@@ -141,7 +131,18 @@ void UTargetLockAbility::FindClosestActorToMouse()
 	if (TargetActors.IsEmpty())
 	{
 		return;
+		
 	}
+	
+	const APlayerController* PlayerController = CurrentActorInfo->PlayerController.Get();
+
+	const FRotator CameraRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+	const FVector TraceDirection = CameraRotation.Vector();
+	
+	const FVector TraceStart = GetAvatarActorFromActorInfo()->GetActorLocation();
+	const FVector TraceEnd = TraceStart + TraceDirection * 5000.f;
+
+	float MinDistance = FLT_MAX;
 
 	for (AActor* TargetActor : TargetActors)
 	{

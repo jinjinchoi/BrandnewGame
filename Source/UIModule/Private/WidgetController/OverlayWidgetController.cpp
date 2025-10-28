@@ -21,8 +21,6 @@ void UOverlayWidgetController::BindCallbacksToDependencies() const
 	{
 		OnOverlappedItemChangedDelegate.Broadcast(bIsBeginOverlap, PickupsUiInfo);
 	});
-
-	
 	
 }
 

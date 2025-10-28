@@ -24,7 +24,6 @@ void UBrandNewProjectileAbility::SpawnProjectile(const FVector& SpawnLocation, c
 
 	ABrandNewProjectileBase* Projectile = CastChecked<ABrandNewProjectileBase>(PooledObject);
 	Projectile->InitProjectile(GetAvatarActorFromActorInfo(), MakeNonTargetEffectParams());
-
 	
 	const bool IsLockedOn = UCharacterFunctionLibrary::DoseActorHasTag(GetOwningActorFromActorInfo(), BrandNewGamePlayTag::Status_Player_LockOn);
 	// 락온 중이면 락온 대상을 타겟 액터로 설정
