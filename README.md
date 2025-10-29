@@ -166,7 +166,7 @@ Active Ability는 태그를 통해 Input Action과 매핑이 되어 있어 Input
 
 > [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
 
-어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.~~~~
+어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
@@ -506,32 +506,118 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 
 ### 04.4.1 Objet Pool Manger  
 오브젝트 풀 매니저 클래스는 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 돕는 클래스입니다. 간단한 로직 설명은 다음과 같습니다. 게임이 시작되면(Begin Play) 액터들을 미리 원하는 만큼 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 풀 매니저 클래스에 접근하여 배열에서 액터들을 불러오는 방식을 사용하였습니다.<br>    
-풀 매니저는 게임모드에서 관리하는데 이는 현재 스폰 기능이 서버에서만 작동하게 되어 있으며 또한 월드를 이동할때 풀을 자동으로 초기화 하고 싶어 게임모드에서 이를 관리하도록 하였습니다.<br>  
-Projectile처럼 Spawn과 Destrory가 매우 빈번하게 일어나는 액터들에 대하여 풀링 시스템을 사용함으로써 GC에 부하를 줄이고 메모리 최적화를 이루었습니다.
+풀 매니저는 게임모드에서 관리하는데 이는 현재 스폰 기능이 서버에서만 작동하며 또한 월드를 이동할때 풀을 자동으로 초기화 하고 싶어 게임모드에서 이를 관리하도록 하였습니다.<br>
 
 > GitHub Link
 > - [Object Pool Manager.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Manager/Pooling/BrandNewObjectPoolManager.h)
 > - [Object Pool Manager.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Manager/Pooling/BrandNewObjectPoolManager.cpp)
 
+### 04.4.2 오브젝트 풀링 최적화
+오프젝트 풀링 최적화를 위하여 레벨마다 풀에 저장할 액터들을 지정하고 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
+```c++
+// 레벨과 해당 레벨에서 풀에 저장할 클래스 정보를 담는 구조체
+USTRUCT(BlueprintType)
+struct FLevelPoolData
+{
+	GENERATED_BODY()
+	
+	/* 레벨 별로 스폰할 액터를 설정하기 위해서 레벨 정도 세팅 */
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UWorld> LevelWorld;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (MustImplement = "PoolableActorInterface"))
+	TArray<TSubclassOf<AActor>> ObjectClasses;
+};
+```
+```c++
+// Pool 생성 작업 시작(Game Mode Class에서 호출)
+void UBrandNewObjectPoolManager::InitPoolManager()
+{
+	// 현재 Level에서 사용할 클래스 Array 획득
+	TargetObjectClasses = GetCurrentLevelSpawnActorClasses();
+	if (TargetObjectClasses.IsEmpty()) return;
+	
+	// 타이머를 이용하여 일정 주기로 생성
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::TimerTick, 0.1f, true);
+	
+}
+
+void UBrandNewObjectPoolManager::TimerTick()
+{
+	if (bInitComplete)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+		TargetObjectClasses.Empty();
+		return;
+	}
+	
+	SpawnStep();
+}
+
+void UBrandNewObjectPoolManager::SpawnStep()
+{
+	if (TargetObjectClasses.IsEmpty()) return;
+
+	// 배열 유효하지 않으면 풀 초기화 완료된 것으로 설정
+	if (!TargetObjectClasses.IsValidIndex(CurrentClassIndex))
+	{
+		bInitComplete = true;
+		return;
+	}
+	
+	// 배열 인덱스를 이용해 액터 정보 가져옴
+	const TSubclassOf<AActor> ObjectClass = TargetObjectClasses[CurrentClassIndex];
+	TArray<AActor*>& Pool = ObjectPools.FindOrAdd(ObjectClass);
+
+	// 현재 프레임에 생성한 액터 수
+	int32 SpawnedThisFrame = 0;
+
+	// 한 프레임에 최대 스폰 횟수만큼 스폰하거나 풀에 할당량만큼 스폰되면 루프 종료
+	while (SpawnedThisFrame < SpawnLimitPerFrame && CurrentSpawnCount < PoolSizePerType)
+	{
+		// ...(실제 스폰 후 Pool에 저장하는 부분 생략)
+		
+		// 현 프레임에 스폰됫 횟수와 전체 스폰 횟수 증가
+		++SpawnedThisFrame;
+		++CurrentSpawnCount;
+		
+	}
+
+	// 루프 종료 후 전체 스폰 횟수가 스폰 해야할 횟수를 넘으면 다음 배열로 이동 
+	if (CurrentSpawnCount >= PoolSizePerType)
+	{
+		CurrentSpawnCount = 0;
+		++CurrentClassIndex;
+	}
+	
+}
+```
+while문을 이용하여 한 프레임마다 최대 스폰 횟수만큼 스폰하거나 또는 총 스폰해야하는 횟수를 초과하면 루프를 종료하고 다음 배열로 이동할 준비를 합니다.<br>  
+배열 인덱스가 더 이상 유효하지 않으면 모든 배열을 순회하여 Pool에 등록한 것으로 판단하고 타이머를 종료시킵니다.
+
+
 ## 04.5 Save System
 세이브 기능을 통해 플레이어의 Attribute와 Inventory, World,  Location을 저장합니다. 
 
 ### 04.5.1 Login
-![로그인화면](GameImg/Login.png)로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.  
-로그인시 Save Subsystem에 입력 값이 저장됩니다.<br>
 
-    ```c++
-    // 캐릭터 클래스의 OnRep_PlayerState 함수에서 서버에 자신의 아이디를 보내는 부분
-    const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-    check(SaveSubsystem);
-    Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
-  
-  // Server_RequestInitCharacterInfo 함수내에서 서버에 플레이어 아이디 저장
-  PlayerUniqueId = PlayerId;
-    ```
-    게임이 시작 되면 클라이언트는 세이버 서브시스템에서 설정했던 아이디를 가져와 서버로 보내고 서버 캐릭터 클래스는 해당 아이디를 저장합니다.<br>  
-    위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅치 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
+![로그인화면 이미지](GameImg/Login.png)
 
+로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.<br>    
+로그인시 Save Subsystem에 입력 값이 저장됩니다.
+
+```c++
+// 캐릭터 클래스의 OnRep_PlayerState 함수에서 서버에 자신의 아이디를 보내는 부분
+const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+check(SaveSubsystem);
+Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
+
+// Server_RequestInitCharacterInfo 함수내에서 서버에 플레이어 아이디 저장
+PlayerUniqueId = PlayerId;
+```
+
+게임이 시작 되면 클라이언트는 세이버 서브시스템에서 설정했던 아이디를 가져와 서버로 보내고 서버 캐릭터 클래스는 해당 아이디를 저장합니다.<br>  
+위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅치 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
 
 ### 04.5.2 Save  
 세이브 요청은 호스트만 할 수 있습니다. 클라이언트에서 요청해서 세이브 하는 것도 가능하지만 실제 온라인 게임의 경우 세이브 타이밍은 서버에서만 판단하고 비록 호스트의 경우 클라이언트로도 볼 수 있지만 서버 권한이 있기 때문에 호스트에게 세이브 권한을 주어도 된다고 판단하였습니다. <br>  
