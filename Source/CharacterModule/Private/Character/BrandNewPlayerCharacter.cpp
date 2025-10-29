@@ -112,7 +112,7 @@ void ABrandNewPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	/**
 	 * 플레이어 접속 종료하면 세이브 매니저 서브클래스에 있는 정보 삭제.
 	 * 클라이언트의 재접속시 맵 이동과 혼돈되는 상황 막기 위해서이며,
-	 * 호스트 접속는 접속 종료하면 자동으로 LatestPlayerData 초기화 되지만 EndPlay 함수에서 IsLocallyControlled 체크 불가능해서 호스트도 호출됨.
+	 * 호스트가 접속 종료하면 자동으로 LatestPlayerData 초기화 되지만 EndPlay 함수에서 IsLocallyControlled 체크 불가능해서 호스트도 호출됨.
 	 * 로직에는 문제없음.
 	 */
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();

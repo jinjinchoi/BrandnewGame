@@ -152,6 +152,7 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	ApplyEnemyAttribute();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->bPauseAnims = false;
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
