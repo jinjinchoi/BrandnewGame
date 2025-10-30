@@ -139,6 +139,6 @@ void UDialogueWidgetController::HandleEndNode() const
 	
 	const UBrandNewGameInstance* BnGameInstance = GetWorld()->GetGameInstance<UBrandNewGameInstance>();
 	USequenceManager* SequenceManager = BnGameInstance->GetSequenceManager();
-	SequenceManager->FinishDialogueSequence();
+	SequenceManager->StopCurrentSequence();
 	
 }

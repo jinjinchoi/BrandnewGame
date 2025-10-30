@@ -78,7 +78,7 @@ private:
 ////////////////////////////////////
 ///////////  UI  //////////////////
 ///////////////////////////////////
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|UI")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|UI")
 	TSubclassOf<UUserWidget> InGameMenuWidgetClass;
 
 	UPROPERTY()

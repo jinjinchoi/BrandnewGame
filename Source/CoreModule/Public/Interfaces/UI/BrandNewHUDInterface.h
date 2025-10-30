@@ -25,7 +25,9 @@ public:
 	virtual void RequestInitHUD() = 0;
 	virtual void CreateDialogueWidget(const FName& FirstDialogueId) = 0;
 	virtual void HideMainOverlay() = 0;
-
+	virtual void CreateSequenceOverlayWidget() = 0;
+	virtual void RemoveSequenceOverlayWidget() = 0;
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Brandnew|Interface Function")
 	void ShowMainOverlay();
 	

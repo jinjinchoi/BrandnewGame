@@ -7,15 +7,17 @@
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
 #include "Engine/AssetManager.h"
+#include "Interfaces/UI/BrandNewHUDInterface.h"
+#include "GameFramework/HUD.h"
 
-void USequenceManager::PlayFirstEntranceSequence() const
+void USequenceManager::PlayFirstEntranceSequence()
 {
 	if (GIsPlayInEditorWorld && !bShouldPlayEntranceSequenceInEditor)
 	{
 		return;
 	}
 	
-	if (!GetWorld() ||FirstEntranceSequence.IsNull()) return;
+	if (!GetWorld() || FirstEntranceSequence.IsNull()) return;
 
 	TWeakObjectPtr WeakThis = this;
 
@@ -26,12 +28,12 @@ void USequenceManager::PlayFirstEntranceSequence() const
 
 		ULevelSequence* LoadedSequence = WeakThis->FirstEntranceSequence.Get();
 		if (!LoadedSequence) return;
-
-		APlayerController* PC = WeakThis->GetWorld()->GetFirstPlayerController();
-		if (!PC) return;
-		PC->SetCinematicMode(true, true, true, true, true);
-
+		
 		FMovieSceneSequencePlaybackSettings Settings;
+		Settings.bDisableLookAtInput = true;
+		Settings.bDisableMovementInput = true;
+		Settings.bHidePlayer = true;
+		
 		ALevelSequenceActor* OutActor = nullptr;
 
 		ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(
@@ -39,9 +41,16 @@ void USequenceManager::PlayFirstEntranceSequence() const
 
 		if (Player)
 		{
+			const APlayerController* PC = WeakThis->GetWorld()->GetFirstPlayerController();
+			
+			IBrandNewHUDInterface* HUDInterface = Cast<IBrandNewHUDInterface>(PC->GetHUD());
+			if (!HUDInterface) return;
+			HUDInterface->CreateSequenceOverlayWidget();
+			
 			Player->Play();
 			WeakThis->OnSequencePlayStateChangedDelegate.Broadcast(true);
 			Player->OnFinished.AddUniqueDynamic(WeakThis.Get(), &ThisClass::OnCinematicFinishedPlaying);
+			WeakThis->LastSequencePlayer = Player;
 		}
 		
 	});
@@ -53,7 +62,11 @@ void USequenceManager::OnCinematicFinishedPlaying()
 	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
-	PC->SetCinematicMode(false, true, true, true, true);
+	
+	IBrandNewHUDInterface* HUDInterface = Cast<IBrandNewHUDInterface>(PC->GetHUD());
+	if (!HUDInterface) return;
+	
+	HUDInterface->RemoveSequenceOverlayWidget();
 	
 	if (APawn* Pawn = PC->GetPawn())
 	{
@@ -101,7 +114,7 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 	
 }
 
-void USequenceManager::FinishDialogueSequence()
+void USequenceManager::StopCurrentSequence()
 {
 	if (LastSequencePlayer)
 	{

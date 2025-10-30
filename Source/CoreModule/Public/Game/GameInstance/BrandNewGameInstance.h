@@ -61,6 +61,7 @@ public:
 	FORCEINLINE UDataTable* GetSequenceDialogueDataTable() const { return SequenceDialogueDataTable; }
 	FORCEINLINE UDataTable* GetChoiceDialogueDataTable() const { return ChoiceDialogueDataTable; }
 	FORCEINLINE UDataTable* GetConditionDialogueDataTable() const { return ConditionDialogueDataTable; }
+	UFUNCTION(BlueprintPure, Category = "Brandnew|Manager")
 	FORCEINLINE USequenceManager* GetSequenceManager() const { return SequenceManager; }
 	
 };

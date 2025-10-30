@@ -64,6 +64,34 @@ void ABrandNewHUD::HideMainOverlay()
 	OverlayWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void ABrandNewHUD::CreateSequenceOverlayWidget()
+{
+	check(SequenceOverlayWidgetClass)
+	if (!SequenceOverlayWidgetClass) return;
+	
+	if (!SequenceOverlayWidget)
+	{
+		SequenceOverlayWidget = CreateWidget(GetWorld(), SequenceOverlayWidgetClass);
+	}
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetWidgetToFocus(SequenceOverlayWidget->TakeWidget());
+	GetOwningPlayerController()->SetInputMode(InputModeData);
+	
+	SequenceOverlayWidget->AddToViewport(10);
+}
+
+void ABrandNewHUD::RemoveSequenceOverlayWidget()
+{
+	if (SequenceOverlayWidget)
+	{
+		const FInputModeGameOnly InputModeData;
+		
+		GetOwningPlayerController()->SetInputMode(InputModeData);
+		
+		SequenceOverlayWidget->RemoveFromParent();
+	}
+}
+
 void ABrandNewHUD::ShowMainOverlay_Implementation()
 {
 	if (!OverlayWidget) return;

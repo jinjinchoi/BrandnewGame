@@ -19,10 +19,12 @@ class COREMODULE_API USequenceManager : public UObject
 	GENERATED_BODY()
 
 public:
-	void PlayFirstEntranceSequence() const;
+	void PlayFirstEntranceSequence();
 	void PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence> SequenceToPlay);
-	void FinishDialogueSequence();
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Sequence Function")
+	void StopCurrentSequence();
+	
 	FOnSequencePlayStateChanged OnSequencePlayStateChangedDelegate;
 
 protected:
@@ -38,5 +40,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<ULevelSequencePlayer> LastSequencePlayer;
+
+
 	
 };

@@ -28,6 +28,8 @@ public:
 	virtual void RequestInitHUD() override;
 	virtual void CreateDialogueWidget(const FName& FirstDialogueId) override;
 	virtual void HideMainOverlay() override;
+	virtual void CreateSequenceOverlayWidget() override;
+	virtual void RemoveSequenceOverlayWidget() override;
 	virtual void ShowMainOverlay_Implementation() override;
 	/* end IBrandNewHUDInterface */
 
@@ -37,28 +39,30 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	void OnCinematicPlaying(const bool bIsPlaying);
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget")
 	TSubclassOf<UBrandNewWidget> OverlayWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget")
 	TSubclassOf<UBrandNewWidget> DialogueWidgetClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UCharacterInfoWidgetController> CharacterInfoWidgetControllerClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UInventoryWidgetController> InventoryWidgetControllerClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UGameOverWidgetController> GameOverWidgetControllerClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|Widget Controller")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UDialogueWidgetController> DialogueWidgetControllerClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Widget")
+	TSubclassOf<UUserWidget> SequenceOverlayWidgetClass;
 
 private:
 	UPROPERTY()
@@ -81,5 +85,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UDialogueWidgetController> DialogueWidgetController;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> SequenceOverlayWidget;
 	
 };
