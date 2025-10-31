@@ -1,17 +1,15 @@
 ﻿## 01. 목차
 - [01. 목차](#01-목차)
 - [02. 개요](#02-개요)
-- [03. 플레이어 어빌리티](#03-플레이어-어빌리티)
-- [04. 에너미 어빌리티](#04-에너미-어빌리티)
+- [03. 어빌리티 소개](#03-어빌리티-소개)
 ---
 
 ## 02. 개요
-본 프로젝트에서 플레이어와 에너미가 사용하는 어빌리티를 정리한 문서입니다.<br> 
-플레이어의 어빌리티와 에너미의 어빌리티가 나누어져 있기는 하지만 대부분의 어빌리티는 플레이어와 에너미 모두 공용으로 사용할 수 있게 제작하였습니다.
+본 프로젝트에서 사용하는 어빌리티를 정리한 문서입니다.<br>
 
 ---
 
-## 03. 플레이어 어빌리티
+## 03. 어빌리티 소개
 - [03-1  Equip](#03-1-equip-ability)
 - [03-2  Lock On](#03-2-lockon-ability)
 - [03-2  Lock On](#03-2-lockon-ability)
@@ -144,7 +142,7 @@ Client_SetClosestActor(ClosestActorToMouse);
 ```
 락온 대상은 Trace Start와 End로 그어진 라인에서 액터들까지의 거리를 비교하여 가장 가까운 액터로 설정합니다.
 
-락온 대상은 서버에서만 설정합니다. 클라이언트에서도 설정하게 하면 네트워크 딜레이가 발생했을 때 액터의 위치가 미묘하게 다를 수 있고 그러면 서버와 클라이언트가 락온 하는 대상이 달라지는 위험한 상황이 발생할 수 있기 때문에 서버에서만 설정하도록 하였습니다.<br>  
+락온 대상은 서버에서만 설정합니다. 클라이언트에서도 설정하게 하면 네트워크 딜레이가 발생했을 때 액터의 위치가 미묘하게 달라져 서버와 클라이언트가 락온 하는 대상이 달라지는 것을 방지하기 위해서입니다.<br>  
 
 이때 Gameplay Ability에서는 Replication을 지원하지 않기 때문에 RPC를 사용하여 클라이언트에 타겟 액터를 설정해주었습니다.
 
@@ -210,95 +208,3 @@ void UBrandNewProjectileAbility::SpawnProjectile(const FVector& SpawnLocation, c
 	
 }
 ```
-
-## 04. 에너미 어빌리티
-에너미는 Behavior Tree에서 Task를 통해 어빌리티에 설정된 태그로 발동합니다.
-
-### 04.1 Ability Active Task
-단순히 게임 플레이 태그로 에너미의 어빌리티를 발동 시키는 것은 쉽지만 어빌리티가 종료하는 타이밍을 알아내기는 힘들었고 그래서 C++에서 커스텀 BTTaskNode를 만들었습니다.
-
-```c++
-// Task에 Ablity 정보들을 저장하는 메모리 구조체
-struct FActiveAbilityByTagTaskMemory
-{
-	TWeakObjectPtr<APawn> OwningPawn = nullptr;
-	TWeakObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent = nullptr;
-	FDelegateHandle OnAbilityEndedDelegateHandle;
-	FGameplayAbilitySpecHandle ActivatedAbilitySpecHandle;
-
-	bool IsValid() const
-	{
-		return OwningPawn.IsValid() && AbilitySystemComponent.IsValid();
-	}
-
-	void Reset()
-	{
-		OwningPawn.Reset();
-		AbilitySystemComponent.Reset();
-		OnAbilityEndedDelegateHandle.Reset();
-		ActivatedAbilitySpecHandle = FGameplayAbilitySpecHandle();
-	}
-	
-};
-```
-
-Gameplay Ability의 경우 사용이 다 끝날때만 종료되는 것이 아니라 Cancel이 되는 경우도 있고 그러한 경우에도 모두 어떤 어빌리티를 사용중인지 알아야하기 때문에 Taks Memory에 사용한 Ability의 정보를 저장하였습니다.
-
-```c++
-// ExecuteTask함수 내에서 사용한 Ability를 저장하는 로직 중 일부입니다.
-
-// 어빌리티 활성화 후 성공시 Ability 정보 저장
-if (OwningASC->TryActivateAbility(SpecHandle))
-{
-    TWeakObjectPtr WeakThis(this);
-    TWeakObjectPtr WeakComp(&OwnerComp);
-    
-    Memory->ActivatedAbilitySpecHandle = SpecHandle;
-    // Ability 종료 바인딩 후 Handle 저장
-    Memory->OnAbilityEndedDelegateHandle = OwningASC->OnAbilityEnded.AddLambda(
-        [WeakThis, WeakComp, NodeMemory](const FAbilityEndedData& Data)
-        {
-            if (!WeakThis.IsValid() || !WeakComp.IsValid() || !NodeMemory)
-            {
-                return;
-            }
-            
-            // Ability 종료 되면 유효성 확인.
-            FActiveAbilityByTagTaskMemory* LambdaMemory = WeakThis->CastInstanceNodeMemory<FActiveAbilityByTagTaskMemory>(NodeMemory);
-            if (LambdaMemory && LambdaMemory->IsValid())
-            {
-                // 해당 Task에 저장된 Ability가 종료된 게 맞는지 한번 더 확인
-                if (Data.AbilitySpecHandle == LambdaMemory->ActivatedAbilitySpecHandle)
-                {
-                    // Task 종료
-                    WeakThis->FinishLatentTask(*WeakComp, Data.bWasCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded);
-                }
-                
-            }
-        });
-    
-    // Ability 종료 전까지 Progress 상태로 둠
-    return EBTNodeResult::InProgress;
-	}
-```
-태스크가 실행되면 Ability Ended Delegate에 바인딩하여 Ability End가 호출되면 Task가 종료되도록 설정합니다.
-
-```c++
-// Task 진행 방해 받을 시 Memory 초기화 작업
-EBTNodeResult::Type UBTTask_ActiveAbilityByTag::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
-	if (FActiveAbilityByTagTaskMemory* Memory = CastInstanceNodeMemory<FActiveAbilityByTagTaskMemory>(NodeMemory))
-	{
-		Memory->AbilitySystemComponent->CancelAbilityHandle(Memory->ActivatedAbilitySpecHandle);
-		Memory->AbilitySystemComponent->OnAbilityEnded.Remove(Memory->OnAbilityEndedDelegateHandle);
-		Memory->Reset();
-	}
-	
-	return Super::AbortTask(OwnerComp, NodeMemory);
-}
-```
-어빌리티의 종료 타이밍을 딜레이 노드를 이용하는 것이 아니라 직접 브로드캐스트를 수신할 수 있기 때문에 후딜레이와 같은 어빌리티 사용 직후 로직을 구현하기 한층 더 쉬워졌습니다.
-
-> GitHub Lick
-> - [BTTask_ActiveAbilityByTag.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/AI/BTTask_ActiveAbilityByTag.h)
-> - [BTTask_ActiveAbilityByTag.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/AI/BTTask_ActiveAbilityByTag.cpp)

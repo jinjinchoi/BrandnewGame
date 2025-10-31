@@ -166,7 +166,102 @@ Active Ability는 태그를 통해 Input Action과 매핑이 되어 있어 Input
 
 > [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
 
-어빌리티와 관련된 부분은 별도의 문서로 분리하였습니다.
+어빌리티는 별도의 소개문서에서 다루었습니다.
+
+### 04.1.4 Enemy Ability Active Task
+![Enemy Ability 실행 Behavior 이미지](GameImg/EnemyAbilityActive.png)
+
+에너미는 Behavior Tree에서 Task를 통해 어빌리티를 발동합니다.<br>  
+단순히 Gamepaly Tag를 통해 에너미의 어빌리티를 발동 시키는 것은 쉽지만 어빌리티가 종료하는 타이밍을 알아내기는 힘들었고 그래서 커스텀 BTTaskNode를 만들어 어빌리티 종료 시점을 알아내 태스크를 종료하도록 하여습니다. 
+
+```c++
+// Task에 Ablity 정보들을 저장하는 메모리 구조체
+struct FActiveAbilityByTagTaskMemory
+{
+	TWeakObjectPtr<APawn> OwningPawn = nullptr;
+	TWeakObjectPtr<UBrandNewAbilitySystemComponent> AbilitySystemComponent = nullptr;
+	FDelegateHandle OnAbilityEndedDelegateHandle;
+	FGameplayAbilitySpecHandle ActivatedAbilitySpecHandle;
+
+	bool IsValid() const
+	{
+		return OwningPawn.IsValid() && AbilitySystemComponent.IsValid();
+	}
+
+	void Reset()
+	{
+		OwningPawn.Reset();
+		AbilitySystemComponent.Reset();
+		OnAbilityEndedDelegateHandle.Reset();
+		ActivatedAbilitySpecHandle = FGameplayAbilitySpecHandle();
+	}
+	
+};
+```
+
+Gameplay Ability의 경우 사용이 다 끝날때만 종료되는 것이 아니라 Cancel이 되는 경우도 있고 그러한 경우에도 모두 어떤 어빌리티를 사용중인지 알아야하기 때문에 Taks Memory에 Ability의 정보를 저장하였습니다.
+
+```c++
+// ExecuteTask함수 내에서 사용한 Ability를 저장하는 로직 중 일부입니다.
+
+// 어빌리티 활성화 후 성공시 Ability 정보 저장
+if (OwningASC->TryActivateAbility(SpecHandle))
+{
+    TWeakObjectPtr WeakThis(this);
+    TWeakObjectPtr WeakComp(&OwnerComp);
+    
+    // 메모리에 활성화된 Ability 정보를 담는 Handle 저장
+    Memory->ActivatedAbilitySpecHandle = SpecHandle;
+    // 메모리에 Ability 종료시 BroadCast되는 Delegate Handle 저장
+    Memory->OnAbilityEndedDelegateHandle = OwningASC->OnAbilityEnded.AddLambda(
+        [WeakThis, WeakComp, NodeMemory](const FAbilityEndedData& Data)
+        {
+            // 어빌리티 종료시 활성화될 로직 람다 바인딩 
+            
+            if (!WeakThis.IsValid() || !WeakComp.IsValid() || !NodeMemory)
+            {
+                return;
+            }
+            
+            // Ability 종료 되면 유효성 확인.
+            FActiveAbilityByTagTaskMemory* LambdaMemory = WeakThis->CastInstanceNodeMemory<FActiveAbilityByTagTaskMemory>(NodeMemory);
+            if (LambdaMemory && LambdaMemory->IsValid())
+            {
+                // 해당 Task에 저장된 Ability가 종료된 게 맞는지 한번 더 확인
+                if (Data.AbilitySpecHandle == LambdaMemory->ActivatedAbilitySpecHandle)
+                {
+                    // Task 종료
+                    WeakThis->FinishLatentTask(*WeakComp, Data.bWasCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded);
+                }
+                
+            }
+        });
+    
+    // Ability 종료 전까지 Progress 상태로 둠
+    return EBTNodeResult::InProgress;
+}
+```
+Gameplay Tag를 통해 실행시킬 Ability Spec Handle을 찾아와 Ability를 실행 후 Ended Delegate에 바인딩하여 Ability가 종료되면 Task도 종료되도록 설정하였습니다.
+
+```c++
+// Task 진행 방해 받을 시 Memory 초기화 작업
+EBTNodeResult::Type UBTTask_ActiveAbilityByTag::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	if (FActiveAbilityByTagTaskMemory* Memory = CastInstanceNodeMemory<FActiveAbilityByTagTaskMemory>(NodeMemory))
+	{
+		Memory->AbilitySystemComponent->CancelAbilityHandle(Memory->ActivatedAbilitySpecHandle);
+		Memory->AbilitySystemComponent->OnAbilityEnded.Remove(Memory->OnAbilityEndedDelegateHandle);
+		Memory->Reset();
+	}
+	
+	return Super::AbortTask(OwnerComp, NodeMemory);
+}
+```
+어빌리티의 종료 타이밍을 딜레이 노드를 이용하는 것이 아니라 직접 브로드캐스트를 수신할 수 있기 때문에 후딜레이와 같은 어빌리티 사용 직후 로직을 구현하기 한층 더 쉬워졌습니다.
+
+> GitHub Lick
+> - [BTTask_ActiveAbilityByTag.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/AI/BTTask_ActiveAbilityByTag.h)
+> - [BTTask_ActiveAbilityByTag.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/AI/BTTask_ActiveAbilityByTag.cpp)
 
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
@@ -505,7 +600,7 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 오브젝트 풀링 시스템을 구현하여 자주 사용하는 액터는 Pool에서 관리하도록 하였습니다.
 
 ### 04.4.1 Objet Pool Manger  
-오브젝트 풀 매니저 클래스는 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 돕는 클래스입니다. 간단한 로직 설명은 다음과 같습니다. 게임이 시작되면(Begin Play) 액터들을 미리 원하는 만큼 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 풀 매니저 클래스에 접근하여 배열에서 액터들을 불러오는 방식을 사용하였습니다.<br>    
+오브젝트 풀 매니저는 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 돕는 클래스입니다. 간단한 로직은 다음과 같습니다. 게임이 시작되면 액터들을 미리 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 배열에서 액터들을 꺼내오는 방식으로 작동합니다.<br>    
 풀 매니저는 게임모드에서 관리하는데 이는 현재 스폰 기능이 서버에서만 작동하며 또한 월드를 이동할때 풀을 자동으로 초기화 하고 싶어 게임모드에서 이를 관리하도록 하였습니다.<br>
 
 > GitHub Link
@@ -513,7 +608,7 @@ Entrance Actor는 현재 오버랩 된 플레이어 수를 보여주는 위젯�
 > - [Object Pool Manager.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Manager/Pooling/BrandNewObjectPoolManager.cpp)
 
 ### 04.4.2 오브젝트 풀링 최적화
-오프젝트 풀링 최적화를 위하여 레벨마다 풀에 저장할 액터들을 지정하고 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
+오프젝트 풀링 최적화를 위하여 레벨마다 풀에 저장할 액터들을 지정하였고, 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
 ```c++
 // 레벨과 해당 레벨에서 풀에 저장할 클래스 정보를 담는 구조체
 USTRUCT(BlueprintType)
