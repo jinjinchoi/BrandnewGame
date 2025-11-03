@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/Combat/BrandNewProjectileAbility.h"
 
 #include "CharacterFunctionLibrary.h"
+#include "DebugHelper.h"
 #include "Actor/Projectile/BrandNewProjectileBase.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
@@ -17,10 +18,18 @@ void UBrandNewProjectileAbility::SpawnProjectile(const FVector& SpawnLocation, c
     if (!HasAuthority(&CurrentActivationInfo)) return;
 
 	UBrandNewObjectPoolManager* ObjectPoolManager = UBrandNewFunctionLibrary::GetObjectPoolManager(GetAvatarActorFromActorInfo());
-	if (!ObjectPoolManager) return;
+	if (!ObjectPoolManager)
+	{
+		DebugHelper::Print(TEXT("Failed to Get pool manager!"), FColor::Red);
+		return;
+	}
 
 	AActor* PooledObject  = ObjectPoolManager->GetPooledObject(ProjectileClass);
-	if (!PooledObject) return;
+	if (!PooledObject)
+	{
+		DebugHelper::Print(TEXT("Failed to spawn projectile!"), FColor::Red);
+		return;
+	}
 
 	ABrandNewProjectileBase* Projectile = CastChecked<ABrandNewProjectileBase>(PooledObject);
 	Projectile->InitProjectile(GetAvatarActorFromActorInfo(), MakeNonTargetEffectParams());

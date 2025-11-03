@@ -2,6 +2,8 @@
 
 
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
+
+#include "DebugHelper.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/Actor/PoolableActorInterface.h"
@@ -10,9 +12,14 @@ void UBrandNewObjectPoolManager::InitPoolManager()
 {
 	
 	TargetObjectClasses = GetCurrentLevelSpawnActorClasses();
-	if (TargetObjectClasses.IsEmpty()) return;
+	if (TargetObjectClasses.IsEmpty())
+	{
+		const FString Msg = FString::Printf(TEXT("TargetObjectClasses Is Empty! %hs"), __FUNCTION__); 
+		DebugHelper::Print(Msg, FColor::Red);
+		return;
+	}
 	
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::TimerTick, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::TimerTick, 0.1f, true, 0.1f);
 	
 }
 
@@ -107,15 +114,14 @@ bool UBrandNewObjectPoolManager::IsSameLevel(const TSoftObjectPtr<UWorld> Target
 	if (!World) return false;
 
 	FString CurrentMapName = World->GetOutermost()->GetName();
-	FString TargetMapName = TargetWorld.ToSoftObjectPath().GetAssetName(); 
+	FString TargetMapName = TargetWorld.ToSoftObjectPath().GetLongPackageName(); 
 	
 #if WITH_EDITOR
 	// PIE 접두사 제거
 	CurrentMapName = UWorld::RemovePIEPrefix(CurrentMapName);
-	TargetMapName = UWorld::RemovePIEPrefix(CurrentMapName);
+	TargetMapName = UWorld::RemovePIEPrefix(TargetMapName);
 #endif
-
-
+	
 	return CurrentMapName == TargetMapName;
 }
 
@@ -124,7 +130,7 @@ bool UBrandNewObjectPoolManager::IsSameLevel(const TSoftObjectPtr<UWorld> Target
 AActor* UBrandNewObjectPoolManager::GetPooledObject(const TSubclassOf<AActor>& ActorClass)
 {
 	if (ActorClass == nullptr) return nullptr;
-
+	
 	// Pool에서 Actor 배열을 가져옴
 	TArray<AActor*>* PoolActors = ObjectPools.Find(ActorClass);
 	if (PoolActors == nullptr) return nullptr;

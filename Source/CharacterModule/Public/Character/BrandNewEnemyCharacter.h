@@ -60,7 +60,7 @@ protected:
 	FScalableFloat XPReward;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
-	float DeathWaiteDuration = 10.f;
+	float DeathWaiteDuration = 6.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	float InitialMaxWalkSpeed = 400.f;
