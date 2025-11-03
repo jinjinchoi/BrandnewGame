@@ -76,7 +76,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Combat")
 	TSubclassOf<ABrandNewWeapon> CombatWeaponClass;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Brandnew|Combat")
 	TObjectPtr<ABrandNewWeapon> CombatWeapon;
 
 	/* 무기를 부착할 소켓 이름 */

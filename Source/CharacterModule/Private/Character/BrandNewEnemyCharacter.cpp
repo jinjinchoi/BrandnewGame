@@ -4,6 +4,7 @@
 #include "Character/BrandNewEnemyCharacter.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "BrainComponent.h"
 #include "AbilitySystem/BrandNewAbilitySystemComponent.h"
 #include "AbilitySystem/BrandNewAttributeSet.h"
 #include "AI/BrandNewAIController.h"
@@ -85,11 +86,13 @@ void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 {
 	Super::OnCharacterDied_Implementation();
 
-	if (!HasAuthority()) return; 
+	if (!HasAuthority()) return;
+
+	Multicast_ActivateDisappearEffect();
 	
-	if (AController* AIController = GetController())
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
-		AIController->UnPossess();
+		AIController->GetBrainComponent()->StopLogic("Pooled");
 	}
 
 	// 아이템 드랍
@@ -146,6 +149,8 @@ void ABrandNewEnemyCharacter::Multicast_EnableCapsuleCollision_Implementation()
 
 void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation)
 {
+	if (!HasAuthority()) return;
+	
 	SetActorLocation(NewLocation);
 	SetActorRotation(NewRotation);
 	
@@ -156,11 +161,8 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-
-	if (HasAuthority())
-	{
-		Multicast_EnableCapsuleCollision();
-	}
+	
+	Multicast_EnableCapsuleCollision();
 	
 	GetCharacterMovement()->GravityScale = 1.f;
 	
@@ -179,9 +181,32 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 		GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
 		AbilitySystemComponent->CancelAbilities(&GameplayTags);
 	}
+
+	Multicast_ActivateAppearEffect();
+
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		AIController->GetBrainComponent()->RestartLogic();
+	}
+	else
+	{
+		SpawnDefaultController();
+	}
+	
 	bIsActivated = true;
 	
 }
+
+void ABrandNewEnemyCharacter::Multicast_ActivateAppearEffect_Implementation()
+{
+	StartAppearEffect(); // bIsActivated 이거 복제 설정해서 확인해봐야함.
+}
+
+void ABrandNewEnemyCharacter::Multicast_ActivateDisappearEffect_Implementation()
+{
+	StartDissolveEffect();
+}
+
 
 void ABrandNewEnemyCharacter::BindAttributeChanged()
 {
@@ -236,7 +261,6 @@ void ABrandNewEnemyCharacter::OnSuperArmorTagChanged(const FGameplayTag Callback
 	GameplayTagChangedDelegate.Broadcast(CallbackTag, NewCount > 0);
 	
 }
-
 
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const

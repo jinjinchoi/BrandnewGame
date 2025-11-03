@@ -129,7 +129,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 
 	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
-	AddCharacterAbilities(); // TODO: 어빌리티 레벨 로드 구현 예정
+	AddCharacterAbilities(); // TODO: 어빌리티 레벨 구현시 로드해야함
 	BindAttributeDelegates();
 	if (IsLocallyControlled())
 	{
@@ -813,7 +813,7 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 	SaveSlotPrams.CharacterLocation = GetActorLocation();
 	SaveSlotPrams.SavedTime = GetCurrentTimeText();
 	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
-	SaveSlotPrams.TitleText =  FText::FromString(TEXT("퀘스트 구현시 만들어줘야 함"));
+	SaveSlotPrams.TitleText =  FText::FromString(TEXT("Unreal RPG Project")); // TODO: 퀘스트 시스템 구현시 변경해야함.
 
 	// 맵 에셋 네임 저장
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());

@@ -43,6 +43,7 @@ public:
 
 	void ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation = FRotator::ZeroRotator);
 
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -52,27 +53,32 @@ protected:
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
 
 	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 필요함 */
-	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FName EnemyName = NAME_None;
 	
-	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FScalableFloat XPReward;
 	
-	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	float DeathWaiteDuration = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Brandnew|EnemyData")
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	float InitialMaxWalkSpeed = 400.f;
 
-	UPROPERTY(EditAnywhere, Category = "Brandnew|DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|DataTable")
 	TObjectPtr<UDataTable> SecondaryAttributeDataTable;
 
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Gameplay Effect")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Gameplay Effect")
 	TSubclassOf<UGameplayEffect> SecondaryAttributeEffect;
 
-	UPROPERTY(EditAnywhere, Category = "Brandnew|Data Asset")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TSoftObjectPtr<UDataAsset_EnemyAbilities> EnemyAbilitiesDataAsset;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartDissolveEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartAppearEffect();
 
 private:
 	FSecondaryAttributeDataRow* FindEnemyDataRow() const;
@@ -97,6 +103,12 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_EnableCapsuleCollision();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_ActivateDisappearEffect();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_ActivateAppearEffect();
 
 public:
 	FORCEINLINE void SetLevel(const int32 NewLevel) { EnemyLevel = NewLevel; };

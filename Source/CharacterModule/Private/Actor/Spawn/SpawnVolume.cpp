@@ -93,7 +93,7 @@ bool ASpawnVolume::TryGetRandomLocation(FVector& OutLocation, const float Radius
 		FNavLocation NavLocation;
 		if (NavSys->GetRandomPointInNavigableRadius(GetActorLocation(), Radius, NavLocation))
 		{
-			OutLocation = NavLocation.Location;
+			OutLocation = NavLocation.Location + FVector(0.f, 0.f, 50.f);
 			return true;
 		}
 	}
@@ -134,7 +134,6 @@ void ASpawnVolume::SpawnEnemy(const FEnemySpawnPrams& SpawnParams, const FVector
 	if (!PooledActor) return;
 
 	ABrandNewEnemyCharacter* Enemy = CastChecked<ABrandNewEnemyCharacter>(PooledActor);
-	Enemy->SpawnDefaultController();
 	Enemy->SetLevel(SpawnParams.EnemyLevel);
 	Enemy->ActivateEnemy(SpawnLocation, GetActorRotation());
 }
