@@ -37,11 +37,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAISenseConfig_Damage> AISenseConfig_Damage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "BrandNew|AI Perception")
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|AI Perception")
 	float LostTargetDelay = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|AI Perception", meta = (ClampMin = 0.f, ClampMax = 1.f))
+	float TargetChangeChance = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|AI Perception")
+	float TargetChangeCooldown = 10.0f;
 
 private:
 	void HandleLostTarget(AActor* LostActor);
 	FTimerHandle LostTargetTimer;
 	FDelegateHandle CharacterDiedDelegateHandle;
+
+	void SetNewTarget(AActor* NewTarget);
+
+	FTimerHandle TargetChangeCooldownTimer;
+	bool bCanChangeTarget = true;
+	
 };

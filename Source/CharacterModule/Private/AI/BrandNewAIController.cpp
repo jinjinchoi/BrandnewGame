@@ -64,19 +64,28 @@ void ABrandNewAIController::OnEnemyPerceptionUpdated(AActor* DetectedActor, FAIS
 	{
 		GetWorld()->GetTimerManager().ClearTimer(LostTargetTimer);
 
-		// 에너미에 타겟이 설정되어있지 않을때만 타겟 설정
+		// 에너미에 타겟이 설정되어있지 않을때는 100% 설정
 		if (!BlackboardComponent->GetValueAsObject(FName("TargetActor")))
 		{
-			if (!CharacterInterface->GetOnCharacterDiedDelegate().IsBoundToObject(this))
+			SetNewTarget(DetectedActor);
+		}
+		else
+		{
+			if (FMath::FRand() <= TargetChangeChance && bCanChangeTarget)
 			{
-				CharacterDiedDelegateHandle = CharacterInterface->GetOnCharacterDiedDelegate().AddWeakLambda(this, [this, BlackboardComponent]()
+				SetNewTarget(DetectedActor);
+
+				bCanChangeTarget = false;
+				
+				TWeakObjectPtr WeakThis(this);
+				GetWorld()->GetTimerManager().SetTimer( TargetChangeCooldownTimer,[WeakThis]()
 				{
-					if (!IsValid(BlackboardComponent)) return;
-					BlackboardComponent->ClearValue("TargetActor");
-				});
+					if (!WeakThis.IsValid()) return;
+					WeakThis->bCanChangeTarget = true;
+					
+				}, TargetChangeCooldown, false);
+				
 			}
-			
-			BlackboardComponent->SetValueAsObject(FName("TargetActor"), DetectedActor);
 		}
 	}
 	else
@@ -88,6 +97,32 @@ void ABrandNewAIController::OnEnemyPerceptionUpdated(AActor* DetectedActor, FAIS
 		
 	}
 }
+
+void ABrandNewAIController::SetNewTarget(AActor* NewTarget)
+{
+	if (!NewTarget) return;
+
+	IBrandNewCharacterInterface* CharacterInterface = Cast<IBrandNewCharacterInterface>(NewTarget);
+	if (!CharacterInterface) return;
+
+	// 이전 델리게이트 제거
+	if (CharacterDiedDelegateHandle.IsValid())
+	{
+		CharacterInterface->GetOnCharacterDiedDelegate().Remove(CharacterDiedDelegateHandle);
+		CharacterDiedDelegateHandle.Reset();
+	}
+
+	// 새 델리게이트 등록
+	CharacterDiedDelegateHandle = CharacterInterface->GetOnCharacterDiedDelegate().AddWeakLambda(this, [this]()
+	{
+		if (!IsValid(GetBlackboardComponent())) return;
+		GetBlackboardComponent()->ClearValue("TargetActor");
+	});
+
+	// 블랙보드 갱신
+	GetBlackboardComponent()->SetValueAsObject(FName("TargetActor"), NewTarget);
+}
+
 
 void ABrandNewAIController::HandleLostTarget(AActor* LostActor)
 {
@@ -113,4 +148,5 @@ void ABrandNewAIController::HandleLostTarget(AActor* LostActor)
 		BlackboardComponent->ClearValue("TargetActor");
 	}
 }
+
 
