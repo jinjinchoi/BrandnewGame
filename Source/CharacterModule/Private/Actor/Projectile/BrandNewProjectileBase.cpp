@@ -104,24 +104,25 @@ void ABrandNewProjectileBase::LaunchProjectile(const FVector& SpawnLocation, con
 	}
 	const FVector Direction = (FlatTargetLocation - SpawnLocation).GetSafeNormal();
 
+	SetActorLocation(SpawnLocation);
+	SetActorRotation(Direction.Rotation());
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+
 	if (NiagaraComponent)
 	{
 		NiagaraComponent->Activate(true);
 	}
-
 	if (LoopingSoundComponent)
 	{
 		LoopingSoundComponent->Play();
 	}
 	
-	SetActorLocation(SpawnLocation);
-	SetActorRotation(Direction.Rotation());
-	SetActorHiddenInGame(false);
 	IsActivated = true;
-	SetActorEnableCollision(true);
 	
 	ProjectileMovementComponent->Velocity = InitSpeed * Direction;
 	ProjectileMovementComponent->UpdateComponentVelocity();
+	
 }
 
 bool ABrandNewProjectileBase::IsAllocatedToWorld()

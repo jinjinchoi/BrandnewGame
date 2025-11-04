@@ -12,10 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "BrandNewTypes/BrandNewMacro.h"
 #include "Character/BrandNewPlayerCharacter.h"
-#include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Animation/BrandNewPlayerAnimInterface.h"
-#include "Interfaces/Player/BnPlayerStateInterface.h"
-#include "GameFramework/PlayerState.h"
 #include "Interfaces/UI/EntryStatusWidgetInterface.h"
 
 ABrandNewPlayerController::ABrandNewPlayerController()
@@ -53,11 +50,6 @@ void ABrandNewPlayerController::OnPossess(APawn* InPawn)
 	// Server
 	PlayerInterface = InPawn;
 	check(PlayerInterface);
-
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
-	
-	SetPlayerIdToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
 }
 
@@ -69,26 +61,10 @@ void ABrandNewPlayerController::OnRep_Pawn()
 
 	// Client
 	PlayerInterface = GetPawn();
-
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
-
-	Server_SetPlayerIdToPlayerState(SaveSubsystem->GetUniqueIdentifier());
 	
 }
 
-void ABrandNewPlayerController::Server_SetPlayerIdToPlayerState_Implementation(const FString& ClientName)
-{
-	SetPlayerIdToPlayerState(ClientName);
-}
 
-void ABrandNewPlayerController::SetPlayerIdToPlayerState(const FString& PlayerName) const
-{
-	IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(PlayerState);
-	if (!PlayerStateInterface) return;
-	
-	PlayerStateInterface->SetPlayerNameToPlayerState(PlayerName);
-}
 
 void ABrandNewPlayerController::SetupInputComponent()
 {

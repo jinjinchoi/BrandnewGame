@@ -26,6 +26,7 @@
 #include "DataTableStruct/DataTableRowStruct.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
+#include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
 #include "Inventory/BrandNewInventory.h"
@@ -86,6 +87,7 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, CurrentGate);
+	DOREPLIFETIME(ThisClass, PlayerUniqueId);
 	
 }
 
@@ -130,14 +132,16 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 구현시 로드해야함
-	BindAttributeDelegates();
+	
 	if (IsLocallyControlled())
 	{
-		InitHUDAndBroadCastInitialValue();
 		
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
+		
+		BindAttributeDelegates();
+		InitHUDAndBroadCastInitialValue();
 	}
 	
 }
@@ -147,12 +151,11 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	
 	UpdateMovementComponentPrams();
-	InitAbilityActorInfo(); // ASC를 초기화 하고 기본 능력치 적용
-	BindAttributeDelegates(); // 그후 Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
+	InitAbilityActorInfo(); // ASC를 초기화
 
 	if (IsLocallyControlled())
 	{
-		InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
+		BindAttributeDelegates(); // Attribute 변화를 바인딩(위젯에 알리기 위한 용도)
 		
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
@@ -164,8 +167,7 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 
 void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
-
-	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	PlayerUniqueId = PlayerId; // 클라이언트의 아이디를 캐릭터 클래스에 설정. 세이브 작업시 RPC가 아닌 해당 아이디를 사용.
 	
 	if (const FSaveSlotPrams LatestPlayerData = SaveSubsystem->GetLatestPlayerData(PlayerId); LatestPlayerData.bIsValid) // 맵 이동인지 접속인지 확인
@@ -178,9 +180,16 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 		// 접속인 경우 로드인지 뉴게임인지 확인하고 데이터 복구
 		InitializeCharacterInfo(PlayerId);
 	}
-	
+
+	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
+	Client_OnCharacterInfoSet();
 }
 
+
+void ABrandNewPlayerCharacter::Client_OnCharacterInfoSet_Implementation()
+{
+	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
+}
 
 void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 {
@@ -188,13 +197,11 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
-	
-	if (SaveSubsystem->IsLoadedWorld()) // 로드로 접속인지 확인
+
+	// 로드된 맵이며 동시에 내 세이브 파일이 존재하면 로드 진행
+	if (SaveSubsystem->IsLoadedWorld() && SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId).bIsValid)
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId);
-		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
-
-		// 처음 접속인데 로드를 통해 들어온 것이면 SavedData를 가져와서 데이터 복구
 		LoadCharacterData(SavedData);
 		return;
 	}

@@ -44,11 +44,6 @@ private:
 	
 	FGenericTeamId PlayerTeamID;
 
-	UFUNCTION(Server, Reliable)
-	void Server_SetPlayerIdToPlayerState(const FString& ClientName);
-
-	void SetPlayerIdToPlayerState(const FString& PlayerName) const;
-	
 
 #pragma region Input
 	

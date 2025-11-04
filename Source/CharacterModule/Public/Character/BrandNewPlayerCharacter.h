@@ -213,6 +213,7 @@ private:
 #pragma region SaveAndLoad
 	
 	// 플레이어의 아이디로 서버에서만 설정됨.
+	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	FString PlayerUniqueId;
 	
 	/**
@@ -222,6 +223,9 @@ private:
 	 */
 	UFUNCTION(Server, Reliable)
 	void Server_RequestInitCharacterInfo(const FString& PlayerId);
+
+	UFUNCTION(Client, Reliable)
+	void Client_OnCharacterInfoSet();
 
 	// 세이브 데이터 유무에 따라 로드 작업 또는 디폴트 캐릭터 정보를 설정.
 	void InitializeCharacterInfo(const FString& UniqueId);
