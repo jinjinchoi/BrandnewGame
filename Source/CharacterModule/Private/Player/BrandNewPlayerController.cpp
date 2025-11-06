@@ -293,6 +293,6 @@ void ABrandNewPlayerController::Input_OpenInGameMenu()
 		InGameMenuWidget = CreateWidget(this, InGameMenuWidgetClass);
 	}
 
-	InGameMenuWidget->AddToViewport();
+	InGameMenuWidget->AddToViewport(2);
 	
 }

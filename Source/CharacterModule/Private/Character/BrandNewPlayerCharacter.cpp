@@ -789,7 +789,7 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 {
 	// 해당 함수는 서버에서만 호출되지만 만약을 대비한 방어 코드
-	if (!HasAuthority()) return;
+	if (!HasAuthority() || !AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
 	
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;

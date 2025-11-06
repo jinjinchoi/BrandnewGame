@@ -57,7 +57,6 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetCurrentSlotSaveDataById(const FString&
 
 void UBrandNewSaveSubsystem::ResetPlayerData()
 {
-	UniqueIdentifier.Empty();
 	bIsLoadedWorld = false;
 	LatestPlayerDataMap.Empty();
 	CurrentSlotIndex = 0;

@@ -255,6 +255,8 @@ void UCharacterFunctionLibrary::GetLiveActorWithinRadius(const UObject* WorldCon
 	
 		for (FOverlapResult& Overlap : OverlapResults)
 		{
+			if (Overlap.GetActor()->IsHidden()) continue;
+			
 			if (Overlap.GetActor()->Implements<UBrandNewCharacterInterface>() && !IBrandNewCharacterInterface::Execute_IsDead(Overlap.GetActor()))
 			{
 				OutOverlappingActors.AddUnique(Overlap.GetActor());
@@ -320,6 +322,7 @@ void UCharacterFunctionLibrary::GetHostileActorsWithinRadius(const UObject* Worl
 	
 		for (FOverlapResult& Overlap : OverlapResults)
 		{
+			if (Overlap.GetActor()->IsHidden()) continue;
 			if (!Overlap.GetActor()->Implements<UBrandNewCharacterInterface>() || IBrandNewCharacterInterface::Execute_IsDead(Overlap.GetActor())) continue;
 			
 			if (IsTargetActorHostile(Overlap.GetActor(), InstigatorActor))
