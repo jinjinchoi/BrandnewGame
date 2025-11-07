@@ -18,19 +18,25 @@ struct FBrandNewAttributeInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayAttribute AttributeGetter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText AttributeDescription = FText::GetEmpty();
 	
 };
 
 /**
  * Attribute의 정보를 UI에 보여줄 때 사용하는 데이터 에셋
  */
-UCLASS()
+UCLASS(BlueprintType)
 class COREMODULE_API UDataAsset_AttributeInfo : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
 	FGameplayAttribute FindAttributeGetter(const FGameplayTag& InAttributeTag) const;
+
+	UFUNCTION(BlueprintPure, Category = "Brandnew|DataAsset_AttributeInfo")
+	FText GetAttributeDescription(const FGameplayTag& InAttributeTag) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "{AttributeName}"))
 	TArray<FBrandNewAttributeInfo> AttributeInformation;

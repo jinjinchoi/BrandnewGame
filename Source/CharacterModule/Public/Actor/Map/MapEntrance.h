@@ -26,6 +26,9 @@ protected:
 	UFUNCTION()
 	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> PortalMeshComponent;
+
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	TObjectPtr<UBoxComponent> BoxCollision;
 

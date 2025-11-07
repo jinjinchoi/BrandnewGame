@@ -20,18 +20,25 @@ class CHARACTERMODULE_API ABrandNewPlayerState : public APlayerState, public IBn
 
 public:
 	ABrandNewPlayerState();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void BeginPlay() override;
 	
 	/* begin IBnPlayerStateInterface */
 	virtual FInventoryContents GetInventoryContents() const override;
+	virtual FString GetPlayerUniqueId() const override;
 	/* end IBnPlayerStateInterface */
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Inventory")
 	UBrandNewInventory* GetInventory() const;
-	
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	FString PlayerUniqueId;
 
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBrandNewInventory> Inventory;
-	
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetPlayerUniqueId(const FString& NewPlayerUniqueId);
 	
 };

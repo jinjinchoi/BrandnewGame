@@ -131,11 +131,13 @@ void ABrandNewPlayerController::HandlePlayerMapEntryOverlap(const int32 Overlapp
 	
 	if (!EntryStatusWidgetClass) return;
 
-	// 이미 로컬 컨트롤러에서만 호출되도록 설정되어 있지만 가독성 향상을 위해 if 체크  
-	if (IsLocalController())
+	if (!IsValid(this) || IsPendingKillPending() || !IsLocalController())
 	{
-		CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
+		return; // 플레이어 컨트롤러가 제거 중이거나 로컬 컨트롤러가 아니면 리턴
 	}
+	
+	CreateOrUpdateEntryStatusWidget(OverlappedPlayersNum, MaxPlayersNum);
+	
 	
 }
 

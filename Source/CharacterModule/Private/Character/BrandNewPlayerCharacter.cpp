@@ -28,6 +28,7 @@
 #include "Game/GameInstance/BrandNewGameInstance.h"
 #include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
+#include "GameMode/BrandNewGameModeBase.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
 #include "Inventory/BrandNewInventory.h"
 #include "Kismet/GameplayStatics.h"
@@ -87,7 +88,6 @@ void ABrandNewPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, CurrentGate);
-	DOREPLIFETIME(ThisClass, PlayerUniqueId);
 	
 }
 
@@ -103,27 +103,6 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	
 }
 
-void ABrandNewPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (bIsWaitingTravel || !HasAuthority() || EndPlayReason == EEndPlayReason::EndPlayInEditor)
-	{
-		Super::EndPlay(EndPlayReason);
-		return;
-	}
-
-	/**
-	 * 플레이어 접속 종료하면 세이브 매니저 서브클래스에 있는 정보 삭제.
-	 * 클라이언트의 재접속시 맵 이동과 혼돈되는 상황 막기 위해서이며,
-	 * 호스트가 접속 종료하면 자동으로 LatestPlayerData 초기화 되지만 EndPlay 함수에서 IsLocallyControlled 체크 불가능해서 호스트도 호출됨.
-	 * 로직에는 문제없음.
-	 */
-	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	if (!SaveSubsystem) return;
-	SaveSubsystem->RemoveLatestPlayerData(PlayerUniqueId);
-	
-	Super::EndPlay(EndPlayReason);
-	
-}
 
 void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -168,7 +147,6 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	PlayerUniqueId = PlayerId; // 클라이언트의 아이디를 캐릭터 클래스에 설정. 세이브 작업시 RPC가 아닌 해당 아이디를 사용.
 	
 	if (const FSaveSlotPrams LatestPlayerData = SaveSubsystem->GetLatestPlayerData(PlayerId); LatestPlayerData.bIsValid) // 맵 이동인지 접속인지 확인
 	{
@@ -180,7 +158,7 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 		// 접속인 경우 로드인지 뉴게임인지 확인하고 데이터 복구
 		InitializeCharacterInfo(PlayerId);
 	}
-
+	
 	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
 	Client_OnCharacterInfoSet();
 }
@@ -188,7 +166,10 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 
 void ABrandNewPlayerCharacter::Client_OnCharacterInfoSet_Implementation()
 {
-	InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
+	if (IsLocallyControlled())
+	{
+		InitHUDAndBroadCastInitialValue(); // 바인딩이 끝났으면 HUD 초기화 요청, HUD에서는 위젯 구성하고 위젯에서 초기값을 요청함.
+	}
 }
 
 void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
@@ -781,8 +762,10 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	SafeLocation = SaveSlotPrams.CharacterLocation;
+
+	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
 	
-	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, PlayerUniqueId);
+	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, BrandNewPlayerState->PlayerUniqueId);
 	
 }
 
@@ -793,9 +776,14 @@ void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 	
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
+
+	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
 	
-	SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
-	bIsWaitingTravel = true;
+	SaveSubsystem->UpdateLatestPlayerDataMap(BrandNewPlayerState->PlayerUniqueId, MakeSaveSlotPrams());
+
+	ABrandNewGameModeBase* BrandNewGameModeBase = Cast<ABrandNewGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (!BrandNewGameModeBase) return;
+	BrandNewGameModeBase->bIsWaitingForTravel = true;
 	
 }
 

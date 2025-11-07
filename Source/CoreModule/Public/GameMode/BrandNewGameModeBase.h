@@ -17,6 +17,9 @@ class COREMODULE_API ABrandNewGameModeBase : public AGameModeBase
 
 public:
 	virtual void BeginPlay() override;
+	virtual void Logout(AController* Exiting) override;
+
+	bool bIsWaitingForTravel = false;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Manager")

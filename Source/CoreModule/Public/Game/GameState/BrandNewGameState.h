@@ -38,7 +38,7 @@ public:
 
 protected:
 	UPROPERTY(ReplicatedUsing = "OnRep_PlayerStateArray", BlueprintReadOnly, Category = "Brandnew|Player")
-	TArray<APlayerState* > PlayerStateArray;
+	TArray<APlayerState*> PlayerStateArray;
 
 private:
 	UFUNCTION()

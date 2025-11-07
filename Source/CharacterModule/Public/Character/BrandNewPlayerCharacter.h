@@ -29,7 +29,6 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	/* end Actor Interface */
 
 	/* begin Player Interface */
@@ -207,15 +206,10 @@ private:
 	
 	FText GetCurrentTimeText() const;
 
-	bool bIsWaitingTravel = false;
+	// bool bIsWaitingTravel = false;
 
 
 #pragma region SaveAndLoad
-	
-	// 플레이어의 아이디로 서버에서만 설정됨.
-	UPROPERTY(Replicated, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	FString PlayerUniqueId;
-	
 	/**
 	 * Attribute를 로드하는 함수.
 	 * 로드 데이터는 Player Id마다 다르게 설정해야하고 바른 아이디를 가져오기 위해

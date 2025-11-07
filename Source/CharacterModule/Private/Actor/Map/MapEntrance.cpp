@@ -19,13 +19,17 @@ AMapEntrance::AMapEntrance()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	PortalMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Portal Static Mesh"));
+	PortalMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SetRootComponent(PortalMeshComponent);
+
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collision"));
 	BoxCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	BoxCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
 	BoxCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	SetRootComponent(BoxCollision);
+	BoxCollision->SetupAttachment(GetRootComponent());
 
-	BoxCollision->SetBoxExtent(FVector(500.f, 500.f, 200.f));
+	BoxCollision->SetBoxExtent(FVector(500.f, 500.f, 250.f));
 
 	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interaction Widget Component"));
 	InteractionWidgetComponent->SetupAttachment(GetRootComponent());

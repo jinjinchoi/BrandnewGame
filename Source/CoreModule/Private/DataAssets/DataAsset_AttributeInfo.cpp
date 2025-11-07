@@ -14,3 +14,16 @@ FGameplayAttribute UDataAsset_AttributeInfo::FindAttributeGetter(const FGameplay
 	}
 	return FGameplayAttribute();
 }
+
+FText UDataAsset_AttributeInfo::GetAttributeDescription(const FGameplayTag& InAttributeTag) const
+{
+	for (const FBrandNewAttributeInfo& Info : AttributeInformation)
+	{
+		if (Info.AttributeTag.MatchesTagExact(InAttributeTag))
+		{
+			return Info.AttributeDescription;
+		}
+	}
+	
+	return FText::GetEmpty();
+}

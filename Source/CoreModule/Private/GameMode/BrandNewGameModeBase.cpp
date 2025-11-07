@@ -22,3 +22,18 @@ void ABrandNewGameModeBase::BeginPlay()
 	ObjectPoolManager->InitPoolManager();
 	
 }
+
+void ABrandNewGameModeBase::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	if (bIsWaitingForTravel) return;
+
+	const IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(Exiting->PlayerState);
+	if (PlayerStateInterface) return;
+	
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
+	SaveSubsystem->RemoveLatestPlayerData(PlayerStateInterface->GetPlayerUniqueId());
+	
+}
