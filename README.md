@@ -1,15 +1,15 @@
 ﻿# 01. 목차
-- [01. 목차](#01-목차)
-- [02. 목차](#02-개요)
-- [03. 프로젝트 요약](#03-프로젝트-요약)
-- [04. 핵심 기능 및 구현 내용](#04-핵심-기능-및-구현-내용)
-	- [04.1 Gameplay Ability System](#041-gameplay-ability-system)
-    - [04.2 Inventory System](#042-inventory-system)
-    - [04.3 Map Travel](#043-map-travel)
-    - [04.4 Object Pooling](#044-object-pooling)
-    - [04.5 Save System](#045-save-system)
-    - [04.6 Dialogue System](#046-dialogue-system)
-- [05. 고찰 및 회고](#05-고찰-및-회고)
+- 01\. 목차 [#](#01-목차)
+- 02\. 개요 [#](#02-개요)
+- 03\. 프로젝트 요약 [#](#03-프로젝트-요약)
+- 04\. 핵심 기능 및 구현 내용 [#](#04-핵심-기능-및-구현-내용)
+	- 04.1 Gameplay Ability System [#](#041-gameplay-ability-system)
+    - 04.2 Inventory System [#](#042-inventory-system)
+    - 04.3 Map Travel [#](#043-map-travel)
+    - 04.4 Object Pooling [#](#044-object-pooling)
+    - 04.5 Save System [#](#045-save-system)
+    - 04.6 Dialogue System [#](#046-dialogue-system)
+- 05\. 고찰 및 회고 [#](#05-고찰-및-회고)
 
 ---
 # 02. 개요
@@ -48,12 +48,12 @@
 ---
 # 04. 핵심 기능 및 구현 내용
 
-- [04.1 Gameplay Ability System](#041-gameplay-ability-system)
-- [04.2 Inventory System](#042-inventory-system)
-- [04.3 Map Travel](#043-map-travel)
-- [04.4 Object Pooling](#044-object-pooling)
-- [04.5 Save System](#045-save-system)
-- [04.6 Dialogue System](#046-dialogue-system)
+- 04.1 Gameplay Ability System [#](#041-gameplay-ability-system)
+- 04.2 Inventory System [#](#042-inventory-system)
+- 04.3 Map Travel [#](#043-map-travel)
+- 04.4 Object Pooling [#](#044-object-pooling)
+- 04.5 Save System [#](#045-save-system)
+- 04.6 Dialogue System [#](#046-dialogue-system)
       
 ## 04.1 Gameplay Ability System
 GAS를 사용하여 Attribute와 Ability 기능을 구현하였습니다.
@@ -698,21 +698,31 @@ while문을 이용하여 한 프레임마다 최대 스폰 횟수만큼 스폰�
 
 ![로그인화면 이미지](GameImg/Login.png)
 
-로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.<br>    
-로그인시 Save Subsystem에 입력 값이 저장됩니다.
+로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.<br>  
+
 
 ```c++
-// 캐릭터 클래스의 OnRep_PlayerState 함수에서 서버에 자신의 아이디를 보내는 부분
-const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-check(SaveSubsystem);
-Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
+void ABrandNewPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
 
-// Server_RequestInitCharacterInfo 함수내에서 서버에 플레이어 아이디 저장
-PlayerUniqueId = PlayerId;
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	check(SaveSubsystem);
+
+	if (HasAuthority())
+	{
+		PlayerUniqueId = SaveSubsystem->GetUniqueIdentifier();
+	}
+	else
+	{
+		Server_SetPlayerUniqueId(SaveSubsystem->GetUniqueIdentifier());
+	}
+	
+}
 ```
 
-게임이 시작 되면 클라이언트는 세이버 서브시스템에서 설정했던 아이디를 가져와 서버로 보내고 서버 캐릭터 클래스는 해당 아이디를 저장합니다.<br>  
-위와 같이 구현한 이유는 랜 커넥션으로 연결중이기 때문에 고유 아이디를 설정할 방법이 마땅치 않으며 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
+게임이 시작 되면 Player State에 플레이어의 고유 아이디를 저장합니다.<br>  
+위와 같이 구현한 이유는 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
 
 ### 04.5.2 Save  
 세이브 요청은 호스트만 할 수 있습니다. 클라이언트에서 요청해서 세이브 하는 것도 가능하지만 실제 온라인 게임의 경우 세이브 타이밍은 서버에서만 판단하고 비록 호스트의 경우 클라이언트로도 볼 수 있지만 서버 권한이 있기 때문에 호스트에게 세이브 권한을 주어도 된다고 판단하였습니다. <br>  
@@ -759,7 +769,9 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 	const FSaveSlotPrams SaveSlotPrams = MakeSaveSlotPrams();
 	SafeLocation = SaveSlotPrams.CharacterLocation;
 	
-	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, PlayerUniqueId);
+	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
+	
+	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, BrandNewPlayerState->PlayerUniqueId);
 	
 }
 ```
@@ -795,14 +807,11 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 {
 
 	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	PlayerUniqueId = PlayerId; // 아이디를 캐릭터 클래스에 설정.
 
-	
 	if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동인지 접속인지 확인
 	{
 		// 맵 이동일 경우 SaveSubsystem에 있는 LatestPlayerData로 복구
 		LoadCharacterData(SaveSlotPrams);
-		SaveSubsystem->RemoveLatestPlayerData(PlayerId);
 	}
 	else
 	{
@@ -823,13 +832,11 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 	if (!SaveSubsystem) return;
-	
-	if (SaveSubsystem->IsLoadedWorld()) // 로드로 접속인지 확인
+
+	// 로드된 맵이며 동시에 내 세이브 파일이 존재하면 로드 진행
+	if (SaveSubsystem->IsLoadedWorld() && SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId).bIsValid)
 	{
 		const FSaveSlotPrams SavedData = SaveSubsystem->GetCurrentSlotSaveDataById(UniqueId);
-		checkf(SavedData.bIsValid, TEXT("세이브 로직 잘못됐을 가능성 있음. 로드한 세계인데 데이터 유효성 확인 실패. 세이브 로직 다시 확인해봐야함"))
-
-		// 처음 접속인데 로드를 통해 들어온 것이면 SavedData를 가져와서 데이터 복구
 		LoadCharacterData(SavedData);
 		return;
 	}
@@ -886,29 +893,33 @@ void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& Inventory
 인벤토리는 구조체 안에 아이템 정보가 담긴 배열을 저장하는 방식으로 구현되어 있는데 아이템 정보는 단순히 Integer와 Boolean 변수만 있기 때문에 Save Game에 통째로 저장이 가능하고 로드 역시 통째로 가져와 단순히 대입하는 방식으로 진행합니다.<br>  
 `SetInventoryContents()`함수에서는 불러오기와 동시에 장착 중인 아이템이 있는지를 확인합니다. 이후 캐릭터 클래스에서는 장착 중이었던 아이템이 있는지 확인하고 아이템이 존재하면 Gameplay Effect를 통해 아이템 효과를 부여합니다.  
 
-### 04.5.4 World Travel시 데이터 저장 및 복구  
-맵 이동시 실제 데이터를 저장하는 것이 아니라 캐릭터 정보가 담긴 구조체를 아이디와 함께 Map에 저장합니다.
+### 04.5.4 World Travel시 데이터 저장
+맵 이동시 데이터를 디스크에 저장하는 것이 아니라 서브 시스템에 임시로 저장합니다.
 ```c++
 // Save Subsystem에 존재하는 임시로 데이터를 저장하는 TMap
 TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
 
-// 위에 로드 소개에서 넘어갔던 맵 이동 부분 처리 로직.
-if (const FSaveSlotPrams SaveSlotPrams = SaveSubsystem->GetLatestPlayerData(PlayerId); SaveSlotPrams.bIsValid) // 맵 이동인지 접속인지 확인
+void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 {
-    // 맵 이동일 경우 SaveSubsystem에 있는 LatestPlayerData로 복구
-    LoadCharacterData(SaveSlotPrams);
-}
-else
-{
-    // ... (생략)
-}
+	// 해당 함수는 서버에서만 호출되지만 만약을 대비한 방어 코드
+	if (!HasAuthority() || !AbilitySystemComponent || !AttributeSet || !GetPlayerState()) return;
+	
+	UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	if (!SaveSubsystem) return;
 
+	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
+	
+	// 서브 시스템에 플레이어 아이디와 데이터 매칭해서 저장
+	SaveSubsystem->UpdateLatestPlayerDataMap(BrandNewPlayerState->PlayerUniqueId, MakeSaveSlotPrams());
 
-// 월드 이동전 데이터 저장 작업. 세이브시 사용했던 MakeSaveSlotPrams() 함수 그대로 사용.
-SaveSubsystem->UpdateLatestPlayerDataMap(PlayerUniqueId, MakeSaveSlotPrams());
+	ABrandNewGameModeBase* BrandNewGameModeBase = Cast<ABrandNewGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (!BrandNewGameModeBase) return;
+	BrandNewGameModeBase->bIsWaitingForTravel = true;
+	
+}
 
 ```
-  마찬가지로 맵 이동 전 데이터 세이브도 임시 데이터를 저장하는 방식으로 진행하며 이때 세이브 시 사용하는 구조체를 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
+임시데이터를 저장할 때 사용하는 구조체는 세이브 시 사용하는 구조체 그대로 사용하여 추가적인 작업없이 간편하게 데이터를 저장하고 불러올 수 있도록 하였습니다.
 
 ## 04.6 Dialogue System
 
