@@ -63,6 +63,6 @@ public:
 	static AActor* GetClosestActor(const TArray<AActor*>& TargetActors, const FVector& Origin);
 	static FVector GetClosestActorLocation(const TArray<AActor*>& TargetActors, const FVector& Origin);
 	
-	static void GetValidGroundLocation(const UObject* WorldContextObject, const FVector& OriginalLocation, FVector& OutValidLocation, const float OffsetZ = 5.f);
+	static void GetValidGroundLocation(const UObject* WorldContextObject, const FVector& OriginalLocation, FVector& OutValidLocation, const float OffsetZ = 5.f, bool bShowDebugLine = false);
 	
 };

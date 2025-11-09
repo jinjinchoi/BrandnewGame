@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "CharacterFunctionLibrary.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
+#include "BrandNewTypes/BrandNewMacro.h"
 #include "Components/BoxComponent.h"
 #include "Interfaces/Character/BrandNewCharacterInterface.h"
 
@@ -20,6 +21,7 @@ ABrandNewWeapon::ABrandNewWeapon()
 	WeaponCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision Box"));
 	WeaponCollisionBox->SetupAttachment(GetRootComponent());
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponCollisionBox->SetCollisionResponseToChannel(ECC_Ground, ECR_Ignore);
 	WeaponCollisionBox->SetBoxExtent(FVector(20.f));
 
 	bReplicates = true;

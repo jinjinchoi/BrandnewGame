@@ -27,6 +27,7 @@ ABrandNewProjectileBase::ABrandNewProjectileBase()
 	SphereCollision->SetCollisionObjectType(ECC_Projectile);
 	SphereCollision->SetCollisionResponseToAllChannels(ECR_Overlap);
 	SphereCollision->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
+	SphereCollision->SetCollisionResponseToChannel(ECC_Ground, ECR_Ignore);
 
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Projectile Effect Component"));
 	NiagaraComponent->SetupAttachment(GetRootComponent());

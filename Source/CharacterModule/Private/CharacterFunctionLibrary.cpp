@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "DebugHelper.h"
 #include "BrandNewTypes/BrandNewGamePlayTag.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericTeamAgentInterface.h"
@@ -375,7 +376,7 @@ FVector UCharacterFunctionLibrary::GetClosestActorLocation(const TArray<AActor*>
 }
 
 void UCharacterFunctionLibrary::GetValidGroundLocation(const UObject* WorldContextObject, const FVector& OriginalLocation, FVector& OutValidLocation,
-	const float OffsetZ)
+	const float OffsetZ, bool bShowDebugLine)
 {
 	if (OriginalLocation.IsNearlyZero())
 	{
@@ -394,9 +395,33 @@ void UCharacterFunctionLibrary::GetValidGroundLocation(const UObject* WorldConte
 	const FVector End = OriginalLocation - FVector(0, 0, 500);
 
 	FHitResult HitResult;
+	
 	if (World->LineTraceSingleByChannel(HitResult, Start, End, ECC_Ground))
 	{
 		OutValidLocation = HitResult.ImpactPoint + FVector(0, 0, OffsetZ);
+
+		if (bShowDebugLine)
+		{
+			DrawDebugLine(World, Start, HitResult.ImpactPoint, FColor::Green, false, 3.0f, 0, 2.0f);
+			DrawDebugSphere(World, HitResult.ImpactPoint, 20.0f, 12, FColor::Green, false, 20.0f);
+			
+			const FString ActorName = HitResult.GetActor() ? HitResult.GetActor()->GetName() : TEXT("None");
+			const FString ComponentName = HitResult.GetComponent() ? HitResult.GetComponent()->GetName() : TEXT("None");
+			const FString DebugText = FString::Printf(TEXT("Hit: %s | Comp: %s"), *ActorName, *ComponentName);
+			
+			DebugHelper::Print(DebugText, FColor::Cyan);
+			
+		}
+		
+	}
+	else
+	{
+		// 디버그 라인 (Hit X)
+		DrawDebugLine(World, Start, End, FColor::Red, false, 3.0f, 0, 2.0f);
+		DrawDebugSphere(World, End, 20.0f, 12, FColor::Red, false, 3.0f);
+
+		DrawDebugString(World, End + FVector(0, 0, 30),
+			TEXT("No Hit"), nullptr, FColor::Red, 3.0f, true);
 	}
 }
 
