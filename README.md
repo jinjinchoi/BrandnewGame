@@ -20,7 +20,7 @@
 - **사용엔진**
   - 언리얼 엔진 5.6.1
 - **작업 기간**
-  - 2025년 8월 21일 ~ 2025년 10월 28일 (약 2달)
+  - 2025년 8월 21일 ~ 2025년 11월 10일
 ---
 # 03. 프로젝트 요약
 - **장르**
@@ -393,130 +393,18 @@ ATTRIBUTE_ACCESSORS(ThisClass, ItemStrength);
 [⬆️ **Top으로 이동**](#04-핵심-기능-및-구현-내용)
 
 ## 04.3 Map Travel
-Level Travel은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 레벨은 Non Seamless Travel 방식으로 이동하며 트랜지션 맵으로 이동한 후 이동할 레벨을 비동기적으로 로드하는 방식으로 구현하였습니다. 
+Level Travel은 새게임이나 로드, 게임 내에서 Entrance Actor에 접근할때 진행합니다. 
 
 ### 04.3.1 Transition Map
 
 ![로딩중 이미지](GameImg/loading.png)
 
-Transition Map에서는 로딩 화면을 보여주면서 동시에 비동기적으로 다음 이동할 맵을 로드하며 모든 클라이언트가 로드가 완료되면 서버(호스트)가 다음 맵으로 이동하는 작업을 진행합니다.<br>  
+Transition Map에서는 로딩 화면을 보여주면서 클라이언트들의 준비를 기다립니다. <br>  
 
-![트랜지션 맵에서 서브시스템에 비동기 로드 요청](GameImg/ServerMapLoad.png) <br>
+바로 다른 맵으로 이동하는 것이 아니라 Transition Map으로 이동하는 이유는 현재 Non Seamles Travel 방식을 사용중이기 때문에 용량이 큰 맵으로 이동시 시간이 오래 걸릴 수 있고 그 동안 로딩화면을 보여줘 사용자 경혐을 향상 시키기 위해서입니다.<br>  
+또한 차후 맵 이동 전 에셋을 미리 로드하는 등의 작업을 구현할 때 사용할 목적으로 제작하였습니다.
 
-트랜지션 맵에 도착하면 서버(호스트)는 레벨매니저 서브시스템에 비동기 로드를 요청합니다. 레벨 매니저 서브 시스템은 미리 저장해놓았던 에셋 경로를 바탕으로 비동기 로드 작업을 수행합니다.
 
-### 04.3.2 Level Manager SubSystem  
-레벨 매니저 서브시스템은 실제 비동기 작업을 수행하고 완료 결과를 위젯에 알리며 모든 클라이언트가 준비가 되면 맵을 이동시키는 역할을 수행합니다.
-```c++
-// 실제 비동기 로드를 진행시키는 함수
-void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
-{
-    // ... (유효성 확인 부분 생략)
-
-  // 비동기 로드
-  LoadPackageAsync(
-    TargetLevelPath.ToString(),
-    FLoadPackageAsyncDelegate::CreateUObject(this, &UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted),
-    0,
-    PKG_ContainsMap);
-
-}
-
-// 비동기 로드 완료시 위젯에 성공 여부 Broad Cast
-void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
-{
-    if (Result == EAsyncLoadingResult::Succeeded)
-    {
-        OnAsyncLoadingCompleteDelegate.Broadcast(true);
-    }
-    else
-    {
-        OnAsyncLoadingCompleteDelegate.Broadcast(false);
-    }
-}
-```
-로딩 완료후 플레이어가 키보드 입력을 하면 레벨 매니저 서브 시스템에 로드 완료 여부를 알리고 레벨 매니저 서브시스템은 모든 클라이언트의 로딩이 완료되면 실제 레벨 이동을 진행합니다.
-
-> Gibug Link  
-> - [Level Manager Subsystem.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Game/Subsystem/BrandNewLevelManagerSubsystem.h)
-> - [Level Manager Subsystem.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Game/Subsystem/BrandNewSaveSubsystem.cpp)
-
-### 04.3.3 Client의 맵 이동  
-트랜지션 맵에 클라이언트의 로그인이 감지되면 서버에서 로드할 에셋 경로 알려주어 클라이언트에서 맵 로딩을 할 수 있도록 해줍니다.
-
-```c++
-// 트랜지션 게임 모드 클래스
-void ATransitionGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	
-	const FString TargetLevelPath = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>()->GetTraveledLevelPath().ToString();
-	
-	// 서버에서 로그인을 감지하면 플레이어 컨트롤러에 로드할 에셋 경로를 알려줍니다.
-	if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(NewPlayer))
-	{
-		UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath);
-	}
-	
-}
-
-// 트랜지션 플레이어 컨트롤러 클래스
-void AUIPlayerController::SetTraveledMapPathToClient(const FString& MapPath)
-{
-	if (!HasAuthority()) return;
-	
-	// 서버의 플레이어 컨트롤러는 에셋 경로를 받은 뒤 RPC로 클라이언트에 에셋 경로를 보냅니다.
-	Client_SetTraveledMapPath(MapPath);
-	
-}
-
-void AUIPlayerController::Client_SetTraveledMapPath_Implementation(const FString& MapPath)
-{
-    // 클라이언트 자신의 서브시스템에 접근하여 맵 로딩을 시작합니다.
-	if (UBrandNewLevelManagerSubsystem* LevelManagerSubsystem = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>())
-	{
-		LevelManagerSubsystem->SetMapNameToTravelByString(MapPath);
-		LevelManagerSubsystem->StartAsyncLoading();
-	}
-	
-}
-```
-서버의 서브시스템에서 바로 클라이트의 서브시스템에 접근할 방법이 없기 때문에 플레이어 컨트롤러를 통해 우회작업을 진행하였습니다.<br>  
-맵 이동 전 클라이언트에 로드할 에셋 경로를 설정하지 않은 이유는 현재 Non Seamless Travel을 사용하기 때문에 트랜지션 맵으로 이동할 때 네트워크 연결이 다시 일어나고 서버는 클라이언트가 처음부터 같이 있었는지 트랜지션 맵에서 합류하였는지 알 방법이 없어집니다.<br>  
-그렇기에 호스트가 트랜지션 맵에 있을 때 기존에 있던 클라이언트가 아닌 완전히 새로운 클라이언트의 참여를 막을 방법이 없다고 생각하여 트랜지션 맵에 있을때 로딩할 맵을 모르는 새로운 클라이언트가 접속하여도 문제가 없도록 설계하였습니다.<br>  
-
-물론 트랜지션 맵에서 로딩할 맵을 모르는 클라이언트는 Kick 하는 방식으로도 대비가 가능하긴 하지만 또 다른 문제로는 맵 이동전에 클라이언트에게 RPC로 알려주면 클라이언트가 설정 완료 여부를 다시 서버에 RPC로 알려줘야 하는데 이때 네트워크 환경에 따라 딜레이가 발생할 수 있으며 이는 저장 타이밍의 문제 발생이나 유저 경험을 해칠 수 있다고 생각하였습니다.<br>  
-그렇기에 트랜지션 맵에서 RPC를 사용하였으며 이때는 딜레이가 발생하더라도 크게 문제가 발생할 가능성이 낮고 플레이어 입장에서도 원래 로딩 시간이라 느끼게 하여 유저 경험을 향상 시키는 효과를 주었습니다. 
-```c++
-
-// 로드 완료된 클라이언트 등록
-void UBrandNewLevelManagerSubsystem::RegisterPlayerLoaded(const APlayerController* NewPlayer)
-{
-	LoadedPlayerControllerSet.Add(NewPlayer);
-	CheckAllPlayersLoaded();
-	
-}
-// 로드가 완료된 플레이어가 트랜지션 맵에 있을때 접속을 종료하면 배열에서 제거 (게임모드 클래스에서 호출)
-void UBrandNewLevelManagerSubsystem::UnregisterPlayerLoaded(const APlayerController* ExitingPlayer)
-{
-	LoadedPlayerControllerSet.Remove(ExitingPlayer);
-	CheckAllPlayersLoaded();
-}
-
-// 모든 클라이언트가 준비 완료되면 맵 이동
-void UBrandNewLevelManagerSubsystem::CheckAllPlayersLoaded()
-{
-	if (LoadedPlayerControllerSet.Num() >= GetWorld()->GetNumPlayerControllers())
-	{
-		// 이동 작업
-		LoadedPlayerControllerSet.Empty();
-		TravelMap();
-	}
-}
-```
-
-클라이언트는 로딩이 완료되면 서버에 RPC로 자신이 로딩이 완료되었다는 것을 알리고 서버는 모든 클라이언트가 준비가 되면 맵을 이동합니다.  
-이때 클라이언트가 트랜지션 맵에서 나가는 것을 대비하여 게임모드 클래스의 Logout함수를 오버라이드하여 플레이어가 게임에서 나갈때 배열에서 제거하는 작업을 진행합니다.
 
 ### 04.3.4 Map Entrance Actor  
   Map Entrance Actor는 모든 플레이어가 오버랩 되면 서버의 레벨 매니저 서브시스템에 이동할 맵 경로를 설정하고 트랜지션 맵으로 이동시킵니다.
@@ -568,7 +456,7 @@ void AMapEntrance::CheckAllPlayersOverlapped()
 	
 }
 ```
-플레이어가 오버랩 될 때 마다 CheckAllPlayersOverlapped 함수를 호출하여 오버랩 된 플레이어 수와 전체 플레이어 수를 비교하여 둘이 동일해지면 맵 이동을 시작합니다.<br>  
+플레이어가 오버랩 되면 `CheckAllPlayersOverlapped` 함수에서 오버랩 된 플레이어 수와 전체 플레이어 수를 비교하여 둘이 동일해지면 맵 이동을 시작합니다.<br>  
 맵 이동 시 데이터를 저장하는데 이때는 디스크에 데이터를 저장하는 것이 아니라 세이브 매니저 서브시스템에 존재하는 임시 데이터 보관 Map에 데이터를 보관하게 됩니다.
 
 ```c++
@@ -698,30 +586,35 @@ while문을 이용하여 한 프레임마다 최대 스폰 횟수만큼 스폰�
 
 ![로그인화면 이미지](GameImg/Login.png)
 
-로그인의 경우 정말 로그인 자체를 구현하기 보다는 단순히 클라이언트 간에 세이브 슬롯을 구분하기 위하여 사용하였습니다.<br>  
-
+아주 간단한 로그인 기능을 구현하여 세이브 파일 구별 및 게임 오버레이에 같이 접속한 다른 플레이어의 정보를 보여주는데 사용하였습니다. <br>
 
 ```c++
-void ABrandNewPlayerState::BeginPlay()
+void ABrandNewPlayerCharacter::OnRep_PlayerState()
 {
-	Super::BeginPlay();
+	Super::OnRep_PlayerState();
+	
+	// ...(ASC 초기화 작업 생략)
 
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	check(SaveSubsystem);
-
-	if (HasAuthority())
+	if (IsLocallyControlled())
 	{
-		PlayerUniqueId = SaveSubsystem->GetUniqueIdentifier();
-	}
-	else
-	{
-		Server_SetPlayerUniqueId(SaveSubsystem->GetUniqueIdentifier());
+		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+		
+		// 서버에서 Player의 Attribute 등을 초기화하는 함수로 이곳에서 PlayerState에 Player Id를 설정
+		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	
 }
+
+void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
+{
+	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	GetPlayerStateChecked<ABrandNewPlayerState>()->PlayerUniqueId = PlayerId;
+	
+	// ...(캐릭터 로드 작업 생략)
+}
 ```
 
-게임이 시작 되면 Player State에 플레이어의 고유 아이디를 저장합니다.<br>  
+게임이 시작 되면 클라이언트는 RPC를 통해 Player State에 플레이어의 고유 아이디를 저장합니다.<br>  
 위와 같이 구현한 이유는 서버에서 바로 클라이언트의 서브시스템에 접근하지 못하기 때문에 클라이언트에서 서버로 자신의 아이디를 보내고 이를 서버에서 저장하는 방식을 선택하였습니다.
 
 ### 04.5.2 Save  

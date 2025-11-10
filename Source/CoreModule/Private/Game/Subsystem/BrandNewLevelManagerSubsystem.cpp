@@ -2,8 +2,6 @@
 
 
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
-
-#include "DebugHelper.h"
 #include "Kismet/GameplayStatics.h"
 
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWorld> LevelClass)
@@ -31,10 +29,9 @@ void UBrandNewLevelManagerSubsystem::SetMapNameToTravel(const TSoftObjectPtr<UWo
 void UBrandNewLevelManagerSubsystem::SetMapNameToTravelByString(const FString& MapName)
 {
 	if (MapName.IsEmpty()) return;
-
-	// TODO: 맵 에셋 네임 클라이언트 전부에게 설정해야함
 	
 	TargetLevelPath = FName(*MapName);
+	
 }
 
 
@@ -44,23 +41,10 @@ void UBrandNewLevelManagerSubsystem::StartAsyncLoading()
 	{
 		return; // 서버는 로딩하지 않음
 	}
-	
-	if (TargetLevelPath == NAME_None)
-	{
-		const FString DebugString = FString::Printf(TEXT("%hs 맵 에셋 네임이 올바르게 설정되지 않았습니다."), __FUNCTION__);
-		DebugHelper::Print(DebugString, FColor::Red);
-		return;
-	}
-	
-	LoadPackageAsync(
-		TargetLevelPath.ToString(),
-		FLoadPackageAsyncDelegate::CreateUObject(this, &UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted),
-		0,
-		PKG_ContainsMap);
 
+	// TODO: 실제로 에셋 로드 구현하고 성공하면 브로드캐스트 해야함
+	OnAsyncLoadingCompleteDelegate.Broadcast(true);
 	
-	// Unreal 5.5 이상 버전에서는 GetAsyncLoadPercentage 호출해도 정상적인 값을 받을 수 없다고 함.
-	// GetWorld()->GetTimerManager().SetTimer(LoadingPercentTimerHandle, this, &ThisClass::OnLoadPackageUpdated, 0.2f,true, 0.2f);
 }
 
 
@@ -75,25 +59,6 @@ void UBrandNewLevelManagerSubsystem::TravelMap() const
 		const FString TravelURL = FString::Printf(TEXT("%s?listen"), *TargetLevelPath.ToString());
 		GetWorld()->ServerTravel(TravelURL);
 	}
-}
-
-void UBrandNewLevelManagerSubsystem::OnLoadPackageCompleted(const FName& PackageName, UPackage* LoadedPackage, EAsyncLoadingResult::Type Result)
-{
-	GetWorld()->GetTimerManager().ClearTimer(LoadingPercentTimerHandle);
-	if (Result == EAsyncLoadingResult::Succeeded)
-	{
-		OnAsyncLoadingCompleteDelegate.Broadcast(true);
-	}
-	else
-	{
-		OnAsyncLoadingCompleteDelegate.Broadcast(false);
-	}
-}
-
-void UBrandNewLevelManagerSubsystem::OnLoadPackageUpdated()
-{
-	float LoadPercentage = GetAsyncLoadPercentage(TargetLevelPath);
-	OnAsyncLoadingUpdateDelegate.Broadcast(LoadPercentage);
 }
 
 void UBrandNewLevelManagerSubsystem::TravelToTransitionMap(const TSoftObjectPtr<UWorld> TransitionMapClass)
@@ -134,4 +99,11 @@ void UBrandNewLevelManagerSubsystem::CheckAllPlayersLoaded()
 		LoadedPlayerControllerSet.Empty();
 		TravelMap();
 	}
+}
+
+void UBrandNewLevelManagerSubsystem::ResetLevelManagerSubsystem()
+{
+	LoadedPlayerControllerSet.Empty();
+	TargetLevelPath = NAME_None;
+	
 }

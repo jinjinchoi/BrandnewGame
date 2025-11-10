@@ -6,18 +6,6 @@
 #include "Game/Subsystem/BrandNewLevelManagerSubsystem.h"
 #include "Interfaces/Player/UIPlayerControllerInterface.h"
 
-void ATransitionGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-	
-	const FString TargetLevelPath = GetGameInstance()->GetSubsystem<UBrandNewLevelManagerSubsystem>()->GetTraveledLevelPath().ToString();
-
-	if (IUIPlayerControllerInterface* UIPlayerController = Cast<IUIPlayerControllerInterface>(NewPlayer))
-	{
-		UIPlayerController->SetTraveledMapPathToClient(TargetLevelPath);
-	}
-	
-}
 
 void ATransitionGameMode::Logout(AController* Exiting)
 {
