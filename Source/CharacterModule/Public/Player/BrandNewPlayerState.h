@@ -8,6 +8,8 @@
 #include "Interfaces/Player/BnPlayerStateInterface.h"
 #include "BrandNewPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerIdSet, const FString, InPlayerId);
+
 class UBrandNewInventory;
 class IBrandNewInventoryInterface;
 /**
@@ -21,7 +23,6 @@ class CHARACTERMODULE_API ABrandNewPlayerState : public APlayerState, public IBn
 public:
 	ABrandNewPlayerState();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void BeginPlay() override;
 	
 	/* begin IBnPlayerStateInterface */
 	virtual FInventoryContents GetInventoryContents() const override;
@@ -31,14 +32,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Inventory")
 	UBrandNewInventory* GetInventory() const;
 
-	UPROPERTY(Replicated, BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing = "OnRep_PlayerUniqueId", BlueprintReadOnly)
 	FString PlayerUniqueId;
 
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegate")
+	FOnPlayerIdSet OnPlayerIdSetDelegate;
+
 private:
+	UFUNCTION()
+	void OnRep_PlayerUniqueId();
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBrandNewInventory> Inventory;
-
-	UFUNCTION(Server, Reliable)
-	void Server_SetPlayerUniqueId(const FString& NewPlayerUniqueId);
 	
 };

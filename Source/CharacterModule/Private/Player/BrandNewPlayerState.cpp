@@ -23,30 +23,6 @@ void ABrandNewPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProp
 	
 }
 
-void ABrandNewPlayerState::BeginPlay()
-{
-	Super::BeginPlay();
-
-	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	check(SaveSubsystem);
-
-	if (HasAuthority())
-	{
-		PlayerUniqueId = SaveSubsystem->GetUniqueIdentifier();
-	}
-	else
-	{
-		Server_SetPlayerUniqueId(SaveSubsystem->GetUniqueIdentifier());
-	}
-	
-}
-
-void ABrandNewPlayerState::Server_SetPlayerUniqueId_Implementation(const FString& NewPlayerUniqueId)
-{
-	PlayerUniqueId = NewPlayerUniqueId;
-	
-}
-
 FInventoryContents ABrandNewPlayerState::GetInventoryContents() const
 {
 	if (Inventory)
@@ -70,6 +46,11 @@ UBrandNewInventory* ABrandNewPlayerState::GetInventory() const
 		return Inventory;
 	}
 	return nullptr;
+}
+
+void ABrandNewPlayerState::OnRep_PlayerUniqueId()
+{
+	OnPlayerIdSetDelegate.Broadcast(PlayerUniqueId);
 }
 
 

@@ -114,7 +114,6 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	
 	if (IsLocallyControlled())
 	{
-		
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
@@ -147,6 +146,7 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	GetPlayerStateChecked<ABrandNewPlayerState>()->PlayerUniqueId = PlayerId;
 	
 	if (const FSaveSlotPrams LatestPlayerData = SaveSubsystem->GetLatestPlayerData(PlayerId); LatestPlayerData.bIsValid) // 맵 이동인지 접속인지 확인
 	{
