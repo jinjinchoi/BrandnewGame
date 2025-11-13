@@ -21,6 +21,8 @@
   - 언리얼 엔진 5.6.1
 - **작업 기간**
   - 2025년 8월 21일 ~ 2025년 11월 10일
+- **시연 영상**
+  - https://youtu.be/Dgj-rN8ETpg
 ---
 # 03. 프로젝트 요약
 - **장르**
@@ -608,6 +610,7 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
+	// Player State에 Id 설정
 	GetPlayerStateChecked<ABrandNewPlayerState>()->PlayerUniqueId = PlayerId;
 	
 	// ...(캐릭터 로드 작업 생략)
