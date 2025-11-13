@@ -227,8 +227,8 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	ApplyPrimaryAttributeFromSaveData(SavedDataToApply.AttributePrams);
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
-	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 	LoadInventory(SavedDataToApply.InventoryContents); // 인벤토리 로드
+	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	if (SavedDataToApply.MapPackageName == MapName)
