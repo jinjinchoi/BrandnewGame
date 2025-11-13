@@ -752,11 +752,12 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
 	
-	// 현재 체력 및 마력 로드 - 현재 체력마력은 최대 체력마력을 넘길 수 없어 최대 체력마력을 먼저 로드 후 작업함
-	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 	// 인벤토리 로드
 	LoadInventory(SavedDataToApply.InventoryContents);
-
+	
+	// 현재 체력 및 마력 로드. 현재 체력마력은 최대 체력마력을 넘길 수 없어 최대 체력마력을 먼저 로드 후 작업함
+	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
+	
 	// 저장된 지역과 현재 지역이 동일한지 확인하고 동일하면 저장되어 있던 위치로 캐릭터 이동
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	if (SavedDataToApply.MapPackageName == MapName)
