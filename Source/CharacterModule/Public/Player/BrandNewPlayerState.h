@@ -12,6 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerIdSet, const FString, InPla
 
 class UBrandNewInventory;
 class IBrandNewInventoryInterface;
+class UBrandnewQuestComponent;
+
 /**
  * 
  */
@@ -37,6 +39,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegate")
 	FOnPlayerIdSet OnPlayerIdSetDelegate;
+	
+	void GrantQuestByLevelRequirement(const int32 PlayerLevel) const;
 
 private:
 	UFUNCTION()
@@ -44,5 +48,8 @@ private:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBrandNewInventory> Inventory;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UBrandnewQuestComponent> QuestComponent;
 	
 };

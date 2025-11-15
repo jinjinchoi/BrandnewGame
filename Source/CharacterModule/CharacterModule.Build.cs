@@ -33,6 +33,7 @@ public class CharacterModule : ModuleRules
                 "GameplayTags",
                 "AIModule",
                 "CoreModule",
+                "QuestModule",
             }
         );
     }

@@ -42,6 +42,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Brandnew|Dialogue")
 	FName FirstDialogueId;
+	
+	UPROPERTY(EditAnywhere, Category = "Brandnew|Quest")
+	FName NPCId;
 
 private:
 	UFUNCTION()

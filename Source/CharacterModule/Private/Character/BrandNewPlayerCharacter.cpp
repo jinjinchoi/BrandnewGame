@@ -192,6 +192,9 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
+	
+	// TODO: 퀘스트 세이브 로드 구현해야함
+	GetPlayerStateChecked<ABrandNewPlayerState>()->GrantQuestByLevelRequirement(1);
 
 	if (IsLocallyControlled())
 	{
@@ -235,6 +238,7 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	{
 		MoveCharacterToValidLocation(SavedDataToApply.CharacterLocation);
 	}
+	
 }
 
 void ABrandNewPlayerCharacter::ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const

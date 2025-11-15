@@ -3,6 +3,7 @@
 
 #include "Player/BrandNewPlayerState.h"
 
+#include "Components/BrandnewQuestComponent.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "InventoryModule/Public/Inventory/BrandNewInventory.h"
 #include "Net/UnrealNetwork.h"
@@ -12,6 +13,7 @@ ABrandNewPlayerState::ABrandNewPlayerState()
 	SetNetUpdateFrequency(100.f);
 	
 	Inventory = CreateDefaultSubobject<UBrandNewInventory>(TEXT("Inventory"));
+	QuestComponent = CreateDefaultSubobject<UBrandnewQuestComponent>(TEXT("QuestComponent"));
 	
 }
 
@@ -46,6 +48,16 @@ UBrandNewInventory* ABrandNewPlayerState::GetInventory() const
 		return Inventory;
 	}
 	return nullptr;
+}
+
+void ABrandNewPlayerState::GrantQuestByLevelRequirement(const int32 PlayerLevel) const
+{
+	check(QuestComponent);
+	if (!QuestComponent) return;
+	
+	QuestComponent->GrantQuestByLevelRequirement(PlayerLevel);
+	
+	
 }
 
 void ABrandNewPlayerState::OnRep_PlayerUniqueId()
