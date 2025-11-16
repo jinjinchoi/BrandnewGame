@@ -11,7 +11,7 @@
 #include "WidgetController/InventoryWidgetController.h"
 #include "WidgetController/OverlayWidgetController.h"
 #include "WidgetController/GameOverWidgetController.h"
-
+#include "WidgetController/QuestWidgetController.h"
 
 
 void ABrandNewHUD::BeginPlay()
@@ -164,6 +164,20 @@ UGameOverWidgetController* ABrandNewHUD::GetGameOverWidgetController()
 	}
 
 	return GameOverWidgetController;
+	
+}
+
+UQuestWidgetController* ABrandNewHUD::GetQuestWidgetController()
+{
+	check(QuestWidgetControllerClass)
+	
+	if (!QuestWidgetController)
+	{
+		QuestWidgetController = NewObject<UQuestWidgetController>(this, QuestWidgetControllerClass);
+		QuestWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+	}
+	
+	return QuestWidgetController;
 	
 }
 

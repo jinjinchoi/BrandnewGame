@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "UIFunctionLibrary.generated.h"
 
+class UQuestWidgetController;
 class UGameOverWidgetController;
 class UInventoryWidgetController;
 class UCharacterInfoWidgetController;
@@ -49,6 +50,9 @@ class UIMODULE_API UUIFunctionLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|WidgetController", meta=(DefaultToSelf = "WorldContextObject"))
 	static UGameOverWidgetController* GetGameOverWidgetController(const UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|WidgetController", meta=(DefaultToSelf = "WorldContextObject"))
+	static UQuestWidgetController* GetQuestWidgetController(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintPure, Category = "UIFunctionLibrary|SaveLogic", meta=(DefaultToSelf = "WorldContextObject"))
 	static FSaveSlotViewInfoParams GetSaveSlotInfo(const UObject* WorldContextObject, const FString& SlotName, const int32 SlotIndex = 1);

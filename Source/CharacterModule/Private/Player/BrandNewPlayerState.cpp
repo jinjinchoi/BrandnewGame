@@ -40,6 +40,16 @@ FString ABrandNewPlayerState::GetPlayerUniqueId() const
 	return PlayerUniqueId;
 }
 
+UActorComponent* ABrandNewPlayerState::GetQuestComponent() const
+{
+	if (IsValid(QuestComponent))
+	{
+		return QuestComponent;
+	}
+	
+	return nullptr;
+}
+
 
 UBrandNewInventory* ABrandNewPlayerState::GetInventory() const
 {

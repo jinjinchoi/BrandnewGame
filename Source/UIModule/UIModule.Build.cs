@@ -11,7 +11,8 @@ public class UIModule : ModuleRules
             {
                 "Core",
                 "UMG",
-                "CoreModule"
+                "CoreModule",
+                "QuestModule"
             }
         );
 
@@ -23,7 +24,8 @@ public class UIModule : ModuleRules
                 "Slate",
                 "SlateCore",
                 "GameplayTags",
-                "DialogueModule"
+                "DialogueModule",
+                
             }
         );
     }

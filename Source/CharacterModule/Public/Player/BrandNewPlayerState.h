@@ -29,6 +29,7 @@ public:
 	/* begin IBnPlayerStateInterface */
 	virtual FInventoryContents GetInventoryContents() const override;
 	virtual FString GetPlayerUniqueId() const override;
+	virtual UActorComponent* GetQuestComponent() const override;
 	/* end IBnPlayerStateInterface */
 
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Inventory")

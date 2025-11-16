@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "QuestEnum.h"
-
 #include "QuestType.generated.h"
 
 

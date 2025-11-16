@@ -1,3 +1,5 @@
----,QuestId,MinLevel,DialogueId,QuestType,QuestDescription,TargetId,TargetCount,QuestCompletionTargetId,NextQuestId
-NewRow,Quest01,1,None,MainQuest,퀘스트 설명,Box01,1,Warrior,None
-Row0001,StartQuest01,1,FirstQuest01,MainQuest,새로운 곳에 도착했다. 이곳이 어디이고 무엇을 해야할까? 일단 주변 사람을 찾아가 정보를 모으자.,None,0,Warrior,StartQuest02
+---,QuestId,MinLevel,DialogueId,QuestType,QuestTitle,QuestObjectText,QuestDescription,TargetId,TargetCount,QuestCompletionTargetId,RewardXp,RewardItemIds,NextQuestId
+NewRow,Quest01,1,None,MainQuest,퀘스트 제목,목표 내용,퀘스트 설명,Box01,1,Warrior,0,,None
+Row0001,StartQuest01,1,FirstQuest01,MainQuest,처음의 시작,전사와 대화하기,"눈을 떠보니 낯선 곳에 있다.
+이곳은 어디일까? 나는 무엇을 하면 될까?
+일단 주변에 아무에게나 이곳이 어디인지 물어보자.",None,0,Warrior,0,"(""1"",""11"")",StartQuest02

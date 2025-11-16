@@ -26,5 +26,7 @@ class COREMODULE_API IBnPlayerStateInterface
 public:
 	virtual FInventoryContents GetInventoryContents() const = 0;
 	virtual FString GetPlayerUniqueId() const = 0;
+	/* Core 모듈은 Quest 모듈 종속성이 없어 Quest Component를 바로 반환하지 못함. 따라서 Cast 해서 사용해야함. */
+	virtual UActorComponent* GetQuestComponent() const = 0;
 	
 };

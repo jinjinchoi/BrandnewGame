@@ -50,6 +50,19 @@ UGameOverWidgetController* UUIFunctionLibrary::GetGameOverWidgetController(const
 	return nullptr;
 }
 
+UQuestWidgetController* UUIFunctionLibrary::GetQuestWidgetController(const UObject* WorldContextObject)
+{
+	if (const APlayerController* PlayerController = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	{
+		if (ABrandNewHUD* HUD = Cast<ABrandNewHUD>(PlayerController->GetHUD()))
+		{
+			return HUD->GetQuestWidgetController();
+		}
+	}
+
+	return nullptr;
+}
+
 FSaveSlotViewInfoParams UUIFunctionLibrary::GetSaveSlotInfo(const UObject* WorldContextObject, const FString& SlotName, const int32 SlotIndex)
 {
 	if (!WorldContextObject) return FSaveSlotViewInfoParams();

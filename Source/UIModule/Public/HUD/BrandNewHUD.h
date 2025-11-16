@@ -7,6 +7,7 @@
 #include "Interfaces/UI/BrandNewHUDInterface.h"
 #include "BrandNewHUD.generated.h"
 
+class UQuestWidgetController;
 class UDialogueWidgetController;
 class UGameOverWidgetController;
 class UInventoryWidgetController;
@@ -36,6 +37,7 @@ public:
 	UCharacterInfoWidgetController* GetCharacterInfoWidgetController();
 	UInventoryWidgetController* GetInventoryWidgetController();
 	UGameOverWidgetController* GetGameOverWidgetController();
+	UQuestWidgetController* GetQuestWidgetController();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -45,6 +47,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget")
 	TSubclassOf<UBrandNewWidget> DialogueWidgetClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Widget")
+	TSubclassOf<UUserWidget> SequenceOverlayWidgetClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
@@ -60,9 +65,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Widget Controller")
 	TSubclassOf<UDialogueWidgetController> DialogueWidgetControllerClass;
-
-	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Widget")
-	TSubclassOf<UUserWidget> SequenceOverlayWidgetClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Brandnew|Widget Controller")
+	TSubclassOf<UQuestWidgetController> QuestWidgetControllerClass;
 
 private:
 	UPROPERTY()
@@ -71,6 +76,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<UBrandNewWidget> DialogueWidget;
 
+	UPROPERTY()
+	TObjectPtr<UUserWidget> SequenceOverlayWidget;
+	
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
 	
@@ -85,8 +93,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UDialogueWidgetController> DialogueWidgetController;
-
+	
 	UPROPERTY()
-	TObjectPtr<UUserWidget> SequenceOverlayWidget;
+	TObjectPtr<UQuestWidgetController> QuestWidgetController;
 	
 };

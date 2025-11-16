@@ -9,18 +9,20 @@
 
 class UBnQuestInstance;
 
+/* 퀘스트 진행 상황등이 담기는 구조체 */
 USTRUCT(BlueprintType)
 struct FQuestInstance
 {
 	GENERATED_BODY()
 	
-	FName QuestId = NAME_None;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
-	FQuestObjectiveBase QuestObjective = FQuestObjectiveBase();
+	FName QuestId = NAME_None;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
 	EQuestState QuestState = EQuestState::InProgress;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
+	FQuestObjectiveBase QuestObjective = FQuestObjectiveBase();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
 	int32 CurrentCount = 0;
@@ -62,6 +64,9 @@ private:
 	TMap<FName, FQuestObjectiveBase> AllQuestsMap;
 	/* 해당 레벨에 수행할 수 있는 퀘스트 목록 맵 */
 	TMap<int32, TArray<FQuestObjectiveBase>> LevelToQuestsMap;
-	
+
+public:
+	FORCEINLINE TArray<FQuestInstance> GetActivatedQuests() const { return ActivatedQuests; }
+	FORCEINLINE TArray<FQuestInstance> GetCompletedQuests() const { return CompletedQuests; }
 	
 };
