@@ -25,6 +25,9 @@ struct FQuestInstance
 	int32 CurrentCount = 0;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
+	FName TargetId = NAME_None;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
 	int32 TargetCount = 0;
 	
 	bool operator==(const FQuestInstance& Other) const
@@ -33,6 +36,9 @@ struct FQuestInstance
 	}
 	
 };
+
+DECLARE_MULTICAST_DELEGATE(FOnTrackedQuestChanged);
+
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class QUESTMODULE_API UBrandnewQuestComponent : public UActorComponent
@@ -45,6 +51,14 @@ public:
 
 	/* 레벨을 보내면 해당 레벨에 수행 가능한 퀘스트를 추가해주는 함수 */
 	void GrantQuestByLevelRequirement(const int32 PlayerLevel);
+	
+	FQuestObjectiveBase FindQuestObjectiveById(const FName QuestIdToFind) const;
+	FQuestInstance FindTrackedQuestInstance() const;
+
+	// 현재 추적중인 퀘스트 아이디 설정하는 함수
+	void SetTrackedQuestId(const FName& QuestIdToTrack);
+	// 추적 중인 퀘스트가 변경되는 호출되는 델리게이트
+	FOnTrackedQuestChanged OnTrackedQuestChangedDelegate;
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,6 +71,9 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, VisibleAnywhere)
 	TArray<FQuestInstance> CompletedQuests;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	FName TrackedQuestId;
 
 private:
 	void CreateAllQuestMap();
@@ -68,7 +85,6 @@ private:
 public:
 	FORCEINLINE TArray<FQuestInstance> GetActivatedQuests() const { return ActivatedQuests; }
 	FORCEINLINE TArray<FQuestInstance> GetCompletedQuests() const { return CompletedQuests; }
-	
-	FQuestObjectiveBase FindQuestObjectiveById(const FName QuestIdToFind) const;
+	FORCEINLINE FName GetTrackedQuestId() const { return TrackedQuestId; }
 	
 };

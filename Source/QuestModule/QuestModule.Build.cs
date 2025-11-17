@@ -19,7 +19,8 @@ public class QuestModule : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore"
+                "SlateCore",
+                "CoreModule"
             }
         );
     }

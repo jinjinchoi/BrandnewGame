@@ -175,6 +175,7 @@ UQuestWidgetController* ABrandNewHUD::GetQuestWidgetController()
 	{
 		QuestWidgetController = NewObject<UQuestWidgetController>(this, QuestWidgetControllerClass);
 		QuestWidgetController->SetControlledPawn(GetOwningPlayerController()->GetPawn());
+		QuestWidgetController->BindCallbacksToDependencies();
 	}
 	
 	return QuestWidgetController;

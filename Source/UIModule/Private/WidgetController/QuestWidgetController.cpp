@@ -5,18 +5,39 @@
 #include "Interfaces/Player/BnPlayerStateInterface.h"
 #include "GameFramework/PlayerState.h"
 
-TArray<FQuestInstance> UQuestWidgetController::GetActivatedQuests() const
+UBrandnewQuestComponent* UQuestWidgetController::GetQuestComponent() const
 {
 	check(ControlledPawn)
-	if (!ControlledPawn) return TArray<FQuestInstance>();
 	
-	const IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(ControlledPawn->GetPlayerState());
-	if (!PlayerStateInterface) return TArray<FQuestInstance>();
+	if (const IBnPlayerStateInterface* PlayerStateInterface = CastChecked<IBnPlayerStateInterface>(ControlledPawn->GetPlayerState()))
+	{
+		return Cast<UBrandnewQuestComponent>(PlayerStateInterface->GetQuestComponent());
+	}
 	
-	const UBrandnewQuestComponent* QuestComponent = Cast<UBrandnewQuestComponent>(PlayerStateInterface->GetQuestComponent());
-	if (!QuestComponent) return TArray<FQuestInstance>();
+	return nullptr;
+
+}
+
+void UQuestWidgetController::BindCallbacksToDependencies() const
+{
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (!QuestComponent) return;
 	
-	return QuestComponent->GetActivatedQuests();
+	QuestComponent->OnTrackedQuestChangedDelegate.AddLambda([this]()
+	{
+		OnTrackedQuestChangedDelegate.Broadcast();
+	});
+	
+}
+
+TArray<FQuestInstance> UQuestWidgetController::GetActivatedQuests() const
+{
+	if (const UBrandnewQuestComponent* QuestComponent = GetQuestComponent())
+	{
+		return QuestComponent->GetActivatedQuests();
+	}
+	
+	return TArray<FQuestInstance>();
 	
 }
 
@@ -36,14 +57,43 @@ FQuestInstance UQuestWidgetController::GetQuestInstanceById(const FName& QuestId
 
 FQuestObjectiveBase UQuestWidgetController::FindQuestObjectiveById(const FName& QuestId) const
 {
-	check(ControlledPawn)
-	if (!ControlledPawn) return FQuestObjectiveBase();
+	if (const UBrandnewQuestComponent* QuestComponent = GetQuestComponent())
+	{
+		return QuestComponent->FindQuestObjectiveById(QuestId);
+	}
+	
+	return FQuestObjectiveBase();
 
-	const IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(ControlledPawn->GetPlayerState());
-	if (!PlayerStateInterface) return FQuestObjectiveBase();
-
-	const UBrandnewQuestComponent* QuestComponent = Cast<UBrandnewQuestComponent>(PlayerStateInterface->GetQuestComponent());
-	if (!QuestComponent) return FQuestObjectiveBase();
-
-	return QuestComponent->FindQuestObjectiveById(QuestId);
 }
+
+FQuestInstance UQuestWidgetController::FindTrackedQuestInstance() const
+{
+	if (const UBrandnewQuestComponent* QuestComponent = GetQuestComponent())
+	{
+		return GetQuestInstanceById(QuestComponent->GetTrackedQuestId());
+	}
+	
+	return FQuestInstance();
+	
+}
+
+FName UQuestWidgetController::GetTrackedQuestId() const
+{
+	if (const UBrandnewQuestComponent* QuestComponent = GetQuestComponent())
+	{
+		return QuestComponent->GetTrackedQuestId();
+	}
+
+	return FName();
+	
+}
+
+void UQuestWidgetController::SetTrackedQuestId(const FName& QuestId)
+{
+	if (UBrandnewQuestComponent* QuestComponent = GetQuestComponent())
+	{
+		QuestComponent->SetTrackedQuestId(QuestId);
+	}
+}
+
+

@@ -3,6 +3,8 @@
 
 #include "QuestModule/Public/Components/BrandnewQuestComponent.h"
 
+#include "Game/Subsystem/BrandnewQuestSubsystem.h"
+#include "Interfaces/Actor/QuestActorInterface.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -76,6 +78,7 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 			NewQuest.TargetCount = QuestObjective.TargetCount;
 			NewQuest.CurrentCount = 0;
 			NewQuest.QuestState = EQuestState::InProgress;
+			NewQuest.TargetId = QuestObjective.TargetId;
 
 			if (!ActivatedQuests.Contains(NewQuest) && !CompletedQuests.Contains(NewQuest))
 			{
@@ -86,6 +89,37 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 }
 
 
+void UBrandnewQuestComponent::SetTrackedQuestId(const FName& QuestIdToTrack)
+{
+	UBrandnewQuestSubsystem* QuestSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UBrandnewQuestSubsystem>();
+	
+	// 이전에 화면에 표시 중이던 퀘스트 타겟 액터의 위젯 컴포넌트 hide
+	if (TrackedQuestId != QuestIdToTrack)
+	{
+		const FQuestInstance PreviousTrackedQuestInstance = FindTrackedQuestInstance();
+		AActor* PreviousTargetActor = QuestSubsystem->GetActorFromMap(PreviousTrackedQuestInstance.TargetId);
+		if (IQuestActorInterface* PreviousQuestActorInterface = Cast<IQuestActorInterface>(PreviousTargetActor))
+		{
+			PreviousQuestActorInterface->ShowLocationWidget(false);
+		}
+	}
+	
+	TrackedQuestId = QuestIdToTrack;
+	OnTrackedQuestChangedDelegate.Broadcast();
+	
+	if (TrackedQuestId == NAME_None) return;
+	
+	// 새로 바뀐 타겟의 위젯 컴포넌트 show
+	const FQuestInstance TrackedQuestInstance = FindTrackedQuestInstance();
+	AActor* TargetActor = QuestSubsystem->GetActorFromMap(TrackedQuestInstance.TargetId);
+	if (IQuestActorInterface* QuestActorInterface = Cast<IQuestActorInterface>(TargetActor))
+	{
+		QuestActorInterface->ShowLocationWidget(true);
+	}
+	
+	
+	
+}
 
 FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName QuestIdToFind) const
 {
@@ -95,5 +129,21 @@ FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName 
 	}
 
 	return FQuestObjectiveBase();
+	
+}
+
+FQuestInstance UBrandnewQuestComponent::FindTrackedQuestInstance() const
+{
+	if (TrackedQuestId == NAME_None) return FQuestInstance();
+	
+	for (const FQuestInstance& Quest : ActivatedQuests)
+	{
+		if (Quest.QuestId == TrackedQuestId)
+		{
+			return Quest;
+		}
+	}
+	
+	return FQuestInstance();
 	
 }
