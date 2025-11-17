@@ -13,7 +13,7 @@ struct FQuestObjectiveBase : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Info")
 	FName QuestId = NAME_None;
 	
-	/* 퀘스트를 수행하기 위해 필요한 레벨. */
+	/* 퀘스트를 수행하기 위해 필요한 레벨. 0이하면 자동 부여가 아닌 연속 퀘스트등 특정 상황에 부여되는 퀘스트 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Info")
 	int32 MinLevel = 1;
 	
@@ -23,12 +23,15 @@ struct FQuestObjectiveBase : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|UI")
 	EQuestType QuestType = EQuestType::MainQuest;
 	
+	/* 퀘스트 제목 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|UI")
 	FText QuestTitle = FText();
 	
+	/* 퀘스트 목표 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|UI")
 	FText QuestObjectText = FText();
 	
+	/* 퀘스트 본문 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|UI")
 	FText QuestDescription = FText();
 	
@@ -40,15 +43,12 @@ struct FQuestObjectiveBase : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Objective")
 	int32 TargetCount = 0;
 	
-	/* 퀘스트를 완료할 타겟의 Id */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Objective")
-	FName QuestCompletionTargetId = NAME_None;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Reward")
 	int32 RewardXp = 0;
 	
+	/* Key : Item Id, Value : Quantity */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Reward")
-	TArray<FName> RewardItemIds;
+	TMap<int32/* Item ID */, int32 /* Quantity */> RewardItemMap;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuestTable|Info")
 	FName NextQuestId = NAME_None;

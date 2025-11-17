@@ -1,5 +1,5 @@
----,QuestId,MinLevel,DialogueId,QuestType,QuestTitle,QuestObjectText,QuestDescription,TargetId,TargetCount,QuestCompletionTargetId,RewardXp,RewardItemIds,NextQuestId
-NewRow,Quest01,1,None,MainQuest,퀘스트 제목,목표 내용,퀘스트 설명,Box01,1,Warrior,0,,None
+---,QuestId,MinLevel,DialogueId,QuestType,QuestTitle,QuestObjectText,QuestDescription,TargetId,TargetCount,RewardXp,RewardItemMap,NextQuestId
+NewRow,Quest01,1,None,MainQuest,퀘스트 제목,퀘스트 목표 설명,퀘스트 본문 내용,Box01,1,0,(),None
 Row0001,StartQuest01,1,FirstQuest01,MainQuest,처음의 시작,전사와 대화하기,"눈을 떠보니 낯선 곳에 있다.
 이곳은 어디일까? 나는 무엇을 하면 될까?
-일단 주변에 아무에게나 이곳이 어디인지 물어보자.",None,0,Warrior,0,"(""1"",""11"")",StartQuest02
+일단 주변에 아무에게나 이곳이 어디인지 물어보자.",None,0,0,"((1, 1),(22, 3))",StartQuest02

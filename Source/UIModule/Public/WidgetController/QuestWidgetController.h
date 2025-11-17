@@ -21,5 +21,8 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "Brandnew|QuestSystem")
 	FQuestInstance GetQuestInstanceById(const FName& QuestId) const;
+
+	UFUNCTION(BlueprintPure, Category = "Brandnew|QuestSystem")
+	FQuestObjectiveBase FindQuestObjectiveById(const FName& QuestId) const;
 	
 };

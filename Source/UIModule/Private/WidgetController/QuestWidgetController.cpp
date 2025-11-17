@@ -33,3 +33,17 @@ FQuestInstance UQuestWidgetController::GetQuestInstanceById(const FName& QuestId
 	return FQuestInstance();
 	
 }
+
+FQuestObjectiveBase UQuestWidgetController::FindQuestObjectiveById(const FName& QuestId) const
+{
+	check(ControlledPawn)
+	if (!ControlledPawn) return FQuestObjectiveBase();
+
+	const IBnPlayerStateInterface* PlayerStateInterface = Cast<IBnPlayerStateInterface>(ControlledPawn->GetPlayerState());
+	if (!PlayerStateInterface) return FQuestObjectiveBase();
+
+	const UBrandnewQuestComponent* QuestComponent = Cast<UBrandnewQuestComponent>(PlayerStateInterface->GetQuestComponent());
+	if (!QuestComponent) return FQuestObjectiveBase();
+
+	return QuestComponent->FindQuestObjectiveById(QuestId);
+}

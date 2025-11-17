@@ -22,10 +22,10 @@ struct FQuestInstance
 	EQuestState QuestState = EQuestState::InProgress;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
-	FQuestObjectiveBase QuestObjective = FQuestObjectiveBase();
+	int32 CurrentCount = 0;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
-	int32 CurrentCount = 0;
+	int32 TargetCount = 0;
 	
 	bool operator==(const FQuestInstance& Other) const
 	{
@@ -68,5 +68,7 @@ private:
 public:
 	FORCEINLINE TArray<FQuestInstance> GetActivatedQuests() const { return ActivatedQuests; }
 	FORCEINLINE TArray<FQuestInstance> GetCompletedQuests() const { return CompletedQuests; }
+	
+	FQuestObjectiveBase FindQuestObjectiveById(const FName QuestIdToFind) const;
 	
 };

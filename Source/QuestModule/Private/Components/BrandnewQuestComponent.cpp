@@ -36,7 +36,7 @@ void UBrandnewQuestComponent::BeginPlay()
 void UBrandnewQuestComponent::CreateAllQuestMap()
 {
 	check(QuestDataTable);
-	if (!QuestDataTable || !GetOwner()->HasAuthority() || !AllQuestsMap.IsEmpty()) return;
+	if (!QuestDataTable || !AllQuestsMap.IsEmpty()) return;
 	
 	if (QuestDataTable->GetRowStruct() == FQuestObjectiveBase::StaticStruct())
 	{
@@ -69,9 +69,11 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 
 		for (const FQuestObjectiveBase QuestObjective : LevelToQuestsMap[i])
 		{
+			if (QuestObjective.MinLevel <= 0) continue;
+			
 			FQuestInstance NewQuest;
 			NewQuest.QuestId = QuestObjective.QuestId;
-			NewQuest.QuestObjective = QuestObjective;
+			NewQuest.TargetCount = QuestObjective.TargetCount;
 			NewQuest.CurrentCount = 0;
 			NewQuest.QuestState = EQuestState::InProgress;
 
@@ -81,4 +83,17 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 			}
 		}
 	}
+}
+
+
+
+FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName QuestIdToFind) const
+{
+	if (const FQuestObjectiveBase* Found = AllQuestsMap.Find(QuestIdToFind))
+	{
+		return *Found;
+	}
+
+	return FQuestObjectiveBase();
+	
 }
