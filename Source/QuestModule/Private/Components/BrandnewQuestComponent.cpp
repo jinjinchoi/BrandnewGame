@@ -4,7 +4,9 @@
 #include "QuestModule/Public/Components/BrandnewQuestComponent.h"
 
 #include "Game/Subsystem/BrandnewQuestSubsystem.h"
+#include "GameFramework/PlayerState.h"
 #include "Interfaces/Actor/QuestActorInterface.h"
+#include "Interfaces/Character/BrandNewPlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -56,6 +58,7 @@ void UBrandnewQuestComponent::CreateAllQuestMap()
 	}
 }
 
+
 void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLevel)
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority()) return;
@@ -72,22 +75,36 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 		for (const FQuestObjectiveBase QuestObjective : LevelToQuestsMap[i])
 		{
 			if (QuestObjective.MinLevel <= 0) continue;
-			
-			FQuestInstance NewQuest;
-			NewQuest.QuestId = QuestObjective.QuestId;
-			NewQuest.TargetCount = QuestObjective.TargetCount;
-			NewQuest.CurrentCount = 0;
-			NewQuest.QuestState = EQuestState::InProgress;
-			NewQuest.TargetId = QuestObjective.TargetId;
-
-			if (!ActivatedQuests.Contains(NewQuest) && !CompletedQuests.Contains(NewQuest))
-			{
-				ActivatedQuests.Add(NewQuest);
-			}
+			AddActivatedQuest(QuestObjective);
 		}
 	}
 }
 
+void UBrandnewQuestComponent::GrantQuestByQuestId(const FName& QuestId)
+{
+	if (const FQuestObjectiveBase* Found = AllQuestsMap.Find(QuestId))
+	{
+		const FQuestObjectiveBase QuestObjective = *Found;
+		AddActivatedQuest(QuestObjective);
+	}
+}
+
+void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& QuestObjective)
+{
+	FQuestInstance NewQuest;
+	NewQuest.QuestId = QuestObjective.QuestId;
+	NewQuest.TargetCount = QuestObjective.TargetCount;
+	NewQuest.CurrentCount = 0;
+	NewQuest.QuestState = EQuestState::InProgress;
+	NewQuest.TargetId = QuestObjective.TargetId;
+	NewQuest.NextQuestId = QuestObjective.NextQuestId;
+	NewQuest.DialogueId = QuestObjective.DialogueId;
+			
+	if (!ActivatedQuests.Contains(NewQuest) && !CompletedQuests.Contains(NewQuest))
+	{
+		ActivatedQuests.Add(NewQuest);
+	}
+}
 
 void UBrandnewQuestComponent::SetTrackedQuestId(const FName& QuestIdToTrack)
 {
@@ -117,11 +134,9 @@ void UBrandnewQuestComponent::SetTrackedQuestId(const FName& QuestIdToTrack)
 		QuestActorInterface->ShowLocationWidget(true);
 	}
 	
-	
-	
 }
 
-FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName QuestIdToFind) const
+FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName& QuestIdToFind) const
 {
 	if (const FQuestObjectiveBase* Found = AllQuestsMap.Find(QuestIdToFind))
 	{
@@ -130,6 +145,17 @@ FQuestObjectiveBase UBrandnewQuestComponent::FindQuestObjectiveById(const FName 
 
 	return FQuestObjectiveBase();
 	
+}
+
+FQuestObjectiveBase UBrandnewQuestComponent::FindTrackedQuestObjective() const
+{
+	if (const FQuestObjectiveBase* Found = AllQuestsMap.Find(TrackedQuestId))
+	{
+		return *Found;
+	}
+
+	return FQuestObjectiveBase();
+		
 }
 
 FQuestInstance UBrandnewQuestComponent::FindTrackedQuestInstance() const
@@ -146,4 +172,93 @@ FQuestInstance UBrandnewQuestComponent::FindTrackedQuestInstance() const
 	
 	return FQuestInstance();
 	
+}
+
+void UBrandnewQuestComponent::AdvanceQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount)
+{
+	if (!GetOwner()->HasAuthority()) return;
+	
+	for (FQuestInstance& Quest : ActivatedQuests)
+	{
+		if (Quest.QuestId == QuestIdToUpdate)
+		{
+			Quest.CurrentCount = FMath::Clamp(Quest.CurrentCount + IncreaseAmount, 0, Quest.TargetCount);
+			if (Quest.CurrentCount >= Quest.TargetCount)
+			{
+				CompleteQuest(Quest.QuestId);
+				return;
+			}
+			break;
+		}
+	}
+	
+	if (QuestIdToUpdate == TrackedQuestId)
+	{
+		OnTrackedQuestChangedDelegate.Broadcast();
+	}
+	
+}
+
+
+void UBrandnewQuestComponent::CompleteQuest(const FName& CompletedQuestId)
+{
+	// 클리어한 퀘스트의 아이디를 바탕으로 인덱스를 찾아옴
+	const int32 Index = ActivatedQuests.IndexOfByPredicate(
+		[&](const FQuestInstance& Quest)
+		{
+			return Quest.QuestId == CompletedQuestId;
+		}
+	);
+
+	if (Index == INDEX_NONE) return;
+	
+	// 클리어한 퀘스트
+	const FQuestInstance CompletedQuest = ActivatedQuests[Index];
+	
+	// 클리어한 퀘스트가 연속 퀘스트일 경우 새로운 퀘스트 부여
+	if (!CompletedQuest.NextQuestId.IsNone())
+	{
+		GrantQuestByQuestId(CompletedQuest.NextQuestId);
+		// 클리어한 퀘스트가 현재 추적중이었으면 추적 대상을 다음 퀘스트로 변경 
+		if (CompletedQuest.QuestId == TrackedQuestId)
+		{
+			SetTrackedQuestId(CompletedQuest.NextQuestId);
+		}
+		Client_SetTrackedQuestId(CompletedQuest.QuestId, CompletedQuest.NextQuestId);
+	}
+	
+	// 보상 추가
+	GrantQuestRewardsToPlayer(CompletedQuest.QuestId);
+	
+	// Activated에서 제거
+	ActivatedQuests.RemoveAt(Index);
+
+	// Completed로 이동
+	CompletedQuests.Add(CompletedQuest);
+	
+}
+
+void UBrandnewQuestComponent::GrantQuestRewardsToPlayer(const FName& QuestId) const
+{
+	const FQuestObjectiveBase& QuestObjectiveBase = FindQuestObjectiveById(QuestId);
+	if (QuestObjectiveBase.QuestId == NAME_None) return;
+	
+	const APlayerState* PlayerState = CastChecked<APlayerState>(GetOwner());
+	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(PlayerState->GetPawn()))
+	{
+		PlayerInterface->GrantQuestReward(QuestObjectiveBase.RewardXp, QuestObjectiveBase.RewardItemMap);
+	}
+}
+
+void UBrandnewQuestComponent::OnRep_ActivatedQuests()
+{
+	SetTrackedQuestId(TrackedQuestId);
+}
+
+void UBrandnewQuestComponent::Client_SetTrackedQuestId_Implementation(const FName& CompletedQuestId, const FName& NextQuestId)
+{
+	if (CompletedQuestId == TrackedQuestId)
+	{
+		SetTrackedQuestId(NextQuestId);
+	}
 }

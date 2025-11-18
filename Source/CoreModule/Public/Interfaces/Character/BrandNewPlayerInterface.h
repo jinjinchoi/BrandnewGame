@@ -100,6 +100,9 @@ public:
 	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) = 0;
 
 	/* 무기를 숨겨진 상태로 만들 것인지 설정하는 함수 */
-	virtual void SetCombatWeaponVisible(const bool bIsVisible) = 0; 
+	virtual void SetCombatWeaponVisible(const bool bIsVisible) = 0;
+	
+	/* 퀘스트 보상 주는 함수 */
+	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) = 0;
 	
 };

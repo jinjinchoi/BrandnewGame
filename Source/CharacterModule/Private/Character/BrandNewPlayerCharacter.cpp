@@ -23,6 +23,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
+#include "Components/BrandnewQuestComponent.h"
 #include "DataTableStruct/DataTableRowStruct.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
@@ -30,6 +31,7 @@
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "GameMode/BrandNewGameModeBase.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
+#include "Interfaces/Actor/QuestActorInterface.h"
 #include "Inventory/BrandNewInventory.h"
 #include "Kismet/GameplayStatics.h"
 #include "Manager/Sequnce/SequenceManager.h"
@@ -322,7 +324,7 @@ void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& Inventory
 void ABrandNewPlayerCharacter::ApplyAddXPEffect(const float XpToAdd) const
 {
 	check(XPAttributeEffect);
-	if (!HasAuthority() || !XPAttributeEffect || !AbilitySystemComponent) return;
+	if (!HasAuthority() || !XPAttributeEffect || !AbilitySystemComponent || XpToAdd == 0) return;
 
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
@@ -1023,15 +1025,15 @@ void ABrandNewPlayerCharacter::RevivePlayerCharacter()
 
 void ABrandNewPlayerCharacter::AddOverlappedNPC(AActor* OverlappedNPC)
 {
-	OverlappedNPCArray.AddUnique(OverlappedNPC);
+	OverlappedActorArray.AddUnique(OverlappedNPC);
 	
 }
 
 void ABrandNewPlayerCharacter::RemoveOverlappedNPC(AActor* EndOverlappedNPC)
 {
-	if (OverlappedNPCArray.Contains(EndOverlappedNPC))
+	if (OverlappedActorArray.Contains(EndOverlappedNPC))
 	{
-		OverlappedNPCArray.Remove(EndOverlappedNPC);
+		OverlappedActorArray.Remove(EndOverlappedNPC);
 	}
 	
 }
@@ -1045,9 +1047,39 @@ void ABrandNewPlayerCharacter::SetCombatWeaponVisible(const bool bIsVisible)
 	
 }
 
+void ABrandNewPlayerCharacter::GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap)
+{
+	if (!HasAuthority()) return;
+	
+	ApplyAddXPEffect(XpReward);
+	
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
+
+	for (const TPair<int32, int32>& Reward : ItemRewardMap)
+	{
+		FInventorySlotData ItemData;
+		ItemData.ItemID = Reward.Key;
+		ItemData.Quantity = Reward.Value;
+		Inventory->AddItemToSlot(ItemData);
+	}
+	
+}
+
+void ABrandNewPlayerCharacter::StartDialogue(const FName& DialogueIdToStart) const
+{
+	if (DialogueIdToStart.IsNone()) return;
+	
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController) return;
+	IBrandNewHUDInterface* BrandNewHUD = Cast<IBrandNewHUDInterface>(PlayerController->GetHUD());
+	if (!BrandNewHUD) return;
+	BrandNewHUD->HideMainOverlay();
+	BrandNewHUD->CreateDialogueWidget(DialogueIdToStart);
+}
+
 void ABrandNewPlayerCharacter::InteractIfPossible()
 {
-
 	// 아이템 획득 로직
 	if (HasAuthority())
 	{
@@ -1082,30 +1114,68 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		}
 	}
 
-	// NPC 대화 로직
-	if (OverlappedNPCArray.Num() > 0)
+	if (OverlappedActorArray.Num() <= 0) return;
+	
+	float Distance = 0.f;
+	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
+	
+	// 퀘스트 로직
+	if (IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor); QuestActor && GetQuestComponent())
 	{
-		float Distance = 0.f;
-		AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedNPCArray, Distance);
-		
-		IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor);
-		checkf(NPCInterface, TEXT("Actor in OverlappedInteractiveActors must implement IInteractiveActorInterface"));
-
+		for (const FQuestInstance& Quest : GetQuestComponent()->GetActivatedQuests())
+		{
+			if (QuestActor->IsQuestTargetActor(Quest.TargetId))
+			{
+				Server_UpdateQuestObjectiveProgress();
+				if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
+				{
+					NPCInterface->HideInteractionWidget();
+				}
+				StartDialogue(Quest.DialogueId);
+				return;
+			}
+		}
+	}
+	
+	// NPC 대화 로직
+	if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
+	{
 		// 가장 가까운 NPC 찾아서 상호작용.
 		const FName FirstDialogueId = NPCInterface->GetFirstDialogueId();
 		if (FirstDialogueId.IsNone()) return;
 		NPCInterface->HideInteractionWidget();
 
-		const APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if (!PlayerController) return;
-		IBrandNewHUDInterface* BrandNewHUD = Cast<IBrandNewHUDInterface>(PlayerController->GetHUD());
-		if (!BrandNewHUD) return;
-		BrandNewHUD->HideMainOverlay();
-		BrandNewHUD->CreateDialogueWidget(FirstDialogueId);
-		
+		StartDialogue(FirstDialogueId);
 	}
 	
 }
+
+UBrandnewQuestComponent* ABrandNewPlayerCharacter::GetQuestComponent() const
+{
+	UActorComponent* Comp = GetPlayerStateChecked<ABrandNewPlayerState>()->GetQuestComponent();
+	return Cast<UBrandnewQuestComponent>(Comp);
+}
+
+void ABrandNewPlayerCharacter::Server_UpdateQuestObjectiveProgress_Implementation()
+{
+	float Distance = 0.f;
+	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
+	
+	IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor);
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (!QuestComponent) return;
+
+	// 활성화 된 퀘스트를 순회하여 현재 접촉중인 대상의 타겟아이디와 퀘스트의 타겟 아이디가 동일하면 퀘스트 진행도 증가
+	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
+	{
+		if (Quest.TargetId == QuestActor->GetQuestActorId())
+		{
+			QuestComponent->AdvanceQuestProgress(Quest.QuestId);
+		}
+	}
+		
+}
+
 
 void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
 {
@@ -1220,3 +1290,5 @@ void ABrandNewPlayerCharacter::AddYawRotation(const float DeltaYaw)
 	SetActorRotation(NewRot);
 }
 #pragma endregion
+
+

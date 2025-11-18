@@ -32,7 +32,7 @@ ABrandNewNPC::ABrandNewNPC()
 	InteractionWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interaction Widget Component"));
 	InteractionWidgetComponent->SetupAttachment(GetRootComponent());
 
-	NPCNameWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Name Widget Component"));
+	NPCNameWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPC Name Widget Component"));
 	NPCNameWidgetComponent->SetupAttachment(GetRootComponent());
 	
 	LocationWidgetComponent->SetupAttachment(GetRootComponent());

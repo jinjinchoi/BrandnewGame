@@ -10,6 +10,7 @@
 #include "Delegates/Delegate.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class UBrandnewQuestComponent;
 class ABrandNewPickupItem;
 class UDataAsset_LevelUpInfo;
 class UDataAsset_AttributeInfo;
@@ -61,6 +62,7 @@ public:
 	virtual void AddOverlappedNPC(AActor* OverlappedNPC) override;
 	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) override;
 	virtual void SetCombatWeaponVisible(const bool bIsVisible) override;
+	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -172,26 +174,6 @@ private:
 	void InitHUDAndBroadCastInitialValue() const;
 
 	float CalculateExpPercent() const;
-
-	void MoveCharacterToValidLocation(const FVector& NewLocation);
-	FVector GetSafeTeleportLocation(const FVector& NewLocation) const;
-
-	void ReviveCharacter();
-	UFUNCTION(Server, Reliable)
-	void Server_ReviveCharacter();
-	
-	/* 부활할때 사용할 마지막으로 저장하거나 로드된 위치. 서버에서만 설정됨. */
-	FVector SafeLocation;
-	
-	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
-	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
-	
-	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
-
-	UPROPERTY()
-	TArray<AActor*> OverlappedNPCArray;
 	
 	/* 현재 락온 중인 타겟 액터 */
 	TWeakObjectPtr<AActor> CombatTargetActor;
@@ -204,10 +186,31 @@ private:
 	UFUNCTION(Client, Reliable)
 	void Client_PlayFirstEntranceSequence();
 	
-	FText GetCurrentTimeText() const;
+#pragma region Interaction
+	UPROPERTY()
+	TArray<AActor*> OverlappedActorArray;
+	
+	void StartDialogue(const FName& DialogueIdToStart) const;
+	UBrandnewQuestComponent* GetQuestComponent() const;
+	
+	UFUNCTION(Server, Reliable)
+	void Server_UpdateQuestObjectiveProgress();
 
-	// bool bIsWaitingTravel = false;
+	
+#pragma endregion
 
+#pragma region Revive
+	void MoveCharacterToValidLocation(const FVector& NewLocation);
+	FVector GetSafeTeleportLocation(const FVector& NewLocation) const;
+
+	void ReviveCharacter();
+	UFUNCTION(Server, Reliable)
+	void Server_ReviveCharacter();
+	
+	/* 부활할때 사용할 마지막으로 저장하거나 로드된 위치. 서버에서만 설정됨. */
+	FVector SafeLocation;
+
+#pragma endregion
 
 #pragma region SaveAndLoad
 	/**
@@ -247,6 +250,12 @@ private:
 #pragma endregion
 
 #pragma region Item
+	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
+	
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
 
 	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
 
@@ -321,6 +330,8 @@ private:
 	bool bIsZooming = false;
 
 #pragma endregion Camera
+	
+	FText GetCurrentTimeText() const;
 	
 	
 };

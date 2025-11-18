@@ -5,20 +5,24 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/Actor/QuestActorInterface.h"
-#include "BrandnewActor.generated.h"
+#include "BrandnewQuestActor.generated.h"
 
 class UBrandnewQuestComponent;
 class UWidgetComponent;
 
 UCLASS()
-class CHARACTERMODULE_API ABrandnewActor : public AActor, public IQuestActorInterface
+class CHARACTERMODULE_API ABrandnewQuestActor : public AActor, public IQuestActorInterface
 {
 	GENERATED_BODY()
 	
 public:	
-	ABrandnewActor();
+	ABrandnewQuestActor();
 	
+	/* begin IQuestActorInterface */
 	virtual void ShowLocationWidget(const bool bIsVisible) override;
+	virtual bool IsQuestTargetActor(const FName& QuestTargetId) override;
+	virtual FName GetQuestActorId() const override;
+	/* end IQuestActorInterface */
 
 protected:
 	virtual void BeginPlay() override;

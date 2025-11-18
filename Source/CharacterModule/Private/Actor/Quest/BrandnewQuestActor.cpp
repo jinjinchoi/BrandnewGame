@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Actor/BrandnewActor.h"
+#include "Actor/Quest/BrandnewQuestActor.h"
 #include "Components/WidgetComponent.h"
 #include "Game/Subsystem/BrandnewQuestSubsystem.h"
 
 
-ABrandnewActor::ABrandnewActor()
+ABrandnewQuestActor::ABrandnewQuestActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
@@ -16,7 +16,7 @@ ABrandnewActor::ABrandnewActor()
 
 }
 
-void ABrandnewActor::BeginPlay()
+void ABrandnewQuestActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -30,7 +30,7 @@ void ABrandnewActor::BeginPlay()
 
 }
 
-void ABrandnewActor::Destroyed()
+void ABrandnewQuestActor::Destroyed()
 {
 	if (GetWorld() && GetWorld()->IsGameWorld())
 	{
@@ -43,7 +43,17 @@ void ABrandnewActor::Destroyed()
 	Super::Destroyed();
 }
 
-void ABrandnewActor::ShowLocationWidget(const bool bIsVisible)
+void ABrandnewQuestActor::ShowLocationWidget(const bool bIsVisible)
 {
 	LocationWidgetComponent->SetVisibility(bIsVisible);
+}
+
+bool ABrandnewQuestActor::IsQuestTargetActor(const FName& QuestTargetId)
+{
+	return ActorId == QuestTargetId;
+}
+
+FName ABrandnewQuestActor::GetQuestActorId() const
+{
+	return ActorId;
 }

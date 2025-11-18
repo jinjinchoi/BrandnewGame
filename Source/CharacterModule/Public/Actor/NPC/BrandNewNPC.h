@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actor/BrandnewActor.h"
+#include "Actor/Quest/BrandnewQuestActor.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
 #include "BrandNewNPC.generated.h"
 
@@ -12,7 +12,7 @@ class UWidgetComponent;
 class USphereComponent;
 
 UCLASS()
-class CHARACTERMODULE_API ABrandNewNPC : public ABrandnewActor, public IBrandNewNPCInterface
+class CHARACTERMODULE_API ABrandNewNPC : public ABrandnewQuestActor, public IBrandNewNPCInterface
 {
 	GENERATED_BODY()
 
