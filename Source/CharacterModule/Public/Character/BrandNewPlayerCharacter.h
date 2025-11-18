@@ -63,6 +63,7 @@ public:
 	virtual void RemoveOverlappedNPC(AActor* EndOverlappedNPC) override;
 	virtual void SetCombatWeaponVisible(const bool bIsVisible) override;
 	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) override;
+	virtual void IncreaseQuestProgressOnEnemyDeath(const FName& EnemyId) override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -194,7 +195,7 @@ private:
 	UBrandnewQuestComponent* GetQuestComponent() const;
 	
 	UFUNCTION(Server, Reliable)
-	void Server_UpdateQuestObjectiveProgress();
+	void Server_UpdateInteractiveQuestProgress();
 
 	
 #pragma endregion

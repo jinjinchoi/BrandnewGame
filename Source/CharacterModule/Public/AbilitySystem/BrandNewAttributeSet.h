@@ -35,6 +35,7 @@ private:
 	void HitReportToEnemy(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const;
 	void TryActivateDeathReactAbility(const struct FGameplayEffectModCallbackData& Data) const;
 	void SendXP(const struct FGameplayEffectModCallbackData& Data) const;
+	void IncreaseQuestProgressOnEnemyDeath(AActor* Instigator) const;
 
 public:
 	////////////////////////////////////

@@ -1126,7 +1126,7 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		{
 			if (QuestActor->IsQuestTargetActor(Quest.TargetId))
 			{
-				Server_UpdateQuestObjectiveProgress();
+				Server_UpdateInteractiveQuestProgress();
 				if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
 				{
 					NPCInterface->HideInteractionWidget();
@@ -1156,7 +1156,7 @@ UBrandnewQuestComponent* ABrandNewPlayerCharacter::GetQuestComponent() const
 	return Cast<UBrandnewQuestComponent>(Comp);
 }
 
-void ABrandNewPlayerCharacter::Server_UpdateQuestObjectiveProgress_Implementation()
+void ABrandNewPlayerCharacter::Server_UpdateInteractiveQuestProgress_Implementation()
 {
 	float Distance = 0.f;
 	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
@@ -1174,6 +1174,23 @@ void ABrandNewPlayerCharacter::Server_UpdateQuestObjectiveProgress_Implementatio
 		}
 	}
 		
+}
+
+void ABrandNewPlayerCharacter::IncreaseQuestProgressOnEnemyDeath(const FName& EnemyId)
+{
+	if (!HasAuthority()) return;
+	
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (!QuestComponent) return;
+	
+	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
+	{
+		if (Quest.TargetId == EnemyId)
+		{
+			QuestComponent->AdvanceQuestProgress(Quest.QuestId);
+		}
+	}
+	
 }
 
 

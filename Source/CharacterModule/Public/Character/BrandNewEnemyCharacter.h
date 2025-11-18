@@ -29,6 +29,7 @@ public:
 
 	/* begin IBrandNewEnemyInterface */
 	virtual float GetXPReward() const override;
+	virtual FName GetEnemyName() const override;
 	virtual float GetInitialMaxWalkSpeed_Implementation() const override;
 	/* end IBrandNewEnemyInterface */
 
@@ -52,7 +53,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
 
-	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 필요함 */
+	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 및 퀘스트 카운트 올릴 때 사용 */
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FName EnemyName = NAME_None;
 	

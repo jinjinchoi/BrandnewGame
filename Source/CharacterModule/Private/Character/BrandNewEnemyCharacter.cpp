@@ -63,6 +63,11 @@ float ABrandNewEnemyCharacter::GetXPReward() const
 	return XPReward.GetValueAtLevel(EnemyLevel);
 }
 
+FName ABrandNewEnemyCharacter::GetEnemyName() const
+{
+	return EnemyName;
+}
+
 float ABrandNewEnemyCharacter::GetInitialMaxWalkSpeed_Implementation() const
 {
 	return InitialMaxWalkSpeed;

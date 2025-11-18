@@ -23,6 +23,7 @@ class COREMODULE_API IBrandNewEnemyInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual float GetXPReward() const = 0;
+	virtual FName GetEnemyName() const = 0;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	float GetInitialMaxWalkSpeed() const;

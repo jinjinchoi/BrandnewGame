@@ -144,6 +144,7 @@ void UBrandNewAttributeSet::HandleIncomingDamage(const struct FGameplayEffectMod
 	if (NewHealth <= 0.f)
 	{
 		TryActivateDeathReactAbility(Data);
+		IncreaseQuestProgressOnEnemyDeath(Data.EffectSpec.GetContext().GetOriginalInstigator());
 		SendXP(Data);
 	}
 	else
@@ -175,6 +176,17 @@ void UBrandNewAttributeSet::SendXP(const struct FGameplayEffectModCallbackData& 
 	}
 }
 
+void UBrandNewAttributeSet::IncreaseQuestProgressOnEnemyDeath(AActor* Instigator) const
+{
+	const IBrandNewEnemyInterface* EnemyInterface = Cast<IBrandNewEnemyInterface>(GetOwningActor());
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(Instigator);
+	
+	if (EnemyInterface && PlayerInterface)
+	{
+		const FName EnemyId = EnemyInterface->GetEnemyName();
+		PlayerInterface->IncreaseQuestProgressOnEnemyDeath(EnemyId);
+	}
+}
 
 
 void UBrandNewAttributeSet::HandleHit(const struct FGameplayEffectModCallbackData& Data, const float LocalIncomingDamage) const
