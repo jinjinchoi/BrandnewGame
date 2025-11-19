@@ -20,6 +20,7 @@
 #include "Interfaces/UI/BnWidgetInterface.h"
 #include "Item/Equipment/BrandNewWeapon.h"
 #include "Manager/Pooling/BrandNewObjectPoolManager.h"
+#include "Net/UnrealNetwork.h"
 
 ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 {
@@ -33,6 +34,14 @@ ABrandNewEnemyCharacter::ABrandNewEnemyCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.f, 0.f);
 
 	Tags.AddUnique(TEXT("Enemy"));
+	
+}
+
+void ABrandNewEnemyCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(ThisClass, EnemyLevel);
 	
 }
 
@@ -144,35 +153,50 @@ bool ABrandNewEnemyCharacter::IsAllocatedToWorld()
 	return bIsActivated;
 }
 
-void ABrandNewEnemyCharacter::Multicast_EnableCapsuleCollision_Implementation()
-{
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	
-}
 
-void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation)
+void ABrandNewEnemyCharacter::SetEnemyTransform(const FVector& NewLocation, const FRotator& NewRotation)
 {
 	if (!HasAuthority()) return;
 	
 	SetActorLocation(NewLocation);
 	SetActorRotation(NewRotation);
 	
-	ApplyEnemyAttribute();
-
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->bPauseAnims = false;
-	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	
-	Multicast_EnableCapsuleCollision();
-	
-	GetCharacterMovement()->GravityScale = 1.f;
 	
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	
+	GetCharacterMovement()->GravityScale = 1.f;
+	
+	Multicast_EnableCapsuleCollision();
+	Multicast_ActivateAppearEffect();
+	
+}
+
+void ABrandNewEnemyCharacter::SetEnemyAttribute(const int32 NewLevel)
+{
+	if (!HasAuthority()) return;
+	
+	EnemyLevel = NewLevel;
+	ApplyEnemyAttribute();
+	
+	OnEnemyLevelChanged();
+}
+
+
+void ABrandNewEnemyCharacter::OnRep_EnemyLevel()
+{
+	OnEnemyLevelChanged();
+}
+
+
+void ABrandNewEnemyCharacter::ActivateEnemy()
+{
+	if (!HasAuthority()) return;
 	
 	if (CombatWeapon)
 	{
@@ -186,9 +210,7 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 		GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
 		AbilitySystemComponent->CancelAbilities(&GameplayTags);
 	}
-
-	Multicast_ActivateAppearEffect();
-
+	
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
 		AIController->GetBrainComponent()->RestartLogic();
@@ -202,9 +224,17 @@ void ABrandNewEnemyCharacter::ActivateEnemy(const FVector& NewLocation, const FR
 	
 }
 
+void ABrandNewEnemyCharacter::Multicast_EnableCapsuleCollision_Implementation()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+}
+
 void ABrandNewEnemyCharacter::Multicast_ActivateAppearEffect_Implementation()
 {
-	StartAppearEffect(); // bIsActivated 이거 복제 설정해서 확인해봐야함.
+	StartAppearEffect();
 }
 
 void ABrandNewEnemyCharacter::Multicast_ActivateDisappearEffect_Implementation()
@@ -266,7 +296,6 @@ void ABrandNewEnemyCharacter::OnSuperArmorTagChanged(const FGameplayTag Callback
 	GameplayTagChangedDelegate.Broadcast(CallbackTag, NewCount > 0);
 	
 }
-
 
 FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 {

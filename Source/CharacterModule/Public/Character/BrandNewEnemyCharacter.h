@@ -26,6 +26,7 @@ class CHARACTERMODULE_API ABrandNewEnemyCharacter : public ABrandNewBaseCharacte
 
 public:
 	ABrandNewEnemyCharacter();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/* begin IBrandNewEnemyInterface */
 	virtual float GetXPReward() const override;
@@ -42,20 +43,28 @@ public:
 	virtual bool IsAllocatedToWorld() override;
 	/* end IPoolableActorInterface */
 
-	void ActivateEnemy(const FVector& NewLocation, const FRotator& NewRotation = FRotator::ZeroRotator);
-
+	void SetEnemyTransform(const FVector& NewLocation, const FRotator& NewRotation = FRotator::ZeroRotator);
+	void SetEnemyAttribute(const int32 NewLevel);
+	void ActivateEnemy();
 
 protected:
 	virtual void BeginPlay() override;
-
+	
 	virtual void BindGameplayTagChanged() override;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBarWidgetComponent;
 
 	/* 에너미의 이름으로 데이터 에셋에서 에너미의 정보를 찾을때 및 퀘스트 카운트 올릴 때 사용 */
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FName EnemyName = NAME_None;
+
+	/* 화면에 보여줄 에너미의 이름 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brandnew|EnemyData")
+	FText EnemyDisplayName;
+	
+	UPROPERTY(ReplicatedUsing = "OnRep_EnemyLevel", VisibleAnywhere, BlueprintReadOnly)
+	int32 EnemyLevel = 1;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FScalableFloat XPReward;
@@ -80,6 +89,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartAppearEffect();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEnemyLevelChanged();
+	
+	UFUNCTION()
+	void OnRep_EnemyLevel();
 
 private:
 	FSecondaryAttributeDataRow* FindEnemyDataRow() const;
@@ -97,8 +112,7 @@ private:
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnGameplayTagChanged GameplayTagChangedDelegate;
-
-	int32 EnemyLevel = 1;
+	
 	/* Pool에서 나와 활성화 되어 있는지 확인하는 변수 */
 	bool bIsActivated = false; // 현재 서버에서만 설정됨. 필요시 Replicate 해야함.
 
@@ -110,8 +124,5 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_ActivateAppearEffect();
-
-public:
-	FORCEINLINE void SetLevel(const int32 NewLevel) { EnemyLevel = NewLevel; };
 	
 };

@@ -134,8 +134,9 @@ void ASpawnVolume::SpawnEnemy(const FEnemySpawnPrams& SpawnParams, const FVector
 	if (!PooledActor) return;
 
 	ABrandNewEnemyCharacter* Enemy = CastChecked<ABrandNewEnemyCharacter>(PooledActor);
-	Enemy->SetLevel(SpawnParams.EnemyLevel);
-	Enemy->ActivateEnemy(SpawnLocation, GetActorRotation());
+	Enemy->SetEnemyTransform(SpawnLocation, GetActorRotation());
+	Enemy->SetEnemyAttribute(SpawnParams.EnemyLevel);
+	Enemy->ActivateEnemy();
 }
 
 
