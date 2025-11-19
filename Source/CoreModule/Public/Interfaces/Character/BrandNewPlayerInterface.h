@@ -104,6 +104,6 @@ public:
 	
 	/* 퀘스트 보상 주는 함수 */
 	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) = 0;
-	virtual void IncreaseQuestProgressOnEnemyDeath(const FName& EnemyId) = 0;
+	virtual void IncreaseQuestProgressById(const FName& TargetId) = 0;
 	
 };

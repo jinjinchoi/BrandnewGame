@@ -174,21 +174,22 @@ FQuestInstance UBrandnewQuestComponent::FindTrackedQuestInstance() const
 	
 }
 
-void UBrandnewQuestComponent::AdvanceQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount)
+void UBrandnewQuestComponent::IncreaseQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount)
 {
 	if (!GetOwner()->HasAuthority()) return;
 	
+	// 활성화된 퀘스트 순회하여 매개변수로 받은 Id를 필요로 하는 퀘스트가 있는지 확인
 	for (FQuestInstance& Quest : ActivatedQuests)
 	{
 		if (Quest.QuestId == QuestIdToUpdate)
 		{
+			// 퀘스트 찾으면 카운터 증가
 			Quest.CurrentCount = FMath::Clamp(Quest.CurrentCount + IncreaseAmount, 0, Quest.TargetCount);
 			if (Quest.CurrentCount >= Quest.TargetCount)
 			{
 				CompleteQuest(Quest.QuestId);
 				return;
 			}
-			break;
 		}
 	}
 	
@@ -219,13 +220,14 @@ void UBrandnewQuestComponent::CompleteQuest(const FName& CompletedQuestId)
 	if (!CompletedQuest.NextQuestId.IsNone())
 	{
 		GrantQuestByQuestId(CompletedQuest.NextQuestId);
-		// 클리어한 퀘스트가 현재 추적중이었으면 추적 대상을 다음 퀘스트로 변경 
-		if (CompletedQuest.QuestId == TrackedQuestId)
-		{
-			SetTrackedQuestId(CompletedQuest.NextQuestId);
-		}
-		Client_SetTrackedQuestId(CompletedQuest.QuestId, CompletedQuest.NextQuestId);
 	}
+	// 클리어한 퀘스트가 현재 추적중이었으면 추적 대상을 다음 퀘스트로 변경 
+	if (CompletedQuest.QuestId == TrackedQuestId)
+	{
+		SetTrackedQuestId(CompletedQuest.NextQuestId);
+	}
+	// 현재 TrackedQuestId는 복제가 안되서 if 안에서 실행 안하고 클라이언트가 따로 확인
+	Client_SetTrackedQuestId(CompletedQuest.QuestId, CompletedQuest.NextQuestId);
 	
 	// 보상 추가
 	GrantQuestRewardsToPlayer(CompletedQuest.QuestId);

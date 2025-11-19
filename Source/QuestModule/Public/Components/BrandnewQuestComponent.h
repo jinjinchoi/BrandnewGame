@@ -69,7 +69,7 @@ public:
 	FOnTrackedQuestChanged OnTrackedQuestChangedDelegate;
 	
 	/* 특정 퀘스트의 진행도를 올리는 함수 */
-	void AdvanceQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount = 1);
+	void IncreaseQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount = 1);
 
 protected:
 	virtual void BeginPlay() override;

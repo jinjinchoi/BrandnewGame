@@ -113,6 +113,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	SetMovementMode(CurrentGate);
 	InitAbilityActorInfo();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 구현시 로드해야함
+	BindAttributeDelegates();
 	
 	if (IsLocallyControlled())
 	{
@@ -120,7 +121,6 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 		
-		BindAttributeDelegates();
 		InitHUDAndBroadCastInitialValue();
 	}
 	
@@ -423,7 +423,7 @@ void ABrandNewPlayerCharacter::AddCharacterAbilities() const
 
 void ABrandNewPlayerCharacter::BindAttributeDelegates()
 {
-	if (!IsLocallyControlled() || !AbilitySystemComponent || !AttributeSet) return;
+	if (!AbilitySystemComponent || !AttributeSet) return;
 
 	TWeakObjectPtr WeakThis = this;
 
@@ -475,6 +475,10 @@ void ABrandNewPlayerCharacter::BindAttributeDelegates()
 		{
 			PlayerCharacter->LevelChangedDelegate.Broadcast(Data.NewValue);
 			PlayerCharacter->ExperienceChangedDelegate.Broadcast(PlayerCharacter->CalculateExpPercent());
+			
+			UBrandnewQuestComponent* QuestComponent = PlayerCharacter->GetQuestComponent();
+			if (!QuestComponent) return;
+			QuestComponent->GrantQuestByLevelRequirement(Data.NewValue);
 		}
 	});
 
@@ -1126,7 +1130,7 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		{
 			if (QuestActor->IsQuestTargetActor(Quest.TargetId))
 			{
-				Server_UpdateInteractiveQuestProgress();
+				Server_IncreaseInteractiveQuestProgress();
 				if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
 				{
 					NPCInterface->HideInteractionWidget();
@@ -1156,27 +1160,26 @@ UBrandnewQuestComponent* ABrandNewPlayerCharacter::GetQuestComponent() const
 	return Cast<UBrandnewQuestComponent>(Comp);
 }
 
-void ABrandNewPlayerCharacter::Server_UpdateInteractiveQuestProgress_Implementation()
+void ABrandNewPlayerCharacter::Server_IncreaseInteractiveQuestProgress_Implementation()
 {
 	float Distance = 0.f;
 	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
-	
-	IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor);
+	const IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor);
 	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
-	if (!QuestComponent) return;
+	if (!QuestComponent || !QuestActor) return;
 
 	// 활성화 된 퀘스트를 순회하여 현재 접촉중인 대상의 타겟아이디와 퀘스트의 타겟 아이디가 동일하면 퀘스트 진행도 증가
 	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
 	{
 		if (Quest.TargetId == QuestActor->GetQuestActorId())
 		{
-			QuestComponent->AdvanceQuestProgress(Quest.QuestId);
+			QuestComponent->IncreaseQuestProgress(Quest.QuestId);
 		}
 	}
 		
 }
 
-void ABrandNewPlayerCharacter::IncreaseQuestProgressOnEnemyDeath(const FName& EnemyId)
+void ABrandNewPlayerCharacter::IncreaseQuestProgressById(const FName& TargetId)
 {
 	if (!HasAuthority()) return;
 	
@@ -1185,9 +1188,9 @@ void ABrandNewPlayerCharacter::IncreaseQuestProgressOnEnemyDeath(const FName& En
 	
 	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
 	{
-		if (Quest.TargetId == EnemyId)
+		if (Quest.TargetId == TargetId)
 		{
-			QuestComponent->AdvanceQuestProgress(Quest.QuestId);
+			QuestComponent->IncreaseQuestProgress(Quest.QuestId);
 		}
 	}
 	

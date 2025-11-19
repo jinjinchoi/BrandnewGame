@@ -184,7 +184,7 @@ void UBrandNewAttributeSet::IncreaseQuestProgressOnEnemyDeath(AActor* Instigator
 	if (EnemyInterface && PlayerInterface)
 	{
 		const FName EnemyId = EnemyInterface->GetEnemyName();
-		PlayerInterface->IncreaseQuestProgressOnEnemyDeath(EnemyId);
+		PlayerInterface->IncreaseQuestProgressById(EnemyId);
 	}
 }
 
