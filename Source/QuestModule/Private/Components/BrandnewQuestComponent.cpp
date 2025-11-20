@@ -82,11 +82,68 @@ void UBrandnewQuestComponent::GrantQuestByLevelRequirement(const int32 PlayerLev
 
 void UBrandnewQuestComponent::GrantQuestByQuestId(const FName& QuestId)
 {
+	if (ActivatedQuests.Contains(QuestId) || CompletedQuests.Contains(QuestId)) return;
+	
 	if (const FQuestObjectiveBase* Found = AllQuestsMap.Find(QuestId))
 	{
 		const FQuestObjectiveBase QuestObjective = *Found;
 		AddActivatedQuest(QuestObjective);
 	}
+}
+
+void UBrandnewQuestComponent::RestoreQuestProgress(const TArray<FQuestProgress>& QuestProgresses)
+{
+	if (LevelToQuestsMap.IsEmpty())
+	{
+		CreateAllQuestMap();
+	}
+	
+	for (const FQuestProgress& QuestProgress : QuestProgresses)
+	{
+		const FQuestObjectiveBase QuestObjective = FindQuestObjectiveById(QuestProgress.QuestId);
+		
+		FQuestInstance QuestToRestore;
+		QuestToRestore.QuestId = QuestProgress.QuestId;
+		QuestToRestore.CurrentCount = QuestProgress.Progress;
+		
+		QuestToRestore.TargetCount = QuestObjective.TargetCount;
+		QuestToRestore.TargetId = QuestObjective.TargetId;
+		QuestToRestore.NextQuestId = QuestObjective.NextQuestId;
+		QuestToRestore.DialogueId = QuestObjective.DialogueId;
+		
+		if (!ActivatedQuests.Contains(QuestToRestore) && !CompletedQuests.Contains(QuestToRestore))
+		{
+			ActivatedQuests.Add(QuestToRestore);
+		}
+	}
+	
+}
+
+void UBrandnewQuestComponent::RestoreCompletedQuests(const TArray<FName>& CompletedQuestsToRestore)
+{
+	if (LevelToQuestsMap.IsEmpty())
+	{
+		CreateAllQuestMap();
+	}
+	
+	for (const FName& CompletedQuestId : CompletedQuestsToRestore)
+	{
+		const FQuestObjectiveBase QuestObjective = FindQuestObjectiveById(CompletedQuestId);
+		
+		FQuestInstance QuestToRestore;
+		QuestToRestore.QuestId = CompletedQuestId;
+		QuestToRestore.TargetCount = QuestObjective.TargetCount;
+		QuestToRestore.CurrentCount = QuestObjective.TargetCount;
+		QuestToRestore.TargetId = QuestObjective.TargetId;
+		QuestToRestore.NextQuestId = QuestObjective.NextQuestId;
+		QuestToRestore.DialogueId = QuestObjective.DialogueId;
+		
+		if (!ActivatedQuests.Contains(QuestToRestore) && !CompletedQuests.Contains(QuestToRestore))
+		{
+			CompletedQuests.Add(QuestToRestore);
+		}
+	}
+	
 }
 
 void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& QuestObjective)
@@ -95,7 +152,6 @@ void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& Quest
 	NewQuest.QuestId = QuestObjective.QuestId;
 	NewQuest.TargetCount = QuestObjective.TargetCount;
 	NewQuest.CurrentCount = 0;
-	NewQuest.QuestState = EQuestState::InProgress;
 	NewQuest.TargetId = QuestObjective.TargetId;
 	NewQuest.NextQuestId = QuestObjective.NextQuestId;
 	NewQuest.DialogueId = QuestObjective.DialogueId;
@@ -171,6 +227,32 @@ FQuestInstance UBrandnewQuestComponent::FindTrackedQuestInstance() const
 	}
 	
 	return FQuestInstance();
+	
+}
+
+TArray<FQuestProgress> UBrandnewQuestComponent::GetQuestProgress() const
+{
+	TArray<FQuestProgress> QuestProgressArray;
+	
+	for (const FQuestInstance& Quest : ActivatedQuests)
+	{
+		FQuestProgress Progress (Quest.QuestId, Quest.CurrentCount);
+		QuestProgressArray.Add(Progress);
+	}
+	
+	return QuestProgressArray;
+	
+}
+
+TArray<FName> UBrandnewQuestComponent::CompletedQuestIds() const
+{
+	TArray<FName> CompletedQuestIds;
+	for (const FQuestInstance& Quest : CompletedQuests)
+	{
+		CompletedQuestIds.Add(Quest.QuestId);
+	}
+	
+	return CompletedQuestIds;
 	
 }
 

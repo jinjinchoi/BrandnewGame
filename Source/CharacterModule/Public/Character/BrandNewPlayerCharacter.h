@@ -214,6 +214,12 @@ private:
 #pragma endregion
 
 #pragma region SaveAndLoad
+	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
+	void AddCharacterAbilities() const;
+	
+	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
+	void ApplyPrimaryAttributeFromDataTable() const;
+	
 	/**
 	 * Attribute를 로드하는 함수.
 	 * 로드 데이터는 Player Id마다 다르게 설정해야하고 바른 아이디를 가져오기 위해
@@ -230,20 +236,17 @@ private:
 	
 	// 세이브 데이터로부터 캐릭터 정보 로드
 	void LoadCharacterData(const FSaveSlotPrams& SavedDataToApply);
-
-	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
-	void LoadInventory(const FInventoryContents& InventoryData);
 	
 	/* 세이브 데이터로 부터 캐릭터 정보를 가져오는 함수 */
 	void ApplyPrimaryAttributeFromSaveData(const FAttributeSaveData& SlotPrams) const;
 
+	// 인벤토리 로드하고 장착중인 아이템이 있었으면 이펙트 적용하는 함수
+	void LoadInventory(const FInventoryContents& InventoryData);
+	
 	void OverrideVitalAttribute(const float HealthToApply, const float ManaToApply) const;
 
-	/* 데이터 테이블로 부터 캐릭터 정보를 가져오는 함수 */
-	void ApplyPrimaryAttributeFromDataTable() const;
-
-	// DefaultAbilities 데이터 에셋에 들어있는 기본 어빌리티들을 GAS에 추가하는 함수
-	void AddCharacterAbilities() const;
+	void LoadQuestProgress(const TArray<FQuestProgress>& QuestProgresses) const;
+	void LoadCompletedQuest(const TArray<FName>& CompletedQuestIds) const;
 	
 	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
 	FSaveSlotPrams MakeSaveSlotPrams() const;

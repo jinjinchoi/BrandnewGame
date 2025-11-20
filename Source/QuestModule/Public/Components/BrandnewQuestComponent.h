@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "QuestType/QuestType.h"
+#include "BrandNewTypes/BrandNewStructTpyes.h"
 #include "BrandnewQuestComponent.generated.h"
 
 class UBnQuestInstance;
@@ -17,9 +18,6 @@ struct FQuestInstance
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
 	FName QuestId = NAME_None;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
-	EQuestState QuestState = EQuestState::InProgress;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brandnew|Quest")
 	int32 CurrentCount = 0;
@@ -41,6 +39,10 @@ struct FQuestInstance
 		return QuestId == Other.QuestId;
 	}
 	
+	bool operator==(const FName& OtherQuestId) const
+	{
+		return QuestId == OtherQuestId;
+	}
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnTrackedQuestChanged);
@@ -59,9 +61,15 @@ public:
 	void GrantQuestByLevelRequirement(const int32 PlayerLevel);
 	void GrantQuestByQuestId(const FName& QuestId);
 	
+	void RestoreQuestProgress(const TArray<FQuestProgress>& QuestProgresses);
+	void RestoreCompletedQuests(const TArray<FName>& CompletedQuestsToRestore);
+	
 	FQuestObjectiveBase FindQuestObjectiveById(const FName& QuestIdToFind) const;
 	FQuestObjectiveBase FindTrackedQuestObjective() const;
 	FQuestInstance FindTrackedQuestInstance() const;
+	
+	TArray<FQuestProgress> GetQuestProgress() const;
+	TArray<FName> CompletedQuestIds() const;
 
 	// 현재 추적중인 퀘스트 아이디 설정하는 함수
 	void SetTrackedQuestId(const FName& QuestIdToTrack);
@@ -70,6 +78,7 @@ public:
 	
 	/* 특정 퀘스트의 진행도를 올리는 함수 */
 	void IncreaseQuestProgress(const FName& QuestIdToUpdate, const int32 IncreaseAmount = 1);
+
 
 protected:
 	virtual void BeginPlay() override;

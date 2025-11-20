@@ -195,9 +195,8 @@ void ABrandNewPlayerCharacter::InitializeCharacterInfo(const FString& UniqueId)
 	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
 	
-	// TODO: 퀘스트 세이브 로드 구현해야함
 	GetPlayerStateChecked<ABrandNewPlayerState>()->GrantQuestByLevelRequirement(1);
-
+	
 	if (IsLocallyControlled())
 	{
 		// 완전 처음 게임을 시작. 시네마틱 재생
@@ -229,11 +228,16 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 {
 	if (!SavedDataToApply.bIsValid) return;
 	
+	LoadCompletedQuest(SavedDataToApply.CompletedQuestIds);
+	LoadQuestProgress(SavedDataToApply.QuestProgress);
+	
 	ApplyPrimaryAttributeFromSaveData(SavedDataToApply.AttributePrams);
 	ApplyGameplayEffectToSelf(SecondaryAttributeEffect, 1.f);
 	ApplyGameplayEffectToSelf(RegenerationEffect, 1.f);
 	LoadInventory(SavedDataToApply.InventoryContents); // 인벤토리 로드
 	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
+	
+	GetPlayerStateChecked<ABrandNewPlayerState>()->GrantQuestByLevelRequirement(SavedDataToApply.AttributePrams.Level);
 
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	if (SavedDataToApply.MapPackageName == MapName)
@@ -299,6 +303,22 @@ void ABrandNewPlayerCharacter::OverrideVitalAttribute(const float HealthToApply,
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
+void ABrandNewPlayerCharacter::LoadQuestProgress(const TArray<FQuestProgress>& QuestProgresses) const
+{
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (QuestProgresses.IsEmpty() || !QuestComponent) return;
+	
+	QuestComponent->RestoreQuestProgress(QuestProgresses);
+	
+}
+
+void ABrandNewPlayerCharacter::LoadCompletedQuest(const TArray<FName>& CompletedQuestIds) const
+{
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (CompletedQuestIds.IsEmpty() || !QuestComponent) return;
+	
+	QuestComponent->RestoreCompletedQuests(CompletedQuestIds);
+}
 
 
 void ABrandNewPlayerCharacter::LoadInventory(const FInventoryContents& InventoryData)
@@ -800,6 +820,8 @@ void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 
 FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 {
+	if (!AttributeSet || !AbilitySystemComponent || !GetPlayerState() || !GetQuestComponent()) return FSaveSlotPrams();
+	
 	// Attribute를 저장하는 구조체 생성
 	FAttributeSaveData AttributeParams;
 	AttributeParams.Strength = AttributeSet->GetStrength();
@@ -827,6 +849,10 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 
 	// 인벤토리 저장
 	SaveSlotPrams.InventoryContents = GetPlayerState<ABrandNewPlayerState>()->GetInventory()->GetInventoryContents();
+	
+	// 퀘스트 진행도 저장
+	SaveSlotPrams.QuestProgress = GetQuestComponent()->GetQuestProgress();
+	SaveSlotPrams.CompletedQuestIds = GetQuestComponent()->CompletedQuestIds();
 	
 	SaveSlotPrams.bIsValid = true;
 

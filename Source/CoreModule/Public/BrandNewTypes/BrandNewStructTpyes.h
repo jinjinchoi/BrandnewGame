@@ -198,6 +198,21 @@ struct FInventoryContents
 	
 };
 
+USTRUCT()
+struct FQuestProgress
+{
+	GENERATED_BODY()
+	
+	FQuestProgress(){}
+	FQuestProgress(const FName& InQuestId, const int32 QuestProgress) : QuestId(InQuestId), Progress(QuestProgress) {} 
+	
+	UPROPERTY()
+	FName QuestId = NAME_None;
+	
+	UPROPERTY()
+	int32 Progress = 0;
+	
+};
 
 /* 모든 세이브 데이터를 종합하는 구조체 */
 struct FSaveSlotPrams
@@ -225,5 +240,13 @@ struct FSaveSlotPrams
 
 	FInventoryContents InventoryContents = FInventoryContents();
 	
+	/* 퀘스트 진행 상황 저장하는 구조체 */
+	TArray<FQuestProgress> QuestProgress;
+	
+	/* 완료한 퀘스트 아이디들 */
+	TArray<FName> CompletedQuestIds;
+	
 	bool bIsValid = false;
+	
+	
 };

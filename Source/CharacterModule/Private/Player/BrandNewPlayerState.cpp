@@ -67,7 +67,6 @@ void ABrandNewPlayerState::GrantQuestByLevelRequirement(const int32 PlayerLevel)
 	
 	QuestComponent->GrantQuestByLevelRequirement(PlayerLevel);
 	
-	
 }
 
 void ABrandNewPlayerState::OnRep_PlayerUniqueId()

@@ -41,5 +41,11 @@ public:
 
 	UPROPERTY()
 	FInventoryContents Inventory;
+
+	UPROPERTY()
+	TArray<FQuestProgress> QuestProgressMap;
+	
+	UPROPERTY()
+	TArray<FName> CompletedQuestIds;
 	
 };
