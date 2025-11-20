@@ -73,6 +73,10 @@ public:
 
 	// 현재 추적중인 퀘스트 아이디 설정하는 함수
 	void SetTrackedQuestId(const FName& QuestIdToTrack);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_SetTrackedQuestId(const FName& QuestIdToTrack);
+	
 	// 추적 중인 퀘스트가 변경되는 호출되는 델리게이트
 	FOnTrackedQuestChanged OnTrackedQuestChangedDelegate;
 	
@@ -110,8 +114,8 @@ private:
 	void GrantQuestRewardsToPlayer(const FName& QuestId) const;
 	
 	UFUNCTION(Client, Reliable)
-	void Client_SetTrackedQuestId(const FName& CompletedQuestId, const FName& NextQuestId);
-
+	void Client_AutoSetTrackedQuestId(const FName& CompletedQuestId, const FName& NextQuestId);
+	
 	UFUNCTION()
 	void OnRep_ActivatedQuests();
 

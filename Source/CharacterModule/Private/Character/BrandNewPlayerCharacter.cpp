@@ -238,8 +238,9 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 	
 	GetPlayerStateChecked<ABrandNewPlayerState>()->GrantQuestByLevelRequirement(SavedDataToApply.AttributePrams.Level);
-	GetQuestComponent()->SetTrackedQuestId(SavedDataToApply.TrackedQuestId);
-
+	if (IsLocallyControlled()) GetQuestComponent()->SetTrackedQuestId(SavedDataToApply.TrackedQuestId);
+	else GetQuestComponent()->Client_SetTrackedQuestId(SavedDataToApply.TrackedQuestId);
+	
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	if (SavedDataToApply.MapPackageName == MapName)
 	{

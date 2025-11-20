@@ -161,6 +161,7 @@ void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& Quest
 		if (ActivatedQuests.IsEmpty())
 		{
 			SetTrackedQuestId(NewQuest.QuestId);
+			Client_SetTrackedQuestId(NewQuest.QuestId);
 		}
 		ActivatedQuests.Add(NewQuest);
 	}
@@ -313,7 +314,7 @@ void UBrandnewQuestComponent::CompleteQuest(const FName& CompletedQuestId)
 		SetTrackedQuestId(CompletedQuest.NextQuestId);
 	}
 	// 현재 TrackedQuestId는 복제가 안되서 if 안에서 실행 안하고 클라이언트가 따로 확인
-	Client_SetTrackedQuestId(CompletedQuest.QuestId, CompletedQuest.NextQuestId);
+	Client_AutoSetTrackedQuestId(CompletedQuest.QuestId, CompletedQuest.NextQuestId);
 	
 	// 보상 추가
 	GrantQuestRewardsToPlayer(CompletedQuest.QuestId);
@@ -338,12 +339,17 @@ void UBrandnewQuestComponent::GrantQuestRewardsToPlayer(const FName& QuestId) co
 	}
 }
 
+void UBrandnewQuestComponent::Client_SetTrackedQuestId_Implementation(const FName& QuestIdToTrack)
+{
+	SetTrackedQuestId(QuestIdToTrack);
+}
+
 void UBrandnewQuestComponent::OnRep_ActivatedQuests()
 {
 	SetTrackedQuestId(TrackedQuestId);
 }
 
-void UBrandnewQuestComponent::Client_SetTrackedQuestId_Implementation(const FName& CompletedQuestId, const FName& NextQuestId)
+void UBrandnewQuestComponent::Client_AutoSetTrackedQuestId_Implementation(const FName& CompletedQuestId, const FName& NextQuestId)
 {
 	if (CompletedQuestId == TrackedQuestId)
 	{
