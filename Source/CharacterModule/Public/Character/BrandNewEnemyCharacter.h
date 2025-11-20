@@ -64,7 +64,7 @@ protected:
 	FText EnemyDisplayName;
 	
 	UPROPERTY(ReplicatedUsing = "OnRep_EnemyLevel", VisibleAnywhere, BlueprintReadOnly)
-	int32 EnemyLevel = 1;
+	int32 EnemyLevel = 0;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|EnemyData")
 	FScalableFloat XPReward;
@@ -90,9 +90,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartAppearEffect();
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnEnemyLevelChanged();
-	
 	UFUNCTION()
 	void OnRep_EnemyLevel();
 
@@ -109,6 +106,9 @@ private:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnAttributeValueChangedDelegate MaxHealthChangedDelegate;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
+	FOnAttributeValueChangedDelegate LevelChangedDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnGameplayTagChanged GameplayTagChangedDelegate;

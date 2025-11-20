@@ -24,6 +24,7 @@
 #include "GameFramework/HUD.h"
 #include "AbilitySystem/Abilities/BandNewBaseGameplayAbility.h"
 #include "Components/BrandnewQuestComponent.h"
+#include "Components/WidgetComponent.h"
 #include "DataTableStruct/DataTableRowStruct.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
@@ -32,6 +33,7 @@
 #include "GameMode/BrandNewGameModeBase.h"
 #include "Interfaces/Actor/BrandNewNPCInterface.h"
 #include "Interfaces/Actor/QuestActorInterface.h"
+#include "Interfaces/UI/BnWidgetInterface.h"
 #include "Inventory/BrandNewInventory.h"
 #include "Kismet/GameplayStatics.h"
 #include "Manager/Sequnce/SequenceManager.h"
@@ -54,6 +56,9 @@ ABrandNewPlayerCharacter::ABrandNewPlayerCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>("Follow Camera");
 	FollowCamera->SetupAttachment(CameraBoom);
 	FollowCamera->bUsePawnControlRotation = false;
+	
+	PlayerNameWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Player Name Widget Component"));
+	PlayerNameWidgetComponent->SetupAttachment(GetRootComponent());
 	
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
@@ -81,6 +86,19 @@ void ABrandNewPlayerCharacter::Tick(float DeltaTime)
 			PlayerAnimInterface->ReceiveGroundDistance(HitResult.Distance);
 		}
 	}
+	
+	if (const APlayerCameraManager* PCM = UGameplayStatics::GetPlayerCameraManager(this, 0))
+	{
+		const FVector CameraLocation = PCM->GetCameraLocation();
+
+		const bool bShouldShow =
+			WasRecentlyRendered(0.1f) &&
+			(FVector::Dist(GetActorLocation(), CameraLocation) < 3000.f);
+
+		PlayerNameWidgetComponent->SetVisibility(bShouldShow);
+	}
+
+	
 }
 
 
@@ -103,6 +121,7 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	// 처음 시작할때 위치를 저장하여 맵을 이동하더라도 이동 된 월드의 초기 Location을 알 수 있게 함.
 	SafeLocation = GetActorLocation();
 	
+	SetPlayerIdToNameWidgetComponent();
 }
 
 
@@ -114,13 +133,13 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	InitAbilityActorInfo();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 구현시 로드해야함
 	BindAttributeDelegates();
+	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
 	
 	if (IsLocallyControlled())
 	{
 		const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
 		check(SaveSubsystem);
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
-		
 		InitHUDAndBroadCastInitialValue();
 	}
 	
@@ -132,6 +151,8 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 	
 	UpdateMovementComponentPrams();
 	InitAbilityActorInfo(); // ASC를 초기화
+	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
+	SetPlayerIdToNameWidgetComponent();
 
 	if (IsLocallyControlled())
 	{
@@ -142,6 +163,17 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 		Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 	}
 	
+}
+
+void ABrandNewPlayerCharacter::SetPlayerIdToNameWidgetComponent() const
+{
+	
+	UUserWidget* NameWidget = PlayerNameWidgetComponent->GetUserWidgetObject();
+	
+	if (IBnWidgetInterface* WidgetInterface = Cast<IBnWidgetInterface>(NameWidget))
+	{
+		WidgetInterface->SetUIWidgetController(GetPlayerState());
+	}
 }
 
 
@@ -161,7 +193,6 @@ void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(co
 		InitializeCharacterInfo(PlayerId);
 	}
 	
-	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
 	Client_OnCharacterInfoSet();
 }
 
@@ -842,7 +873,7 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 	SaveSlotPrams.CharacterLocation = GetActorLocation();
 	SaveSlotPrams.SavedTime = GetCurrentTimeText();
 	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
-	SaveSlotPrams.TitleText = GetSaveTitleText(); // TODO: 퀘스트 시스템 구현시 변경해야함.
+	SaveSlotPrams.TitleText = GetSaveTitleText();
 
 	// 맵 에셋 네임 저장
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());

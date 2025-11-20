@@ -131,7 +131,7 @@ void ABrandNewEnemyCharacter::OnCharacterDied_Implementation()
 			{
 				WeakThis.Get()->CombatWeapon->SetWeaponVisible(false);
 			}
-			
+			WeakThis.Get()->EnemyLevel = 0;
 			PoolManager->ReturnObject(WeakThis.Get());
 		}
 		else
@@ -183,14 +183,13 @@ void ABrandNewEnemyCharacter::SetEnemyAttribute(const int32 NewLevel)
 	
 	EnemyLevel = NewLevel;
 	ApplyEnemyAttribute();
-	
-	OnEnemyLevelChanged();
+	LevelChangedDelegate.Broadcast(NewLevel);
 }
 
 
 void ABrandNewEnemyCharacter::OnRep_EnemyLevel()
 {
-	OnEnemyLevelChanged();
+	LevelChangedDelegate.Broadcast(EnemyLevel);
 }
 
 
@@ -266,11 +265,9 @@ void ABrandNewEnemyCharacter::BindAttributeChanged()
 		WeakThis.Get()->MaxHealthChangedDelegate.Broadcast(Data.NewValue);
 		
 	});
-
 	
 	HealthChangedDelegate.Broadcast(AttributeSet->GetHealth());
 	MaxHealthChangedDelegate.Broadcast(AttributeSet->GetMaxHealth());
-	
 	
 }
 

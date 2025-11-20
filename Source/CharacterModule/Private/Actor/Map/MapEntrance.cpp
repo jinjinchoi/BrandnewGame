@@ -52,7 +52,7 @@ void AMapEntrance::BeginPlay()
 	
 	ABrandNewGameState* BrandNewGameState = Cast<ABrandNewGameState>(GetWorld()->GetGameState());
 	check(BrandNewGameState);
-	BrandNewGameState->PlayerJoinDelegate.AddDynamic(this, &ThisClass::OnPlayerJoined);
+	BrandNewGameState->PlayerJoinDelegate.AddUObject(this, &ThisClass::OnPlayerJoined);
 	BrandNewGameState->PlayerExitDelegate.AddDynamic(this, &ThisClass::OnPlayerExited);
 	
 }

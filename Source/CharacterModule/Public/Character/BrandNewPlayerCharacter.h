@@ -10,6 +10,7 @@
 #include "Delegates/Delegate.h"
 #include "BrandNewPlayerCharacter.generated.h"
 
+class UWidgetComponent;
 class UBrandnewQuestComponent;
 class ABrandNewPickupItem;
 class UDataAsset_LevelUpInfo;
@@ -165,8 +166,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Brandnew|Data Asset")
 	TObjectPtr<UDataAsset_LevelUpInfo> LevelUpInfoDataAsset;
 
-	void ZoomInterpTick();
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UWidgetComponent> PlayerNameWidgetComponent;
+
 
 private:
 	/* Attribute 변화를 바인딩 하는 함수 */
@@ -186,6 +188,8 @@ private:
 	void PlayFirstEntranceSequence() const;
 	UFUNCTION(Client, Reliable)
 	void Client_PlayFirstEntranceSequence();
+	
+	void SetPlayerIdToNameWidgetComponent() const;
 	
 #pragma region Interaction
 	UPROPERTY()
@@ -333,6 +337,8 @@ private:
 	FTimerHandle ZoomInterpTimerHandle;
 	float TargetArmLength = 500.f;
 	bool bIsZooming = false;
+	
+	void ZoomInterpTick();
 
 #pragma endregion Camera
 	
