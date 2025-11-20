@@ -22,6 +22,7 @@ void UBrandNewSaveSubsystem::SaveGameToSlotWithId(const FString& SlotName, const
 	SlotSaveGame->Inventory = SaveSlotPrams.InventoryContents;
 	SlotSaveGame->QuestProgressMap = SaveSlotPrams.QuestProgress;
 	SlotSaveGame->CompletedQuestIds = SaveSlotPrams.CompletedQuestIds;
+	SlotSaveGame->TrackedQuestId = SaveSlotPrams.TrackedQuestId;
 
 	UGameplayStatics::SaveGameToSlot(SlotSaveGame, UniqueSlotName, SlotIndex);
 }
@@ -46,6 +47,7 @@ FSaveSlotPrams UBrandNewSaveSubsystem::GetSaveDataById(const FString& SlotName, 
 		SaveSlotPrams.InventoryContents = SlotSaveGame->Inventory;
 		SaveSlotPrams.QuestProgress = SlotSaveGame->QuestProgressMap;
 		SaveSlotPrams.CompletedQuestIds = SlotSaveGame->CompletedQuestIds;
+		SaveSlotPrams.TrackedQuestId = SlotSaveGame->TrackedQuestId;
 		SaveSlotPrams.bIsValid = true;
 		
 		return SaveSlotPrams;

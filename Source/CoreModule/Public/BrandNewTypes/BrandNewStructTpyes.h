@@ -246,6 +246,8 @@ struct FSaveSlotPrams
 	/* 완료한 퀘스트 아이디들 */
 	TArray<FName> CompletedQuestIds;
 	
+	FName TrackedQuestId = NAME_None;
+	
 	bool bIsValid = false;
 	
 	

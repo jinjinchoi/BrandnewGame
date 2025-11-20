@@ -48,4 +48,7 @@ public:
 	UPROPERTY()
 	TArray<FName> CompletedQuestIds;
 	
+	UPROPERTY()
+	FName TrackedQuestId;
+	
 };

@@ -250,6 +250,7 @@ private:
 	
 	/* 현재 캐릭터 정보를 바탕으로 세이브 파라메터 구조체를 만드는 함수 */
 	FSaveSlotPrams MakeSaveSlotPrams() const;
+	FText GetSaveTitleText() const;
 
 #pragma endregion
 

@@ -158,6 +158,10 @@ void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& Quest
 			
 	if (!ActivatedQuests.Contains(NewQuest) && !CompletedQuests.Contains(NewQuest))
 	{
+		if (ActivatedQuests.IsEmpty())
+		{
+			SetTrackedQuestId(NewQuest.QuestId);
+		}
 		ActivatedQuests.Add(NewQuest);
 	}
 }

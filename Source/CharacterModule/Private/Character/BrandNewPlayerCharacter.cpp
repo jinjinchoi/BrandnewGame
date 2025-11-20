@@ -238,6 +238,7 @@ void ABrandNewPlayerCharacter::LoadCharacterData(const FSaveSlotPrams& SavedData
 	OverrideVitalAttribute(SavedDataToApply.AttributePrams.CurrentHealth, SavedDataToApply.AttributePrams.CurrentMana);
 	
 	GetPlayerStateChecked<ABrandNewPlayerState>()->GrantQuestByLevelRequirement(SavedDataToApply.AttributePrams.Level);
+	GetQuestComponent()->SetTrackedQuestId(SavedDataToApply.TrackedQuestId);
 
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
 	if (SavedDataToApply.MapPackageName == MapName)
@@ -840,7 +841,7 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 	SaveSlotPrams.CharacterLocation = GetActorLocation();
 	SaveSlotPrams.SavedTime = GetCurrentTimeText();
 	SaveSlotPrams.AbilityMap = AbilitySystemComponent->GetAbilityTagLevelMap();
-	SaveSlotPrams.TitleText =  FText::FromString(TEXT("Unreal RPG Project")); // TODO: 퀘스트 시스템 구현시 변경해야함.
+	SaveSlotPrams.TitleText = GetSaveTitleText(); // TODO: 퀘스트 시스템 구현시 변경해야함.
 
 	// 맵 에셋 네임 저장
 	const FString MapName = UWorld::RemovePIEPrefix(GetWorld()->GetOutermost()->GetName());
@@ -853,10 +854,30 @@ FSaveSlotPrams ABrandNewPlayerCharacter::MakeSaveSlotPrams() const
 	// 퀘스트 진행도 저장
 	SaveSlotPrams.QuestProgress = GetQuestComponent()->GetQuestProgress();
 	SaveSlotPrams.CompletedQuestIds = GetQuestComponent()->CompletedQuestIds();
+	SaveSlotPrams.TrackedQuestId = GetQuestComponent()->GetTrackedQuestId();
 	
 	SaveSlotPrams.bIsValid = true;
 
 	return SaveSlotPrams;
+}
+
+FText ABrandNewPlayerCharacter::GetSaveTitleText() const
+{
+	const UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (!QuestComponent) return FText::FromString(TEXT("Unreal RPG Project"));
+
+	if (QuestComponent->GetTrackedQuestId() != NAME_None)
+	{
+		return QuestComponent->FindTrackedQuestObjective().QuestTitle;
+	}
+	
+	if (QuestComponent->GetActivatedQuests().IsValidIndex(0))
+	{
+		const FName FirstQuestId = QuestComponent->GetActivatedQuests()[0].QuestId;
+		return QuestComponent->FindQuestObjectiveById(FirstQuestId).QuestTitle;
+	}
+	
+	return FText::FromString(TEXT("Unreal RPG Project"));
 }
 
 
