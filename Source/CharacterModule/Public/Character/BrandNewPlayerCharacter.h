@@ -66,7 +66,11 @@ public:
 	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) override;
 	virtual void IncreaseQuestProgressById(const FName& TargetId) override;
 	virtual void TryStartQuestDialogue(const FName& TargetId) override;
+	virtual bool IsQuestTarget(const FName& ActorId) const override;
 	virtual void StartDialogue(const FName& DialogueId) const override;
+	
+	UFUNCTION(Server, Reliable)
+	virtual void Server_IncreaseInteractiveQuestProgress() override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -198,9 +202,6 @@ private:
 	TArray<AActor*> OverlappedActorArray;
 	
 	UBrandnewQuestComponent* GetQuestComponent() const;
-	
-	UFUNCTION(Server, Reliable)
-	void Server_IncreaseInteractiveQuestProgress();
 
 	
 #pragma endregion

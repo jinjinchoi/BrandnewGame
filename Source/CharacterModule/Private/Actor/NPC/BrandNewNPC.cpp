@@ -39,20 +39,26 @@ ABrandNewNPC::ABrandNewNPC()
 	
 }
 
-void ABrandNewNPC::HideInteractionWidget() const
-{
-	InteractionWidgetComponent->SetVisibility(false);
-}
-
 void ABrandNewNPC::InteractWith(AActor* InstigatorActor) const
 {
 	if (!InstigatorActor) return;
 	
-	if (const IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(InstigatorActor))
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(InstigatorActor);
+	if (!PlayerInterface) return;
+	
+	if (PlayerInterface->IsQuestTarget(ActorId))
+	{
+		PlayerInterface->Server_IncreaseInteractiveQuestProgress();
+		PlayerInterface->TryStartQuestDialogue(ActorId);
+	}
+	else
 	{
 		PlayerInterface->StartDialogue(FirstDialogueId);
-		InteractionWidgetComponent->SetVisibility(false);
 	}
+	
+	InteractionWidgetComponent->SetVisibility(false);
+		
+	
 }
 
 

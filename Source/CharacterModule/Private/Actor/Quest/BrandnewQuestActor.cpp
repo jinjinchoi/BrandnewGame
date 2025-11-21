@@ -48,11 +48,6 @@ void ABrandnewQuestActor::ShowLocationWidget(const bool bIsVisible)
 	LocationWidgetComponent->SetVisibility(bIsVisible);
 }
 
-bool ABrandnewQuestActor::IsQuestTargetActor(const FName& QuestTargetId)
-{
-	return ActorId == QuestTargetId;
-}
-
 FName ABrandnewQuestActor::GetQuestActorId() const
 {
 	return ActorId;

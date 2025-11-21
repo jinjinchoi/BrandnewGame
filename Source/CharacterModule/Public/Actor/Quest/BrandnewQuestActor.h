@@ -20,7 +20,6 @@ public:
 	
 	/* begin IQuestActorInterface */
 	virtual void ShowLocationWidget(const bool bIsVisible) override;
-	virtual bool IsQuestTargetActor(const FName& QuestTargetId) override;
 	virtual FName GetQuestActorId() const override;
 	/* end IQuestActorInterface */
 

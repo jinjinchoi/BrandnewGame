@@ -18,7 +18,6 @@ class CHARACTERMODULE_API ABrandNewNPC : public ABrandnewQuestActor, public IInt
 
 public:
 	ABrandNewNPC();
-	virtual void HideInteractionWidget() const override;
 	virtual void InteractWith(AActor* InstigatorActor) const override;
 
 protected:

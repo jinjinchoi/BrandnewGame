@@ -1174,34 +1174,14 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		return;
 	}
 	
-
 	if (OverlappedActorArray.Num() <= 0) return;
 	
 	float Distance = 0.f;
 	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
 	
-	// 퀘스트 로직
-	if (IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor); QuestActor && GetQuestComponent())
-	{
-		for (const FQuestInstance& Quest : GetQuestComponent()->GetActivatedQuests())
-		{
-			if (QuestActor->IsQuestTargetActor(Quest.TargetId))
-			{
-				Server_IncreaseInteractiveQuestProgress();
-				if (const IInteractiveActorInterface* NPCInterface = Cast<IInteractiveActorInterface>(ClosestInteractiveActor))
-				{
-					NPCInterface->HideInteractionWidget();
-				}
-				StartDialogue(Quest.DialogueId);
-				return;
-			}
-		}
-	}
-	
 	// 상호작용 로직
 	if (const IInteractiveActorInterface* InteractiveActorInterface = Cast<IInteractiveActorInterface>(ClosestInteractiveActor))
 	{
-		// 가장 가까운 NPC 찾아서 상호작용.
 		InteractiveActorInterface->InteractWith(this);
 	}
 	
@@ -1215,6 +1195,8 @@ UBrandnewQuestComponent* ABrandNewPlayerCharacter::GetQuestComponent() const
 
 void ABrandNewPlayerCharacter::Server_IncreaseInteractiveQuestProgress_Implementation()
 {
+	check(HasAuthority());
+	
 	float Distance = 0.f;
 	AActor* ClosestInteractiveActor = UGameplayStatics::FindNearestActor(GetActorLocation(), OverlappedActorArray, Distance);
 	const IQuestActorInterface* QuestActor = Cast<IQuestActorInterface>(ClosestInteractiveActor);
@@ -1251,8 +1233,7 @@ void ABrandNewPlayerCharacter::IncreaseQuestProgressById(const FName& TargetId)
 
 void ABrandNewPlayerCharacter::TryStartQuestDialogue(const FName& TargetId)
 {
-	
-	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	const UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
 	if (!QuestComponent) return;
 	
 	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
@@ -1263,6 +1244,19 @@ void ABrandNewPlayerCharacter::TryStartQuestDialogue(const FName& TargetId)
 		}
 	}
 	
+}
+
+bool ABrandNewPlayerCharacter::IsQuestTarget(const FName& ActorId) const
+{
+	for (const FQuestInstance& Quest : GetQuestComponent()->GetActivatedQuests())
+	{
+		if (Quest.TargetId == ActorId)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 

@@ -110,6 +110,8 @@ public:
 	 * 존재하면 다이얼로그 실행 여부 확인해서 다이얼로그 스타트.
 	 */
 	virtual void TryStartQuestDialogue(const FName& TargetId) = 0;
+	virtual bool IsQuestTarget(const FName& ActorId) const = 0;
+	virtual void Server_IncreaseInteractiveQuestProgress() = 0;
 	
 	virtual void StartDialogue(const FName& DialogueId) const = 0;
 	

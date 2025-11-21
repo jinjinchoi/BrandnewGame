@@ -23,7 +23,6 @@ class COREMODULE_API IQuestActorInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void ShowLocationWidget(const bool bIsVisible) = 0;
-	virtual bool IsQuestTargetActor(const FName& QuestTargetId) = 0;
 	virtual FName GetQuestActorId() const = 0;
 	
 };
