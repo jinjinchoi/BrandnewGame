@@ -1,8 +1,13 @@
 ---,Sequence,NodeId,SpeakerName,DialogueText,NextNodeId
-1,,Knight_Sqe_0001,사냥꾼,"이봐 친구, 여길 지나가려는거야? 그러지 않는게 좋을껄?",Knight_Sqe_0002
-2,,Knight_Sqe_0002,플레이어,시비 거는 거라면 사람 잘못봤어.,Knight_Sqe_0003
-3,,Knight_Sqe_0003,사냥꾼,"시비라니, 기껏 사람 도와주려고 하는데 너무 한거 아니야?",Knight_Sqe_0004
-4,,Knight_Sqe_0004,사냥꾼,이 앞으로 가면 늑대인간이 나와. 그 녀석은 보통 몬스터보다 훨씬 강하다고. 그놈에게 당한 사람이 한 둘이 아니야.,Knight_Sqe_0005
-5,,Knight_Sqe_0005,사냥꾼,정 가고 싶다면 말리지는 않겠지만 조심해두라고,Knight_Sqe_0006
-6,,Knight_Sqe_0006,플레이어,충고 고맙군. 하지만 아무 일도 없을테니 걱정하지 말게.,Knight_Sqe_0007
-7,,Knight_Sqe_0007,사냥꾼,훗. 자신감이 넘치는 녀석이군. 정 가고 싶다면 마음대로 하게. 내가 자네를 막을 권한히 있는 것도 아니니. 하지만 그로 인해 무슨 일이 생겨도 누굴 원망할 생각은 하지 말게나.,EndNode
+1,,Knight_Sqe_0001,사냥꾼,"이봐 친구, 여길 지나가려는 거야? 그러지 않는 게 좋을 걸?",Knight_Sqe_0002
+2,,Knight_Sqe_0002,플레이어,시비 거는 거라면 사람 잘 못 봤어.,Knight_Sqe_0003
+3,,Knight_Sqe_0003,사냥꾼,"시비라니, 기껏 사람 도와주려고 하는데 너무 한 거 아니야?",Knight_Sqe_0004
+4,,Knight_Sqe_0004,사냥꾼,이 앞으로 가면 늑대인간이 나와. 그 녀석은 보통 몬스터보다 훨씬 강하다고. 그놈에게 당한 사람이 한둘이 아니야.,Knight_Sqe_0005
+5,,Knight_Sqe_0005,사냥꾼,정 가고 싶다면 말리지는 않겠지만 조심해 두라고.,Knight_Sqe_0006
+6,,Knight_Sqe_0006,플레이어,충고 고맙군. 하지만 아무 일도 없을 테니 걱정하지 말게.,Knight_Sqe_0007
+7,,Knight_Sqe_0007,사냥꾼,훗. 자신감이 넘치는 녀석이군. 정 가고 싶다면 마음대로 하게. 내가 자네를 막을 권한이 있는 것도 아니니. 하지만 그로 인해 무슨 일이 생겨도 누굴 원망할 생각은 하지 말게나.,EndNode
+8,,FishermanQuest1001,플레이어,이런 곳에 있을 줄이야.,FishermanQuest1001
+9,,FishermanQuest1002,낚시꾼,자네는... 이것 참 오랜만이로구먼.,FishermanQuest1002
+10,,FishermanQuest1003,플레이어,언제까지 그런 꼴로 있을 거지? 지금이라도 늦지 않았어. 일단 나와 함께 돌아가겠나?,FishermanQuest1003
+11,,FishermanQuest1004,낚시꾼,허허. 서두를 필요 없네. 때가 되면 모든 게 원래대로 돌아갈 테지. 일단 기다려보게나.,FishermanQuest1004
+12,,FishermanQuest1005,플레이어,...... 그래 나중에 다시 찾아오도록 하지.,FishermanQuest1005

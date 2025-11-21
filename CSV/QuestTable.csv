@@ -1,11 +1,16 @@
 ---,QuestId,MinLevel,DialogueId,QuestType,QuestTitle,QuestObjectText,QuestDescription,TargetId,TargetCount,RewardXp,RewardItemMap,NextQuestId
-NewRow,Quest01,1,None,MainQuest,퀘스트 제목,퀘스트 목표 설명,퀘스트 본문 내용,Box01,1,0,(),None
+NewRow,Quest01,0,None,MainQuest,퀘스트 제목,퀘스트 목표 설명,퀘스트 본문 내용,Box01,1,0,(),None
 Row0001,StartQuest01,1,WarriorQuest1001,MainQuest,처음의 시작,전사와 대화하기,"눈을 떠보니 낯선 곳에 있다.
 이곳은 어디일까? 나는 무엇을 하면 될까?
 일단 주변에 아무에게나 이곳이 어디인지 물어보자.",Warrior,0,10,"((1, 1),(22, 3))",StartQuest02
 Row0002,StartQuest02,0,,MainQuest,수련,스켈레톤 전사 처치하기,"전사는 나에게 임무를 주었다.
 근처에 적을 처치하고 더욱 강해지라고.
-일단 주의를 돌아다녀 적을 처치해보자.",SkeletonWarrior,3,50,"((21, 1),(23, 1))",StartQuest03
-Row0003,SubQuest01,2,,SubQuest,새로운 마을로,설원으로 이동하기,"더욱 더 강해지고 있다.
-듣기로는 이곳 황궁 말고도 다른 지역이 있다고 한다.
+일단 주의를 돌아다녀 적을 처치해 보자.",SkeletonWarrior,3,50,(),StartQuest03
+Row0003,StartQuest03,0,WarriorQuest2001,MainQuest,더욱 강해지고 싶어,다시 전사와 대화하기,"일단 전사의 말대로 스켈레톤 전사를 잡았다.
+하지만 딱히 강해지거나 한 것 같지는 않다.
+더욱 강해질 방법이 있는지 다시 전사와 대화해 보자",Warrior,0,10,,StartQuest04
+Row0004,SubQuest01,2,,SubQuest,새로운 마을로,설원으로 이동하기,"더욱더 강해지고 있다.
+듣기로는 근처에 다른 지역이 있다고 한다.
 그곳에 한번 가보자.",VillageEnrance,0,30,,
+Row0005,SubQuest02,1,FishermanQuest1001,SubQuest,정체를 알 수 없는 사람,낚시꾼 찾기,"어딘가에 전설적인 낚시꾼이 존재한다고 한다.
+나중에 시간이 나면 찾아보자.",FishermanLocation,0,10,"((23,1),(21,2))",

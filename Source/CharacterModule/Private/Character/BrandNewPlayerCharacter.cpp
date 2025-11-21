@@ -1147,7 +1147,7 @@ void ABrandNewPlayerCharacter::GrantQuestReward(const int32 XpReward, TMap<int32
 
 void ABrandNewPlayerCharacter::StartDialogue(const FName& DialogueId) const
 {
-	if (DialogueId.IsNone()) return;
+	if (DialogueId.IsNone() || !IsLocallyControlled()) return;
 	
 	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (!PlayerController) return;
@@ -1240,6 +1240,7 @@ void ABrandNewPlayerCharacter::TryStartQuestDialogue(const FName& TargetId)
 	{
 		if (Quest.TargetId == TargetId)
 		{
+			GetCharacterMovement()->StopMovementImmediately();
 			StartDialogue(Quest.DialogueId);
 		}
 	}

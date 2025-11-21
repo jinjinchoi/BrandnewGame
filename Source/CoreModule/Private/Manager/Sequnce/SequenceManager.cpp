@@ -95,19 +95,22 @@ void USequenceManager::PlayDialogueSequence(const TSoftObjectPtr<ULevelSequence>
 		Settings.bHidePlayer = true;
 		Settings.bPauseAtEnd = true;
 		
-		ULevelSequencePlayer* Player = ULevelSequencePlayer::CreateLevelSequencePlayer(
+		ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(
 			WeakThis->GetWorld(),LoadedSequence, Settings, OutActor);
 
-		if (Player)
+		if (SequencePlayer)
 		{
-			Player->Play();
+			APlayerController* PC = WeakThis->GetWorld()->GetFirstPlayerController();
+			PC->DisableInput(PC);
+			
+			SequencePlayer->Play();
 
 			if (WeakThis->LastSequencePlayer)
 			{
 				WeakThis->LastSequencePlayer->Stop();
 			}
 			
-			WeakThis->LastSequencePlayer = Player;
+			WeakThis->LastSequencePlayer = SequencePlayer;
 		}
 		
 	});
@@ -125,6 +128,13 @@ void USequenceManager::StopCurrentSequence()
 		if (APawn* Pawn = PC->GetPawn())
 		{
 			PC->SetViewTarget(Pawn);
+			
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PC]()
+			{
+				PC->EnableInput(PC);
+			}, 0.5f, false);
+			
 		}
 	}
 	

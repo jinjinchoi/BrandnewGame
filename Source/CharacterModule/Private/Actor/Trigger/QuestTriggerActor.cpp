@@ -42,7 +42,7 @@ void AQuestTriggerActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedCom
 	if (!PlayerInterface) return;
 	
 	// Authority나 Local Controller는 해당 함수에서 확인하고 있음.
-	PlayerInterface->IncreaseQuestProgressById(ActorId);
 	PlayerInterface->TryStartQuestDialogue(ActorId);
+	PlayerInterface->IncreaseQuestProgressById(ActorId);
 	
 }
