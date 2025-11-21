@@ -5,6 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/Character.h"
 #include "Interfaces/Character/BrandNewPlayerInterface.h"
 
 
@@ -28,8 +29,6 @@ void AQuestTriggerActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (!HasAuthority()) return;
-	
 	BoxCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::OnSphereBeginOverlap);
 	
 }
@@ -39,9 +38,11 @@ void AQuestTriggerActor::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedCom
 {
 	if (!IsValid(OtherActor) || !OtherActor->ActorHasTag("Player")) return;
 	
-	if (IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(OtherActor))
-	{
-		PlayerInterface->IncreaseQuestProgressById(ActorId);
-	}
+	IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(OtherActor);
+	if (!PlayerInterface) return;
+	
+	// Authority나 Local Controller는 해당 함수에서 확인하고 있음.
+	PlayerInterface->IncreaseQuestProgressById(ActorId);
+	PlayerInterface->TryStartQuestDialogue(ActorId);
 	
 }

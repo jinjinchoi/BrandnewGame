@@ -65,6 +65,8 @@ public:
 	virtual void SetCombatWeaponVisible(const bool bIsVisible) override;
 	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) override;
 	virtual void IncreaseQuestProgressById(const FName& TargetId) override;
+	virtual void TryStartQuestDialogue(const FName& TargetId) override;
+	virtual void StartDialogue(const FName& DialogueId) const override;
 	/* end Player Interface */
 
 	/** 캐릭터의 무브먼트 모드를 변경하는 함수 **/
@@ -195,7 +197,6 @@ private:
 	UPROPERTY()
 	TArray<AActor*> OverlappedActorArray;
 	
-	void StartDialogue(const FName& DialogueIdToStart) const;
 	UBrandnewQuestComponent* GetQuestComponent() const;
 	
 	UFUNCTION(Server, Reliable)
@@ -270,7 +271,6 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void Server_AcquireItem();
-	void AcquireItem();
 
 	UFUNCTION(Server, Reliable)
 	void Server_ConsumeItem(const int32 SlotIndex);

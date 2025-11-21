@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "BrandNewNPCInterface.generated.h"
+#include "InteractiveActorInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UBrandNewNPCInterface : public UInterface
+class UInteractiveActorInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,12 +16,13 @@ class UBrandNewNPCInterface : public UInterface
 /**
  * 
  */
-class COREMODULE_API IBrandNewNPCInterface
+class COREMODULE_API IInteractiveActorInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual FName GetFirstDialogueId() const = 0;
 	virtual void HideInteractionWidget() const = 0;
+	virtual void InteractWith(AActor* InstigatorActor) const = 0;
+	
 };

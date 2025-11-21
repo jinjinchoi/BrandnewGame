@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Actor/Quest/BrandnewQuestActor.h"
-#include "Interfaces/Actor/BrandNewNPCInterface.h"
+#include "Interfaces/Actor/InteractiveActorInterface.h"
 #include "BrandNewNPC.generated.h"
 
 class UCapsuleComponent;
@@ -12,14 +12,14 @@ class UWidgetComponent;
 class USphereComponent;
 
 UCLASS()
-class CHARACTERMODULE_API ABrandNewNPC : public ABrandnewQuestActor, public IBrandNewNPCInterface
+class CHARACTERMODULE_API ABrandNewNPC : public ABrandnewQuestActor, public IInteractiveActorInterface
 {
 	GENERATED_BODY()
 
 public:
 	ABrandNewNPC();
-	virtual FName GetFirstDialogueId() const override;
 	virtual void HideInteractionWidget() const override;
+	virtual void InteractWith(AActor* InstigatorActor) const override;
 
 protected:
 	virtual void BeginPlay() override;

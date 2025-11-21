@@ -39,14 +39,20 @@ ABrandNewNPC::ABrandNewNPC()
 	
 }
 
-FName ABrandNewNPC::GetFirstDialogueId() const
-{
-	return FirstDialogueId;
-}
-
 void ABrandNewNPC::HideInteractionWidget() const
 {
 	InteractionWidgetComponent->SetVisibility(false);
+}
+
+void ABrandNewNPC::InteractWith(AActor* InstigatorActor) const
+{
+	if (!InstigatorActor) return;
+	
+	if (const IBrandNewPlayerInterface* PlayerInterface = Cast<IBrandNewPlayerInterface>(InstigatorActor))
+	{
+		PlayerInterface->StartDialogue(FirstDialogueId);
+		InteractionWidgetComponent->SetVisibility(false);
+	}
 }
 
 

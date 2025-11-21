@@ -31,7 +31,7 @@
 #include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "GameMode/BrandNewGameModeBase.h"
-#include "Interfaces/Actor/BrandNewNPCInterface.h"
+#include "Interfaces/Actor/InteractiveActorInterface.h"
 #include "Interfaces/Actor/QuestActorInterface.h"
 #include "Interfaces/UI/BnWidgetInterface.h"
 #include "Inventory/BrandNewInventory.h"
@@ -919,10 +919,8 @@ void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
 	{
 		OverlappedItems.Add(OverlappedItem);
 	}
-	else
-	{
-		OverlappedItemsForUI.Add(OverlappedItem);
-	}
+	
+	OverlappedItemsForUI.Add(OverlappedItem);
 	SendPickupInfoToUi(OverlappedItem, true);
 	
 }
@@ -933,10 +931,8 @@ void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
 	{
 		OverlappedItems.RemoveSingle(OverlappedItem);
 	}
-	else
-	{
-		OverlappedItemsForUI.RemoveSingle(OverlappedItem);
-	}
+
+	OverlappedItemsForUI.RemoveSingle(OverlappedItem);
 	SendPickupInfoToUi(OverlappedItem, false);
 	
 }
@@ -1149,53 +1145,35 @@ void ABrandNewPlayerCharacter::GrantQuestReward(const int32 XpReward, TMap<int32
 	
 }
 
-void ABrandNewPlayerCharacter::StartDialogue(const FName& DialogueIdToStart) const
+void ABrandNewPlayerCharacter::StartDialogue(const FName& DialogueId) const
 {
-	if (DialogueIdToStart.IsNone()) return;
+	if (DialogueId.IsNone()) return;
 	
 	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (!PlayerController) return;
 	IBrandNewHUDInterface* BrandNewHUD = Cast<IBrandNewHUDInterface>(PlayerController->GetHUD());
 	if (!BrandNewHUD) return;
 	BrandNewHUD->HideMainOverlay();
-	BrandNewHUD->CreateDialogueWidget(DialogueIdToStart);
+	BrandNewHUD->CreateDialogueWidget(DialogueId);
 }
 
 void ABrandNewPlayerCharacter::InteractIfPossible()
 {
 	// 아이템 획득 로직
-	if (HasAuthority())
+	if (OverlappedItemsForUI.Num() > 0)
 	{
-		if (OverlappedItems.Num() > 0)
+		for (const TWeakObjectPtr<AActor>& Item : OverlappedItemsForUI)
 		{
-			for (const TWeakObjectPtr<AActor>& Item : OverlappedItems)
+			if (Item.IsValid())
 			{
-				if (Item.IsValid())
-				{
-					// 아이템 한번에 획득 전 UI에서 위젯 제거용. 아이템은 현재 한번에 모두 획득함.
-					SendPickupInfoToUi(Item.Get(), false);
-				}
+				SendPickupInfoToUi(Item.Get(), false);
 			}
-			AcquireItem();
-			return;
 		}
+		OverlappedItemsForUI.Empty();
+		Server_AcquireItem();
+		return;
 	}
-	else
-	{
-		if (OverlappedItemsForUI.Num() > 0)
-		{
-			for (const TWeakObjectPtr<AActor>& Item : OverlappedItemsForUI)
-			{
-				if (Item.IsValid())
-				{
-					SendPickupInfoToUi(Item.Get(), false);
-				}
-			}
-			OverlappedItemsForUI.Empty();
-			Server_AcquireItem();
-			return;
-		}
-	}
+	
 
 	if (OverlappedActorArray.Num() <= 0) return;
 	
@@ -1210,7 +1188,7 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 			if (QuestActor->IsQuestTargetActor(Quest.TargetId))
 			{
 				Server_IncreaseInteractiveQuestProgress();
-				if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
+				if (const IInteractiveActorInterface* NPCInterface = Cast<IInteractiveActorInterface>(ClosestInteractiveActor))
 				{
 					NPCInterface->HideInteractionWidget();
 				}
@@ -1220,15 +1198,11 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		}
 	}
 	
-	// NPC 대화 로직
-	if (const IBrandNewNPCInterface* NPCInterface = Cast<IBrandNewNPCInterface>(ClosestInteractiveActor))
+	// 상호작용 로직
+	if (const IInteractiveActorInterface* InteractiveActorInterface = Cast<IInteractiveActorInterface>(ClosestInteractiveActor))
 	{
 		// 가장 가까운 NPC 찾아서 상호작용.
-		const FName FirstDialogueId = NPCInterface->GetFirstDialogueId();
-		if (FirstDialogueId.IsNone()) return;
-		NPCInterface->HideInteractionWidget();
-
-		StartDialogue(FirstDialogueId);
+		InteractiveActorInterface->InteractWith(this);
 	}
 	
 }
@@ -1275,20 +1249,31 @@ void ABrandNewPlayerCharacter::IncreaseQuestProgressById(const FName& TargetId)
 	
 }
 
-
-void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
+void ABrandNewPlayerCharacter::TryStartQuestDialogue(const FName& TargetId)
 {
-	AcquireItem();
+	
+	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
+	if (!QuestComponent) return;
+	
+	for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
+	{
+		if (Quest.TargetId == TargetId)
+		{
+			StartDialogue(Quest.DialogueId);
+		}
+	}
+	
 }
 
-void ABrandNewPlayerCharacter::AcquireItem()
+
+void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
 {
 	if (OverlappedItems.IsEmpty()) return;
 	
 	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
 	check(BrandNewPlayerState);
 	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
-	check(Inventory);
+	if (!Inventory) return;
 	
 	for (int32 i = OverlappedItems.Num() - 1; i >= 0; --i)
 	{
@@ -1306,8 +1291,6 @@ void ABrandNewPlayerCharacter::AcquireItem()
 		OverlappedItems.RemoveAt(i);
 		BrandNewItem->Destroy();
 	}
-	
-	
 }
 
 void ABrandNewPlayerCharacter::CameraScroll(const float InputValue)

@@ -105,5 +105,12 @@ public:
 	/* 퀘스트 보상 주는 함수 */
 	virtual void GrantQuestReward(const int32 XpReward, TMap<int32, int32> ItemRewardMap) = 0;
 	virtual void IncreaseQuestProgressById(const FName& TargetId) = 0;
+	/**
+	 * 퀘스트 액터가 자신의 아이디를 보내면 플레이어는 퀘스트 목록에서 타겟이 퀘스트 액터와 동일한 퀘스트가 있는지 확인하고 
+	 * 존재하면 다이얼로그 실행 여부 확인해서 다이얼로그 스타트.
+	 */
+	virtual void TryStartQuestDialogue(const FName& TargetId) = 0;
+	
+	virtual void StartDialogue(const FName& DialogueId) const = 0;
 	
 };
