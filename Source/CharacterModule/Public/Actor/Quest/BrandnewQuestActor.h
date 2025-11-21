@@ -25,7 +25,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Destroyed() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brandnew")
 	FName ActorId;

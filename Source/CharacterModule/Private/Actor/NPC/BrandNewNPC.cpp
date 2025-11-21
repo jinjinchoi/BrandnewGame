@@ -48,8 +48,8 @@ void ABrandNewNPC::InteractWith(AActor* InstigatorActor) const
 	
 	if (PlayerInterface->IsQuestTarget(ActorId))
 	{
-		PlayerInterface->Server_IncreaseInteractiveQuestProgress();
 		PlayerInterface->TryStartQuestDialogue(ActorId);
+		PlayerInterface->Server_IncreaseInteractiveQuestProgress();
 	}
 	else
 	{

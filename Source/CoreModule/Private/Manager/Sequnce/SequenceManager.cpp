@@ -133,7 +133,7 @@ void USequenceManager::StopCurrentSequence()
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PC]()
 			{
 				PC->EnableInput(PC);
-			}, 0.5f, false);
+			}, 0.75f, false);
 			
 		}
 	}

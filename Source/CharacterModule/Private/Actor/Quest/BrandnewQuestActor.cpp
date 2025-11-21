@@ -30,19 +30,6 @@ void ABrandnewQuestActor::BeginPlay()
 
 }
 
-void ABrandnewQuestActor::Destroyed()
-{
-	if (GetWorld() && GetWorld()->IsGameWorld())
-	{
-		if (UBrandnewQuestSubsystem* QuestSubsystem = GetGameInstance()->GetSubsystem<UBrandnewQuestSubsystem>())
-		{
-			QuestSubsystem->RemoveQuestActorFromMap(ActorId);
-		}
-	}
-    
-	Super::Destroyed();
-}
-
 void ABrandnewQuestActor::ShowLocationWidget(const bool bIsVisible)
 {
 	LocationWidgetComponent->SetVisibility(bIsVisible);

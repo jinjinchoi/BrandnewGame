@@ -16,7 +16,6 @@ UBrandnewQuestComponent::UBrandnewQuestComponent()
 
 	SetIsReplicatedByDefault(true);
 	
-
 }
 
 void UBrandnewQuestComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -31,6 +30,22 @@ void UBrandnewQuestComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeP
 void UBrandnewQuestComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (UBrandnewQuestSubsystem* QuestSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UBrandnewQuestSubsystem>())
+	{
+		QuestSubsystem->OnQuestActorSetDelegate.AddWeakLambda(this, [this]()
+		{
+			if (TrackedQuestId == NAME_None) return;
+			
+			SetTrackedQuestId(TrackedQuestId);
+			
+		});
+	}
+	
+	if (TrackedQuestId != NAME_None)
+	{
+		SetTrackedQuestId(TrackedQuestId);
+	}
 
 	CreateAllQuestMap();
 	
@@ -158,12 +173,14 @@ void UBrandnewQuestComponent::AddActivatedQuest(const FQuestObjectiveBase& Quest
 			
 	if (!ActivatedQuests.Contains(NewQuest) && !CompletedQuests.Contains(NewQuest))
 	{
-		if (ActivatedQuests.IsEmpty())
+		const bool bWasEmpty = ActivatedQuests.IsEmpty();
+		ActivatedQuests.Add(NewQuest);
+
+		if (bWasEmpty)
 		{
 			SetTrackedQuestId(NewQuest.QuestId);
 			Client_SetTrackedQuestId(NewQuest.QuestId);
 		}
-		ActivatedQuests.Add(NewQuest);
 	}
 }
 
@@ -175,7 +192,7 @@ void UBrandnewQuestComponent::SetTrackedQuestId(const FName& QuestIdToTrack)
 	if (TrackedQuestId != QuestIdToTrack)
 	{
 		const FQuestInstance PreviousTrackedQuestInstance = FindTrackedQuestInstance();
-		AActor* PreviousTargetActor = QuestSubsystem->GetActorFromMap(PreviousTrackedQuestInstance.TargetId);
+		AActor* PreviousTargetActor = QuestSubsystem->GetQuestTargetById(PreviousTrackedQuestInstance.TargetId);
 		if (IQuestActorInterface* PreviousQuestActorInterface = Cast<IQuestActorInterface>(PreviousTargetActor))
 		{
 			PreviousQuestActorInterface->ShowLocationWidget(false);
@@ -183,13 +200,14 @@ void UBrandnewQuestComponent::SetTrackedQuestId(const FName& QuestIdToTrack)
 	}
 	
 	TrackedQuestId = QuestIdToTrack;
-	OnTrackedQuestChangedDelegate.Broadcast();
+	OnTrackedQuestChangedDelegate.Broadcast(QuestIdToTrack);
 	
 	if (TrackedQuestId == NAME_None) return;
 	
 	// 새로 바뀐 타겟의 위젯 컴포넌트 show
 	const FQuestInstance TrackedQuestInstance = FindTrackedQuestInstance();
-	AActor* TargetActor = QuestSubsystem->GetActorFromMap(TrackedQuestInstance.TargetId);
+	AActor* TargetActor = QuestSubsystem->GetQuestTargetById(TrackedQuestInstance.TargetId);
+	
 	if (IQuestActorInterface* QuestActorInterface = Cast<IQuestActorInterface>(TargetActor))
 	{
 		QuestActorInterface->ShowLocationWidget(true);
@@ -282,7 +300,7 @@ void UBrandnewQuestComponent::IncreaseQuestProgress(const FName& QuestIdToUpdate
 	
 	if (QuestIdToUpdate == TrackedQuestId)
 	{
-		OnTrackedQuestChangedDelegate.Broadcast();
+		OnTrackedQuestChangedDelegate.Broadcast(TrackedQuestId);
 	}
 	
 }
@@ -346,7 +364,10 @@ void UBrandnewQuestComponent::Client_SetTrackedQuestId_Implementation(const FNam
 
 void UBrandnewQuestComponent::OnRep_ActivatedQuests()
 {
-	SetTrackedQuestId(TrackedQuestId);
+	if (TrackedQuestId != NAME_None)
+	{
+		SetTrackedQuestId(TrackedQuestId);
+	}
 }
 
 void UBrandnewQuestComponent::Client_AutoSetTrackedQuestId_Implementation(const FName& CompletedQuestId, const FName& NextQuestId)

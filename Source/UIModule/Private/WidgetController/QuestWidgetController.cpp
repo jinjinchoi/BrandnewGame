@@ -23,9 +23,9 @@ void UQuestWidgetController::BindCallbacksToDependencies() const
 	UBrandnewQuestComponent* QuestComponent = GetQuestComponent();
 	if (!QuestComponent) return;
 	
-	QuestComponent->OnTrackedQuestChangedDelegate.AddLambda([this]()
+	QuestComponent->OnTrackedQuestChangedDelegate.AddLambda([this](const FName& TrackedQuestId)
 	{
-		OnTrackedQuestChangedDelegate.Broadcast();
+		OnTrackedQuestChangedDelegate.Broadcast(TrackedQuestId);
 	});
 	
 }

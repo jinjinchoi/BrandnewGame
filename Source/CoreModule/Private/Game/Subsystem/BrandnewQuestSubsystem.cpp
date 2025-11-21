@@ -9,22 +9,27 @@ void UBrandnewQuestSubsystem::AddQuestActorToMap(const FName& ActorId, AActor* A
 	
 	QuestActorMap.Add(ActorId, Actor);
 	
-}
-
-void UBrandnewQuestSubsystem::RemoveQuestActorFromMap(const FName& ActorId)
-{
-	if (QuestActorMap.Contains(ActorId))
+	if (PendingActorId != NAME_None && PendingActorId == ActorId)
 	{
-		QuestActorMap.Remove(ActorId);
+		OnQuestActorSetDelegate.Broadcast();
+		PendingActorId = NAME_None;
 	}
+	
 }
 
-AActor* UBrandnewQuestSubsystem::GetActorFromMap(const FName& ActorId)
+void UBrandnewQuestSubsystem::ClearSubsystem()
+{
+	QuestActorMap.Empty();
+}
+
+AActor* UBrandnewQuestSubsystem::GetQuestTargetById(const FName& ActorId)
 {
 	if (QuestActorMap.Contains(ActorId))
 	{
+		PendingActorId = NAME_None;
 		return QuestActorMap[ActorId];
 	}
 	
+	PendingActorId = ActorId;
 	return nullptr;
 }

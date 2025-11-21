@@ -6,6 +6,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "BrandnewQuestSubsystem.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnQuestActorSet)
+
 /**
  * 
  */
@@ -16,12 +18,21 @@ class COREMODULE_API UBrandnewQuestSubsystem : public UGameInstanceSubsystem
 
 public:
 	void AddQuestActorToMap(const FName& ActorId, AActor* Actor);
-	void RemoveQuestActorFromMap(const FName& ActorId);
 	
-	AActor* GetActorFromMap(const FName& ActorId);
+	UFUNCTION(BlueprintCallable, Category = "Brandnew|Subsystem Function")
+	void ClearSubsystem();
+	
+	AActor* GetQuestTargetById(const FName& ActorId);
+	
+	FOnQuestActorSet OnQuestActorSetDelegate;
+
 	
 protected:
 	UPROPERTY()
 	TMap<FName, AActor*> QuestActorMap;
+	
+private:
+	// 퀘스트 액터 요청 했지만 아직 월드에 존재하지 않을 때 등록된 후 사용할 id
+	FName PendingActorId;
 	
 };

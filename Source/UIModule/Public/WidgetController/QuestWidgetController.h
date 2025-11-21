@@ -7,7 +7,7 @@
 #include "Components/BrandnewQuestComponent.h"
 #include "QuestWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTrackedQuestChangedDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTrackedQuestChangedDelegate, const FName&, NewTrackedQuestId);
 
 /**
  * 

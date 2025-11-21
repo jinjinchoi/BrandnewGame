@@ -45,7 +45,7 @@ struct FQuestInstance
 	}
 };
 
-DECLARE_MULTICAST_DELEGATE(FOnTrackedQuestChanged);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTrackedQuestChanged, const FName&);
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
