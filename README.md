@@ -103,7 +103,7 @@ if (GetAttributeValueByTag(/* StatPointTag */) < ConsumedStatPoint) return;
 
 #### 3) Ability
 
-데이터 에셋에서 부여할 어빌리티를 설정하고 게임 시작 후 데이터 에셋을 순회하여 어빌리티를 부여합니다.
+데이터 에셋에서 부여할 어빌리티를 설정하고 게임 시작 후 **데이터 에셋을 순회하여 어빌리티를 부여**합니다.
 
 ![어빌리티를 저장하는 데이터 에셋 이미지](GameImg/AbilityDataAsset.png)
 
@@ -122,7 +122,7 @@ Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Actio
 
 #### 1) Enemy Spawn
 
-Enemy는 Object Pool에 저장하고 있다가 Spawn Volume에 플레이어가 접근하면 Pool에서 가져와 생성합니다. 이때 단순히 생성하기만 하는 것이 아니라 스폰할 장소의 유효성 등을 체크하여 Enemy를 Spawn할 수 있도록 하였습니다.
+Enemy는 Object Pool에 저장하고 있다가 **Spawn Volume에 플레이어가 접근하면 Pool에서 가져와 생성**합니다. 이때 단순히 생성하기만 하는 것이 아니라 스폰할 장소의 유효성 등을 체크하여 Enemy를 Spawn할 수 있도록 하였습니다.
 
 > **GitHub Link**
 > - [Enemy Spawn Volme.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Spawn/SpawnVolume.h)
@@ -162,7 +162,7 @@ FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 
 에너미의 어빌리티는 Behavior Tree에서 커스텀 Task를 통해 발동됩니다.
 
-커스텀 Task를 만든 이유는 단순히 Gameplay Tag를 통해 에너미의 어빌리티를 발동시키는 것은 쉽지만 어빌리티가 종료하는 타이밍을 알아내기는 힘들어 커스텀 태스크를 사용하여 타이밍을 정확히 제어하기로 하였습니다.
+커스텀 Task를 만든 이유는 단순히 Gameplay Tag를 통해 에너미의 어빌리티를 발동시키는 것은 쉽지만 어빌리티가 종료하는 타이밍을 알아내기는 힘들어 **커스텀 태스크를 사용하여 타이밍을 정확히 제어**하기로 하였습니다.
 
 ```c++
 struct FActiveAbilityByTagTaskMemory
@@ -203,7 +203,7 @@ if (ASC->TryActivateAbility(SpecHandle))
 }
 ```
 
-위의 로직은 태스크에서 어빌리티를 실행시키고 어빌리티 종료 시 태스크도 종료시키는 로직 중 일부입니다. `OnAbilityEnded`에 바인딩할 때 Weak Ptr을 사용하여 에너미가 제거될 수 있는 상황에도 대응하였습니다.
+위의 로직은 태스크에서 어빌리티를 실행시키고 어빌리티 종료 시 태스크도 종료시키는 로직 중 일부입니다. 어빌리티 종료 델리게이트에 바인딩할 때 Weak Ptr을 사용하여 에너미가 제거될 수 있는 상황에도 대응하였습니다.
 
 ```c++
 // Task 진행 방해 받을 시 Memory 초기화 작업
@@ -249,7 +249,7 @@ Inventory (UBrandNewInventoryComponent)
 └─ Functions : AddItem / EquipItem / ConsumeItem / Getter / Setter
 ```
 
-인벤토리 역할을 하는 `ItemInventory`구조체는 복제 설정을 하였으며 인벤토리와 관련된 모든 로직은 서버에서만 담당하도록 하였습니다. 
+인벤토리 역할을 하는 `ItemInventory`구조체는 복제 설정을 하였으며 **인벤토리와 관련된 모든 로직은 서버에서만 담당**하도록 하였습니다. 
 
 <br>
 
@@ -263,7 +263,7 @@ Inventory (UBrandNewInventoryComponent)
 
 ![아이템 시트 이미지](GameImg/ItemInfoSheetCrop.png)
 
-각각의 아이템들은 Id를 통해 관리되며 데이터 테이블에서 정보를 가져와 UI에 보여주거나 효과를 적용합니다.
+각각의 **아이템들은 Id를 통해 관리**되며 데이터 테이블에서 정보를 가져와 UI에 보여주거나 효과를 적용합니다.
 
 <br>
 
@@ -466,6 +466,10 @@ switch (DialogueSubSystem->GetDialogueTypeById(DialogueId))
 ```
 
 위젯 컨트롤러는 DialogueId를 받으면 그 다이얼로그가 어떤 타입인지 확인하고 그에 맞는 로직들을 실행합니다.
+
+> GitHub Link
+> - [Dialogue Widget Controller.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Public/WidgetController/DialogueWidgetController.h)
+> - [Dialogue Widget Controller.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Private/WidgetController/DialogueWidgetController.cpp)
 
 ---
 
