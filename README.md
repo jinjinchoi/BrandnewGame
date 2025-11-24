@@ -1,14 +1,22 @@
-﻿## 목차
-01. 목차 [#](#목차)
-02. 개요 [#](#개요)
-03. 프로젝트 요약 [#](#프로젝트-요약)
-04. 핵심 기능 및 구현 내용 [#](#핵심-기능-및-구현-내용)
-05. 문제 해결 및 방법 [#](#문제-해결-및-방법)
-06. 고찰 및 회고 [#](#고찰-및-회고)
+﻿## 01. 목차
+01. 목차 [#](#01-목차)
+02. 개요 [#](#02-개요)
+03. 프로젝트 요약 [#](#03-프로젝트-요약)
+04. 핵심 기능 및 구현 내용 [#](#04-핵심-기능-및-구현-내용)
+    1. Gamepaly Ability System [#](#1-gameplay-ability-system)
+    2. Enemy [#](#2-enemy)
+    3. Iventory / Item [#](#3-inventory--item)
+    4. Object Pooling [#](#4-object-pooling)
+    5. Save / Load [#](#5-save-and-load)
+    6. Map Travel [#](#6-map-travel)
+    7. Dialogue System [#](#7-dialogue-system)
+    8. Quest [#](#8-quest)
+05. 문제 해결 및 방법 [#](#05-문제-해결-및-방법)
+06. 고찰 및 회고 [#](#06-고찰-및-회고)
 
 ---
 
-## 개요
+## 02. 개요
 - **프로젝트소개**
     - 리슨 서버 기반 멀티플레이 RPG 게임
 - **개발인원**
@@ -22,7 +30,7 @@
 
 ---
 
-## 프로젝트 요약
+## 03. 프로젝트 요약
 
 - **장르**
     - 3D Action RPG
@@ -53,9 +61,9 @@
 
 ---
 
-## 핵심 기능 및 구현 내용
+## 04. 핵심 기능 및 구현 내용
 
-### Gameplay Ability System
+### 1. Gameplay Ability System
 
 #### 1) Attribute
 
@@ -109,7 +117,7 @@ Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Actio
 
 ---
 
-### Enemy
+### 2. Enemy
 
 #### 1) Enemy Spawn
 
@@ -157,31 +165,31 @@ struct FActiveAbilityByTagTaskMemory
 
 ```c++
 // 게임플레이 태그를 통해 어빌리티 스펙 핸들을 찾는 커스텀 함수 사용
-const FGameplayAbilitySpecHandle SpecHandle = OwningASC->FindAbilitySpecHandleFromAbilityTag(AbilityTag);;
+const FGameplayAbilitySpecHandle SpecHandle = ASC->FindAbilitySpecHandleFromAbilityTag(AbilityTag);
 if (!SpecHandle.IsValid())
 {
     return EBTNodeResult::Failed;
 }
 
 // 스펙핸들을 통해 어빌리티 실행
-if (OwningASC->TryActivateAbility(SpecHandle))
+if (ASC->TryActivateAbility(SpecHandle))
 {
     TWeakObjectPtr WeakThis(this);
     TWeakObjectPtr WeakComp(&OwnerComp);
     
     // 메모리에 실행중인 어빌리티 스펙 핸들 저장
     Memory->ActivatedAbilitySpecHandle = SpecHandle;
+    
     // OnAbilityEnded 바인딩하고 델리게이트 핸들 저장
-    Memory->OnAbilityEndedDelegateHandle = OwningASC->OnAbilityEnded.AddLambda(
-        [...](...)
-        {
-            // ... (유효성 확인 부분 생략)
-            
-            // Ability 종료 시 Task 종료
-            WeakThis->FinishLatentTask(
-                *WeakComp, Data.bWasCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded);
-         
-        });
+    Memory->OnAbilityEndedDelegateHandle = ASC->OnAbilityEnded.AddLambda([...](...)
+    {
+        // ... (유효성 확인 부분 생략)
+        
+        // Ability 종료 시 Task 종료
+        WeakThis->FinishLatentTask(
+            *WeakComp, Data.bWasCancelled ? EBTNodeResult::Failed : EBTNodeResult::Succeeded);
+     
+    });
     
     // Ability 종료 전까지 Progress 상태로 둠
     return EBTNodeResult::InProgress;
@@ -212,7 +220,7 @@ Task가 방해받을 경우 메모리에서 Spec Handle과 Delegate Handle을 �
 
 ---
 
-### Inventory / Item
+### 3. Inventory / Item
 
 #### 1) 인벤토리 구조
 
@@ -290,7 +298,7 @@ ATTRIBUTE_ACCESSORS(...);
 
 ---
 
-### Object Pooling
+### 4. Object Pooling
 오브젝트 풀링을 사용하여 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 하였습니다. 게임이 시작되면 액터들을 미리 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 배열에서 액터들을 꺼내 오는 방식으로 작동합니다.
 
 최적화를 위하여 Level마다 풀에 저장할 액터들을 설정할 수 있게 하였고, 풀에 최초로 액터를 생성할 때 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
@@ -301,7 +309,7 @@ ATTRIBUTE_ACCESSORS(...);
 
 ---
 
-### Save And Load
+### 5. Save And Load
 
 #### 1) Indentity
 
@@ -362,7 +370,7 @@ if (SaveSubsystem->IsLoadedWorld() && SaveSubsystem->GetCurrentSlotSaveDataById(
 
 ---
 
-### Map Travel
+### 6. Map Travel
 
 #### 1) Map Entrace Actor
 
@@ -394,7 +402,7 @@ TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
 
 ---
 
-### Dialogue System
+### 7. Dialogue System
 
 ![다이얼로그 테이블 이미지](GameImg/TextDialogueSheet.png)
 ![인 게임 다이얼로그 이미지](GameImg/TextDialogue.png)
@@ -437,7 +445,7 @@ switch (DialogueSubSystem->GetDialogueTypeById(DialogueId))
 
 ---
 
-### Quest
+### 8. Quest
 
 ![퀘스트 이미지](GameImg/Quest.png)
 
@@ -531,7 +539,7 @@ if (PendingActorId != NAME_None && PendingActorId == ActorId)
 
 ---
 
-## 문제 해결 및 방법
+## 05. 문제 해결 및 방법
 
 포트폴리오 제작 중 다양한 문제에 직면했지만 가장 자주 발생했던 문제는 멀티플레이와 관련된 부분이었습니다.
 
@@ -545,7 +553,7 @@ if (PendingActorId != NAME_None && PendingActorId == ActorId)
 
 ---
 
-## 고찰 및 회고
+## 06. 고찰 및 회고
 
 언리얼 멀티플레이 로직에 대해 더욱 자세히 알 수 있게 된 프로젝트였습니다.
 
