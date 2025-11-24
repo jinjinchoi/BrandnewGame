@@ -69,6 +69,8 @@
 
 게임이 시작되면 서버는 캐릭터의 데이터가 저장되어 있는지 먼저 확인하고 저장된 데이터가 없으면 **데이터 테이블로부터 초기값**을 가져와 캐릭터의 Attribute를 설정합니다.
 
+<br>
+
 #### 2) Attribute Upgrade
 
 경험치를 획득하여 레벨업을 하여 `Gameplay Effect`(이하 GE)를 통해 스탯 포인트를 증가시킵니다.
@@ -92,11 +94,11 @@ if (GetAttributeValueByTag(/* StatPointTag */) < ConsumedStatPoint) return;
 
 위 코드는 서버에서 Attribute를 강화하는 로직 중 일부로 소비된 스탯 포인트`ConsumedStatPoint`가 플레이어가 가진 포인트를 초과하는지 검증하는 과정을 보여줍니다.
 
-<br>
-
 > **GitHub Link**
 > - Widget Controller → [캐릭터 클래스에 강화 수치 전달 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Private/WidgetController/CharacterInfoWidgetController.cpp#L19)
 > - Character Class → [실제 스탯 강화 로직 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L440)
+
+<br>
 
 #### 3) Ability
 
@@ -106,12 +108,13 @@ if (GetAttributeValueByTag(/* StatPointTag */) < ConsumedStatPoint) return;
 
 Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Action과 매핑되어 있어 키보드 입력 시 해당하는 어빌리티가 발동됩니다.
 
+<br>
+
 #### 4) Ability 소개
 
 구체적인 어빌리티 소개는 별도의 문서에서 다루었습니다.
 
 > - [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
-
 ---
 
 ### 2. Enemy
@@ -143,6 +146,8 @@ FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 위의 코드는 데이터 테이블에서 에너미의 Attribute를 가져오는 함수로 데이터 테이블의 로우 네임은 `EnemyName_Lv1`과 같은 방식으로 설정되어 있습니다.
 
 데이터 테이블을 사용한 이유는 디자이너가 에너미의 Attribute를 레벨별로 설정하기 쉽게 하기 위함이었는데 현재는 에너미의 종류 및 레벨 상한이 낮아 이 방식이 유효하지만 프로젝트가 커지면 커브 테이블과 같은 다른 방식을 사용하는 것이 더 적합하다고 판단하고 있습니다.
+
+<br>
 
 #### 3) Enemy Ability 설정
 
@@ -250,6 +255,8 @@ Inventory (UBrandNewInventoryComponent)
 > **GitHub Link**
 > - [InventoryComponent.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Public/Inventory/BrandNewInventory.h)
 > - [InventoryComponent.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Private/Inventory/BrandNewInventory.cpp)
+
+<br>
 
 #### 2) 아이템
 
