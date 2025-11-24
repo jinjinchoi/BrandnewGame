@@ -67,7 +67,7 @@
 
 #### 1) Attribute
 
-게임이 시작되면 서버는 캐릭터의 데이터가 저장되어 있는지 먼저 확인하고 저장된 데이터가 없으면 데이터 테이블로부터 초기값을 가져와 캐릭터의 Attribute를 설정합니다.
+게임이 시작되면 서버는 캐릭터의 데이터가 저장되어 있는지 먼저 확인하고 저장된 데이터가 없으면 **데이터 테이블로부터 초기값**을 가져와 캐릭터의 Attribute를 설정합니다.
 
 #### 2) Attribute Upgrade
 
@@ -76,8 +76,6 @@
 ![스탯 강화 화면 이미지](GameImg/AttributeInfoWindow.png)
 
 클라이언트가 강화할 Attribute를 뜻하는 Gameplay Tag와 Value를 서버에 보내면 서버는 유효한 요청인지 확인하고 GE를 통해 Attribute를 강화합니다.
-
-<br>
 
 ```c++
 // FAttributeUpgradePrams는 강화할 Attribute Tag와 Value를 저장하는 구조체입니다.
@@ -89,7 +87,7 @@ for (const FAttributeUpgradePrams& UpgradePrams : AttributeUpgradePrams)
 }
 
 // GetAttributeValueByTag는 Gameplay Tag를 통해 Attribute의 Value를 가져오는 함수입니다.
-if (GetAttributeValueByTag(GamePlayTag::AttributePoint) < ConsumedStatPoint) return;
+if (GetAttributeValueByTag(/* StatPointTag */) < ConsumedStatPoint) return;
 ```
 
 위 코드는 서버에서 Attribute를 강화하는 로직 중 일부로 소비된 스탯 포인트`ConsumedStatPoint`가 플레이어가 가진 포인트를 초과하는지 검증하는 과정을 보여줍니다.
@@ -99,8 +97,6 @@ if (GetAttributeValueByTag(GamePlayTag::AttributePoint) < ConsumedStatPoint) ret
 > **GitHub Link**
 > - Widget Controller → [캐릭터 클래스에 강화 수치 전달 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Private/WidgetController/CharacterInfoWidgetController.cpp#L19)
 > - Character Class → [실제 스탯 강화 로직 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L440)
-
-<br>
 
 #### 3) Ability
 
@@ -113,6 +109,7 @@ Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Actio
 #### 4) Ability 소개
 
 구체적인 어빌리티 소개는 별도의 문서에서 다루었습니다.
+
 > - [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
 
 ---
@@ -126,6 +123,8 @@ Enemy는 Object Pool에 저장하고 있다가 Spawn Volume에 플레이어가 �
 > **GitHub Link**
 > - [Enemy Spawn Volme.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Spawn/SpawnVolume.h)
 > - [Enemy Spawn Volme.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Actor/Spawn/SpawnVolume.cpp)
+
+<br>
 
 #### 2) Enemy Attribute 설정
 
@@ -148,6 +147,8 @@ FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 #### 3) Enemy Ability 설정
 
 에너미의 Ability는 플레이어와 동일하게 데이터 에셋을 이용해 설정합니다.
+
+<br>
 
 #### 4) Enemy Ability 발동
 
@@ -214,6 +215,8 @@ EBTNodeResult::Type UBTTask_ActiveAbilityByTag::AbortTask(...)
 ```
 Task가 방해받을 경우 메모리에서 Spec Handle과 Delegate Handle을 가져와 어빌리티를 취소시키고 델리게이트의 바인딩을 제거합니다.
 
+<br>
+
 > **GitHub Link**
 > - [UBTTask_ActiveAbilityByTag.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/AI/BTTask_ActiveAbilityByTag.h)
 > - [UBTTask_ActiveAbilityByTag.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/AI/BTTask_ActiveAbilityByTag.cpp)
@@ -242,6 +245,8 @@ Inventory (UBrandNewInventoryComponent)
 
 인벤토리 역할을 하는 `ItemInventory`구조체는 복제 설정을 하였으며 인벤토리와 관련된 모든 로직은 서버에서만 담당하도록 하였습니다. 
 
+<br>
+
 > **GitHub Link**
 > - [InventoryComponent.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Public/Inventory/BrandNewInventory.h)
 > - [InventoryComponent.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Private/Inventory/BrandNewInventory.cpp)
@@ -251,6 +256,8 @@ Inventory (UBrandNewInventoryComponent)
 ![아이템 시트 이미지](GameImg/ItemInfoSheetCrop.png)
 
 각각의 아이템들은 Id를 통해 관리되며 데이터 테이블에서 정보를 가져와 UI에 보여주거나 효과를 적용합니다.
+
+<br>
 
 #### 3) 아이템 획득
 
@@ -279,6 +286,8 @@ void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
 
 서버는 서버의 `OverlappedItems` 배열을 사용하고 클라이언트는 클라이언트의 `OverlappedItems` 배열을 사용하여 클라이언트가 임의로 아이템을 획득하는 상황을 방지했습니다.
 
+<br>
+
 #### 4) 아이템 장착 및 사용
 ![인벤토리 이미지](GameImg/Equip.png)
 ![장착 후 능력치 이미지](GameImg/EquipSpec.png)
@@ -302,6 +311,8 @@ ATTRIBUTE_ACCESSORS(...);
 오브젝트 풀링을 사용하여 액터들을 미리 생성하고 필요시 꺼내어 사용할 수 있도록 하였습니다. 게임이 시작되면 액터들을 미리 생성하고 Hidden으로 설정한 뒤 Pool에 저장해놓았다가 필요시 배열에서 액터들을 꺼내 오는 방식으로 작동합니다.
 
 최적화를 위하여 Level마다 풀에 저장할 액터들을 설정할 수 있게 하였고, 풀에 최초로 액터를 생성할 때 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
+
+<br>
 
 > **GitHub Link**
 > - [Object Pool.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Manager/Pooling/BrandNewObjectPoolManager.h)
@@ -328,6 +339,8 @@ Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 
 서버는 클라이언트가 보낸 아이디를 Player State에 저장하고 이는 다시 클라이언트로 복제가 되어 클라이언트가 다른 클라이언트의 아이디를 알 수 있게 하였습니다.
 
+<br>
+
 #### 2) Save
 
 ![세이브 이미지](GameImg/SaveSlot.png)
@@ -349,6 +362,7 @@ for (const TObjectPtr<APlayerState>& PlayerState : GameState->PlayerArray)
 
 호스트가 세이브 요청을 하면 Game State에서 Player State 배열을 가져와 모든 플레이어의 데이터를 저장합니다.
 
+<br>
 
 #### 3) Load
 
@@ -390,6 +404,8 @@ if (OverlappingActors.Num() == GameState->PlayerArray.Num())
 > - [Map Entrace Actor.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Map/MapEntrance.h)
 > - [Map Entrace Actor.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Actor/Map/MapEntrance.cpp)
 
+<br>
+
 #### 2) Map Travel 시 데이터 저장
 
 Map을 이동할 때 디스크에 데이터를 저장하는 것이 아닌 서버의 서브시스템에 데이터를 저장하도록 하였습니다.
@@ -422,6 +438,8 @@ DialogueManager
 ```
 
 다이얼로그 시스템의 구조는 위와 같으며 전체 노드는 그래프 클래스에서 보관하고 매니저 클래스는 이 그래프 클래스에서 특정 노드를 가져오는 작업을 합니다.
+
+<br>
 
 #### 2) Dialogue Widget Controller
 
@@ -470,6 +488,8 @@ for (int32 i = 1; i <= PlayerLevel; ++i)
 
 퀘스트 컴포넌트는 게임 시작 시 `LevelToQuestsMap`에 레벨별 퀘스트를 저장하고 플레이어의 레벨을 받으면 활성화 가능한 퀘스트들을 활성화합니다.
 
+<br>
+
 #### 2) 퀘스트 진행
 
 퀘스트 액터들은 조건에 따라 플레이어에게 자신의 아이디를 넘깁니다.
@@ -492,6 +512,8 @@ for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
 }
 ```
 
+<br>
+
 #### 3) 퀘스트 추적
 
 ```c++
@@ -513,6 +535,8 @@ if (IQuestActorInterface* QuestActorInterface = Cast<...>(TargetActor))
 ```
 
 퀘스트 추적이 시작되면 서브시스템으로 부터 아이디를 통해 액터를 가져와 Widget Component의 Visibility를 지정하여 플레이어의 화면에 위치를 보여줍니다.
+
+<br>
 
 #### 4) 퀘스트 로드 시 추적
 
