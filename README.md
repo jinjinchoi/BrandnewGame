@@ -77,6 +77,8 @@
 
 클라이언트가 강화할 Attribute를 뜻하는 Gameplay Tag와 Value를 서버에 보내면 서버는 유효한 요청인지 확인하고 GE를 통해 Attribute를 강화합니다.
 
+<br>
+
 ```c++
 // FAttributeUpgradePrams는 강화할 Attribute Tag와 Value를 저장하는 구조체입니다.
 for (const FAttributeUpgradePrams& UpgradePrams : AttributeUpgradePrams)
@@ -87,14 +89,18 @@ for (const FAttributeUpgradePrams& UpgradePrams : AttributeUpgradePrams)
 }
 
 // GetAttributeValueByTag는 Gameplay Tag를 통해 Attribute의 Value를 가져오는 함수입니다.
-if (GetAttributeValueByTag(BrandNewGamePlayTag::Attribute_Experience_AttributePoint) < ConsumedStatPoint) return;
+if (GetAttributeValueByTag(GamePlayTag::AttributePoint) < ConsumedStatPoint) return;
 ```
 
 위 코드는 서버에서 Attribute를 강화하는 로직 중 일부로 소비된 스탯 포인트`ConsumedStatPoint`가 플레이어가 가진 포인트를 초과하는지 검증하는 과정을 보여줍니다.
 
+<br>
+
 > **GitHub Link**
 > - Widget Controller → [캐릭터 클래스에 강화 수치 전달 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Private/WidgetController/CharacterInfoWidgetController.cpp#L19)
 > - Character Class → [실제 스탯 강화 로직 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L440)
+
+<br>
 
 #### 3) Ability
 
