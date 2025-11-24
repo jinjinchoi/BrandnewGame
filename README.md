@@ -93,10 +93,8 @@ if (GetAttributeValueByTag(BrandNewGamePlayTag::Attribute_Experience_AttributePo
 위 코드는 서버에서 Attribute를 강화하는 로직 중 일부로 소비된 스탯 포인트`ConsumedStatPoint`가 플레이어가 가진 포인트를 초과하는지 검증하는 과정을 보여줍니다.
 
 > **GitHub Link**
-> - Widget Controller → 캐릭터 클래스에 강화 수치 전달 (.cpp)
-> - Character Class → 실제 스탯 강화 로직 (.cpp)
-> - Attribute Tag와 실제 Attribute를 연결하는 Data Asset (.h)
-
+> - Widget Controller → [캐릭터 클래스에 강화 수치 전달 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/UIModule/Private/WidgetController/CharacterInfoWidgetController.cpp#L19)
+> - Character Class → [실제 스탯 강화 로직 (.cpp)](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Character/BrandNewPlayerCharacter.cpp#L440)
 
 #### 3) Ability
 
@@ -106,14 +104,10 @@ if (GetAttributeValueByTag(BrandNewGamePlayTag::Attribute_Experience_AttributePo
 
 Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Action과 매핑되어 있어 키보드 입력 시 해당하는 어빌리티가 발동됩니다.
 
-> **GitHub Link**
-> - 어빌리티를 설정하는 Data Asset (.h)
-> - Input Tag와 Input Action을 매핑하는 Data Asset (.h)
-
 #### 4) Ability 소개
 
 구체적인 어빌리티 소개는 별도의 문서에서 다루었습니다.
-> - Ability 소개 문서 (.md)
+> - [Ability 소개 문서](https://github.com/jinjinchoi/BrandnewGame/blob/main/AbilitySystemOverview.md)
 
 ---
 
@@ -124,8 +118,8 @@ Active 어빌리티는 Gameplay Tag와 매핑하였으며 이 Tag는 Input Actio
 Enemy는 Object Pool에 저장하고 있다가 Spawn Volume에 플레이어가 접근하면 Pool에서 가져와 생성합니다. 이때 단순히 생성하기만 하는 것이 아니라 스폰할 장소의 유효성 등을 체크하여 Enemy를 Spawn할 수 있도록 하였습니다.
 
 > **GitHub Link**
-> - Enemy Spawn Volme.h
-> - Enemy Spawn Volme.cpp
+> - [Enemy Spawn Volme.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Spawn/SpawnVolume.h)
+> - [Enemy Spawn Volme.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Actor/Spawn/SpawnVolume.cpp)
 
 #### 2) Enemy Attribute 설정
 
@@ -137,7 +131,7 @@ FSecondaryAttributeDataRow* ABrandNewEnemyCharacter::FindEnemyDataRow() const
 	if (!SecondaryAttributeDataTable) return nullptr;
 
 	const FName RowName = *FString::Printf(TEXT("%s_Lv%d"), *EnemyName.ToString(), EnemyLevel);
-	return SecondaryAttributeDataTable->FindRow<FSecondaryAttributeDataRow>(RowName, TEXT("EnemyData Lookup"));
+	return SecondaryAttributeDataTable->FindRow<...>(RowName, TEXT("EnemyData Lookup"));
 }
 ```
 
@@ -215,8 +209,8 @@ EBTNodeResult::Type UBTTask_ActiveAbilityByTag::AbortTask(...)
 Task가 방해받을 경우 메모리에서 Spec Handle과 Delegate Handle을 가져와 어빌리티를 취소시키고 델리게이트의 바인딩을 제거합니다.
 
 > **GitHub Link**
-> - UBTTask_ActiveAbilityByTag.h
-> - UBTTask_ActiveAbilityByTag.cpp
+> - [UBTTask_ActiveAbilityByTag.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/AI/BTTask_ActiveAbilityByTag.h)
+> - [UBTTask_ActiveAbilityByTag.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/AI/BTTask_ActiveAbilityByTag.cpp)
 
 ---
 
@@ -243,8 +237,8 @@ Inventory (UBrandNewInventoryComponent)
 인벤토리 역할을 하는 `ItemInventory`구조체는 복제 설정을 하였으며 인벤토리와 관련된 모든 로직은 서버에서만 담당하도록 하였습니다. 
 
 > **GitHub Link**
-> - InventoryComponent.h
-> - InventoryComponent.cpp
+> - [InventoryComponent.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Public/Inventory/BrandNewInventory.h)
+> - [InventoryComponent.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/InventoryModule/Private/Inventory/BrandNewInventory.cpp)
 
 #### 2) 아이템
 
@@ -304,8 +298,8 @@ ATTRIBUTE_ACCESSORS(...);
 최적화를 위하여 Level마다 풀에 저장할 액터들을 설정할 수 있게 하였고, 풀에 최초로 액터를 생성할 때 타이머를 사용하여 한 프레임에 최대 소환할 수 있는 액터의 수를 제한하여 지연 발생을 최대한 줄였습니다.
 
 > **GitHub Link**
-> - Object Pool.h
-> - Object Pool.cpp
+> - [Object Pool.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Public/Manager/Pooling/BrandNewObjectPoolManager.h)
+> - [Object Pool.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CoreModule/Private/Manager/Pooling/BrandNewObjectPoolManager.cpp)
 
 ---
 
@@ -387,8 +381,8 @@ if (OverlappingActors.Num() == GameState->PlayerArray.Num())
 플레이어는 언제든 게임에 참여하고 나갈 수 있기 때문에 Game State에서 플레이어가 접속하거나 종료할 때 델리게이트를 브로드캐스트 하게 하였고 Map Entrace에서 이를 구독하여 오버랩 중인 플레이어를 다시 계산하도록 하였습니다.
 
 > **GitHub Link**
-> - Map Entrace Actor.h
-> - Map Entrace Actor.cpp
+> - [Map Entrace Actor.h](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Public/Actor/Map/MapEntrance.h)
+> - [Map Entrace Actor.cpp](https://github.com/jinjinchoi/BrandnewGame/blob/main/Source/CharacterModule/Private/Actor/Map/MapEntrance.cpp)
 
 #### 2) Map Travel 시 데이터 저장
 
