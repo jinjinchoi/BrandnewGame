@@ -264,9 +264,6 @@ private:
 	/* 캐릭터와 오버랩 중인 픽업 아이템들 */
 	UPROPERTY()
 	TArray<TWeakObjectPtr<AActor>> OverlappedItems;
-	
-	UPROPERTY()
-	TArray<TWeakObjectPtr<AActor>> OverlappedItemsForUI;
 
 	void SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const;
 

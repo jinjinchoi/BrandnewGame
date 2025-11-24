@@ -912,30 +912,44 @@ FText ABrandNewPlayerCharacter::GetSaveTitleText() const
 	return FText::FromString(TEXT("Unreal RPG Project"));
 }
 
-
-void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
+void ABrandNewPlayerCharacter::ReviveCharacter()
 {
+	bIsDead = false;
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		
+	FGameplayTagContainer GameplayTags;
+	GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
+	AbilitySystemComponent->CancelAbilities(&GameplayTags);
+
+	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
+	MoveCharacterToValidLocation(SafeLocation);
+}
+
+void ABrandNewPlayerCharacter::Server_ReviveCharacter_Implementation()
+{
+	ReviveCharacter();
+}
+
+void ABrandNewPlayerCharacter::RevivePlayerCharacter()
+{
+	if (!bIsDead) return;
+	
 	if (HasAuthority())
 	{
-		OverlappedItems.Add(OverlappedItem);
+		ReviveCharacter();
 	}
-	
-	OverlappedItemsForUI.Add(OverlappedItem);
-	SendPickupInfoToUi(OverlappedItem, true);
+	else
+	{
+		bIsDead = false; // 서버는 따로 설정하기 때문에 클라에서만 설정
+		Server_ReviveCharacter();
+	}
 	
 }
 
-void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
-{
-	if (HasAuthority())
-	{
-		OverlappedItems.RemoveSingle(OverlappedItem);
-	}
-
-	OverlappedItemsForUI.RemoveSingle(OverlappedItem);
-	SendPickupInfoToUi(OverlappedItem, false);
-	
-}
 
 void ABrandNewPlayerCharacter::UseConsumptionItem(const int32 SlotIndex)
 {
@@ -1050,6 +1064,32 @@ void ABrandNewPlayerCharacter::EquipItem(const int32 SlotIndex, const EItemType 
 	return AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
+void ABrandNewPlayerCharacter::AddOverlappedItem(AActor* OverlappedItem)
+{
+	if (HasAuthority() || IsLocallyControlled())
+	{
+		OverlappedItems.Add(OverlappedItem);
+	}
+
+	if (IsLocallyControlled())
+	{
+		SendPickupInfoToUi(OverlappedItem, true);
+	}
+}
+
+void ABrandNewPlayerCharacter::RemoveOverlappedItem(AActor* OverlappedItem)
+{
+	if (HasAuthority()|| IsLocallyControlled())
+	{
+		OverlappedItems.RemoveSingle(OverlappedItem);
+	}
+
+	if (IsLocallyControlled())
+	{
+		SendPickupInfoToUi(OverlappedItem, false);
+	}
+}
+
 void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool bIsBeginOverlap) const
 {
 	if (!IsLocallyControlled()) return;
@@ -1063,45 +1103,6 @@ void ABrandNewPlayerCharacter::SendPickupInfoToUi(AActor* ItemToSend, const bool
 	OnOverlappedItemChangedDelegate.ExecuteIfBound(bIsBeginOverlap, PickupUiInfo);
 }
 
-
-void ABrandNewPlayerCharacter::ReviveCharacter()
-{
-	bIsDead = false;
-	
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-		
-	FGameplayTagContainer GameplayTags;
-	GameplayTags.AddTag(BrandNewGamePlayTag::Ability_Shared_React_Death);
-	AbilitySystemComponent->CancelAbilities(&GameplayTags);
-
-	ApplyGameplayEffectToSelf(VitalAttributeEffect, 1.f);
-	MoveCharacterToValidLocation(SafeLocation);
-}
-
-void ABrandNewPlayerCharacter::Server_ReviveCharacter_Implementation()
-{
-	ReviveCharacter();
-}
-
-void ABrandNewPlayerCharacter::RevivePlayerCharacter()
-{
-	if (!bIsDead) return;
-	
-	if (HasAuthority())
-	{
-		ReviveCharacter();
-	}
-	else
-	{
-		bIsDead = false; // 서버는 따로 설정하기 때문에 클라에서만 설정
-		Server_ReviveCharacter();
-	}
-	
-}
-
 void ABrandNewPlayerCharacter::AddOverlappedNPC(AActor* OverlappedNPC)
 {
 	OverlappedActorArray.AddUnique(OverlappedNPC);
@@ -1113,15 +1114,6 @@ void ABrandNewPlayerCharacter::RemoveOverlappedNPC(AActor* EndOverlappedNPC)
 	if (OverlappedActorArray.Contains(EndOverlappedNPC))
 	{
 		OverlappedActorArray.Remove(EndOverlappedNPC);
-	}
-	
-}
-
-void ABrandNewPlayerCharacter::SetCombatWeaponVisible(const bool bIsVisible)
-{
-	if (CombatWeapon)
-	{
-		CombatWeapon->SetWeaponVisible(bIsVisible);
 	}
 	
 }
@@ -1160,17 +1152,18 @@ void ABrandNewPlayerCharacter::StartDialogue(const FName& DialogueId) const
 void ABrandNewPlayerCharacter::InteractIfPossible()
 {
 	// 아이템 획득 로직
-	if (OverlappedItemsForUI.Num() > 0)
+	if (OverlappedItems.Num() > 0)
 	{
-		for (const TWeakObjectPtr<AActor>& Item : OverlappedItemsForUI)
+		for (const TWeakObjectPtr<AActor>& Item : OverlappedItems)
 		{
 			if (Item.IsValid())
 			{
 				SendPickupInfoToUi(Item.Get(), false);
 			}
 		}
-		OverlappedItemsForUI.Empty();
+		
 		Server_AcquireItem();
+		if (!HasAuthority()) OverlappedItems.Empty();
 		return;
 	}
 	
@@ -1185,6 +1178,33 @@ void ABrandNewPlayerCharacter::InteractIfPossible()
 		InteractiveActorInterface->InteractWith(this);
 	}
 	
+}
+
+void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
+{
+	if (OverlappedItems.IsEmpty()) return;
+	
+	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
+	check(BrandNewPlayerState);
+	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
+	if (!Inventory) return;
+	
+	for (int32 i = OverlappedItems.Num() - 1; i >= 0; --i)
+	{
+		if (!OverlappedItems[i].IsValid()) continue;
+
+		ABrandNewPickupItem* BrandNewItem = Cast<ABrandNewPickupItem>(OverlappedItems[i].Get());
+		if (!BrandNewItem) continue;
+		
+		FInventorySlotData ItemData;
+		ItemData.ItemID = BrandNewItem->GetId();
+		ItemData.Quantity = BrandNewItem->GetQuantity();
+
+		Inventory->AddItemToSlot(ItemData);
+
+		OverlappedItems.RemoveAt(i);
+		BrandNewItem->Destroy();
+	}
 }
 
 UBrandnewQuestComponent* ABrandNewPlayerCharacter::GetQuestComponent() const
@@ -1260,32 +1280,13 @@ bool ABrandNewPlayerCharacter::IsQuestTarget(const FName& ActorId) const
 	return false;
 }
 
-
-void ABrandNewPlayerCharacter::Server_AcquireItem_Implementation()
+void ABrandNewPlayerCharacter::SetCombatWeaponVisible(const bool bIsVisible)
 {
-	if (OverlappedItems.IsEmpty()) return;
-	
-	const ABrandNewPlayerState* BrandNewPlayerState = GetPlayerState<ABrandNewPlayerState>();
-	check(BrandNewPlayerState);
-	UBrandNewInventory* Inventory = BrandNewPlayerState->GetInventory();
-	if (!Inventory) return;
-	
-	for (int32 i = OverlappedItems.Num() - 1; i >= 0; --i)
+	if (CombatWeapon)
 	{
-		if (!OverlappedItems[i].IsValid()) continue;
-
-		ABrandNewPickupItem* BrandNewItem = Cast<ABrandNewPickupItem>(OverlappedItems[i].Get());
-		if (!BrandNewItem) continue;
-		
-		FInventorySlotData ItemData;
-		ItemData.ItemID = BrandNewItem->GetId();
-		ItemData.Quantity = BrandNewItem->GetQuantity();
-
-		Inventory->AddItemToSlot(ItemData);
-
-		OverlappedItems.RemoveAt(i);
-		BrandNewItem->Destroy();
+		CombatWeapon->SetWeaponVisible(bIsVisible);
 	}
+	
 }
 
 void ABrandNewPlayerCharacter::CameraScroll(const float InputValue)

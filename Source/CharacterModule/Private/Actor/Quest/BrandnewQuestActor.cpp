@@ -26,8 +26,6 @@ void ABrandnewQuestActor::BeginPlay()
 	{
 		QuestSubsystem->AddQuestActorToMap(ActorId, this);
 	}
-	
-
 }
 
 void ABrandnewQuestActor::ShowLocationWidget(const bool bIsVisible)

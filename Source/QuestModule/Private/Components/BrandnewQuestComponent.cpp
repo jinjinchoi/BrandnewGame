@@ -38,7 +38,6 @@ void UBrandnewQuestComponent::BeginPlay()
 			if (TrackedQuestId == NAME_None) return;
 			
 			SetTrackedQuestId(TrackedQuestId);
-			
 		});
 	}
 	
