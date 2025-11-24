@@ -71,6 +71,7 @@
 
 <br>
 
+
 #### 2) Attribute Upgrade
 
 경험치를 획득하여 레벨업을 하여 `Gameplay Effect`(이하 GE)를 통해 스탯 포인트를 증가시킵니다.
@@ -335,7 +336,7 @@ ATTRIBUTE_ACCESSORS(...);
 
 클라이언트가 접속 시 아이디를 입력하고 클라이언트의 서브시스템에 저장합니다.
 
-아이디 기능을 따로 만든 이유는 클라이언트 간에 데이터를 따로 저장하고 싶었고 엔진에서 제공해 주는 기능들이 있기는 하지만 직접 RPC나 복제 기능을 사용하여 ID를 구분하고 싶었기 때문입니다.
+아이디 기능을 따로 만든 이유는 엔진에서 제공해 주는 기능들이 있기는 하지만 직접 RPC나 복제 기능을 사용하여 클라이언트들간에 ID를 구분하고 싶었기 때문입니다.
 
 ```c++
 SaveSubsystem = GetGameInstance()->GetSubsystem<...>();
@@ -343,8 +344,6 @@ Server_RequestInitCharacterInfo(SaveSubsystem->GetUniqueIdentifier());
 ```
 
 클라이언트가 접속하면 RPC를 통해 서버에 자신의 아이디를 보내는데 서버는 클라이언트의 서브시스템에 직접 접근할 수 없어 RPC를 사용하였습니다.
-
-서버는 클라이언트가 보낸 아이디를 Player State에 저장하고 이는 다시 클라이언트로 복제가 되어 클라이언트가 다른 클라이언트의 아이디를 알 수 있게 하였습니다.
 
 <br>
 
@@ -415,13 +414,15 @@ if (OverlappingActors.Num() == GameState->PlayerArray.Num())
 
 #### 2) Map Travel 시 데이터 저장
 
-Map을 이동할 때 디스크에 데이터를 저장하는 것이 아닌 서버의 서브시스템에 데이터를 저장하도록 하였습니다.
+Map을 이동할 때 디스크가 아닌 서버의 서브시스템에 데이터를 저장하도록 하였습니다.
 
 ```c++
 TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
 ```
 
 클라이언트 아이디와 세이브 데이터를 저장하며 캐릭터 클래스가 다시 생성될 때 맵 이동 여부를 확인하고 데이터를 로드하게 됩니다.
+
+위와 같이 구현한 이유는 수동 세이브를 지원하는 게임 대부분이 지역을 이동한다고 데이터가 디스크에 저장되지 않으며 동일한 기능을 구현하고 싶었기 때문입니다.
 
 ---
 
@@ -433,8 +434,6 @@ TMap<FString, FSaveSlotPrams> LatestPlayerDataMap;
 #### 1) Dialogue System 구조
 
 다이얼로그 시스템은 노드 기반으로 제작되어 다이얼로그 아이디를 통해 데이터를 가져오고 다음 노드로 연결하는 작업을 합니다.
-
-데이터 테이블로 다이얼로그 노드들을 제작하여 디자이너 친화적으로 구현할 수 있게 하였습니다.
 
 ```text
 DialogueManager
@@ -456,7 +455,7 @@ DialogueManager
 void ABrandNewHUD::CreateDialogueWidget(const FName& FirstDialogueId)
 ```
 
-HUD 클래스는 위의 함수를 통해 다이얼로그를 실행할 때 위의 함수에서 위젯과 위젯 컨트롤러 모두 생성합니다.
+다이얼로그를 실행할 때 위의 함수에서 위젯 컨트롤러에 첫번째 DialogueId를 설정합니다.
 
 ```c++
 // 위젯 컨트롤러에서 다이얼로그를 관리하는 함수 중 일부
@@ -466,7 +465,7 @@ switch (DialogueSubSystem->GetDialogueTypeById(DialogueId))
 }
 ```
 
-위젯 컨트롤러는 DialogueId를 받으면 그 다이얼로그가 어떤 타입의 다이얼로그인지 확인하고 그에 맞는 로직들을 실행합니다.
+위젯 컨트롤러는 DialogueId를 받으면 그 다이얼로그가 어떤 타입인지 확인하고 그에 맞는 로직들을 실행합니다.
 
 ---
 
@@ -524,6 +523,7 @@ for (const FQuestInstance& Quest : QuestComponent->GetActivatedQuests())
 #### 3) 퀘스트 추적
 
 ```c++
+// 퀘스트 액터가 서브 시스템에 자신의 정보를 저장하는 함수 중 일부
 if (UBrandnewQuestSubsystem* QuestSubsystem = GetGameInstance()->GetSubsystem<...>())
 {
     QuestSubsystem->AddQuestActorToMap(ActorId, this);
@@ -533,6 +533,7 @@ if (UBrandnewQuestSubsystem* QuestSubsystem = GetGameInstance()->GetSubsystem<..
 퀘스트 대상이 되는 액터들은 서브시스템의 자신의 정보를 알리고 저장합니다.
 
 ```c++
+// 퀘스트 추적 함수 중 일부
 AActor* TargetActor = QuestSubsystem->GetQuestTargetById(TargetId);
 
 if (IQuestActorInterface* QuestActorInterface = Cast<...>(TargetActor))
@@ -541,7 +542,7 @@ if (IQuestActorInterface* QuestActorInterface = Cast<...>(TargetActor))
 }
 ```
 
-퀘스트 추적이 시작되면 서브시스템으로 부터 아이디를 통해 액터를 가져와 Widget Component의 Visibility를 지정하여 플레이어의 화면에 위치를 보여줍니다.
+퀘스트 추적이 시작되면 서브시스템으로 부터 아이디를 통해 액터를 가져와 플레이어의 화면에 위치를 보여줍니다.
 
 <br>
 
@@ -552,13 +553,16 @@ if (IQuestActorInterface* QuestActorInterface = Cast<...>(TargetActor))
 한 가지 번거로웠던 작업은 추적 중인 퀘스트 액터의 위치를 표시하는 작업이었는데 추적 중인 퀘스트 로드가 액터가 서브시스템에 등록하는 시간보다 빠르면 액터를 제대로 찾아올 수 없다는 점이었습니다.
 
 ```c++
+// 서브시스템에 액터를 불러오는 함수 로직 중 일부
 if (QuestActorMap.Contains(ActorId)) {...}
-else { PendingActorId = ActorId; }
+else { PendingActorId = ActorId; } // Map에 액터가 없으면 대기
 ```
 
 이를 해결하기 위해 우선 액터 저장보다 액터를 요청하는 함수가 먼저 실행될 경우 해당 액터의 아이디를 저장하였습니다.
 
 ```c++
+// 서브시스템에 액터를 저자앟느 함수 로직 중 일부로
+// PendingActorId와 동일한 아이디를 가진 액터가 저장되면 델리게이트 브로드캐스트
 if (PendingActorId != NAME_None && PendingActorId == ActorId)
 {
     OnQuestActorSetDelegate.Broadcast();
@@ -566,7 +570,7 @@ if (PendingActorId != NAME_None && PendingActorId == ActorId)
 }
 ```
 
-그 후 액터를 추가하는 함수에서 추적을 기다리고 있던 액터의 데이터를 받으면 델리게이트를 통해 이를 브로드캐스트 하고 퀘스트 컴포넌트는 이를 수신하여 다시 액터를 찾는 작업을 하도록 하여 정상적으로 추적이 이루어지게 하였습니다.
+그 후 액터를 추가하는 함수에서 추적을 기다리고 있던 액터의 데이터를 받으면 델리게이트를 브로드캐스트 하고 퀘스트 컴포넌트는 이를 수신하여 다시 액터를 찾는 작업을 하도록 하여 추적이 이루어지게 하였습니다.
 
 ---
 
