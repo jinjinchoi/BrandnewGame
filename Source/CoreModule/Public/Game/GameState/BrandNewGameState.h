@@ -6,8 +6,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "BrandNewGameState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerJoin, const APlayerState*, JoinedPlayerState);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerExit,const APlayerState*, ExitedPlayerState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerPresenceChanged, const APlayerState*, ChangedPlayerState);
 
 /**
  * 
@@ -23,11 +22,11 @@ public:
 
 	/* 플레이어가 참여할때 호출하는 델리게이트 */
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
-	FOnPlayerJoin PlayerJoinDelegate;
+	FOnPlayerPresenceChanged PlayerJoinDelegate;
 
 	/* 플레이어가 세션에서 나갈때 호출하는 델리게이트 */
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
-	FOnPlayerExit PlayerExitDelegate;
+	FOnPlayerPresenceChanged PlayerExitDelegate;
 	
 private:
 	UFUNCTION()
