@@ -6,9 +6,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "BrandNewGameState.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerJoin, const APlayerState*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerJoin, const APlayerState*, JoinedPlayerState);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerExit,const APlayerState*, ExitedPlayerState);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCurrentPlayersUpdated);
 
 /**
  * 
@@ -23,20 +22,15 @@ public:
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
 
 	/* 플레이어가 참여할때 호출하는 델리게이트 */
+	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerJoin PlayerJoinDelegate;
 
 	/* 플레이어가 세션에서 나갈때 호출하는 델리게이트 */
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
 	FOnPlayerExit PlayerExitDelegate;
-
-	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegates")
-	FOnCurrentPlayersUpdated OnSetPlayerCharacterDelegate;
-
-	void RegisterPlayerState(APlayerState* NewPlayerState);
-
-protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Brandnew|Player")
-	TArray<APlayerState*> PlayerStateArray;
 	
+private:
+	UFUNCTION()
+	void OnPlayerPawnSet(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
 	
 };

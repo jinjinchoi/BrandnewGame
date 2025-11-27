@@ -4,7 +4,6 @@
 #include "Player/BrandNewPlayerState.h"
 
 #include "Components/BrandnewQuestComponent.h"
-#include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "InventoryModule/Public/Inventory/BrandNewInventory.h"
 #include "Net/UnrealNetwork.h"
 
@@ -48,6 +47,12 @@ UActorComponent* ABrandNewPlayerState::GetQuestComponent() const
 	}
 	
 	return nullptr;
+}
+
+void ABrandNewPlayerState::SetPlayerUniqueId(const FString& InPlayerId)
+{
+	PlayerUniqueId = InPlayerId;
+	OnPlayerIdSetDelegate.Broadcast(PlayerUniqueId);
 }
 
 

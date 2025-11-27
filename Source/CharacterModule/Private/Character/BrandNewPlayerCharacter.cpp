@@ -28,7 +28,6 @@
 #include "DataTableStruct/DataTableRowStruct.h"
 #include "FunctionLibrary/BrandNewFunctionLibrary.h"
 #include "Game/GameInstance/BrandNewGameInstance.h"
-#include "Game/GameState/BrandNewGameState.h"
 #include "Game/Subsystem/BrandNewSaveSubsystem.h"
 #include "GameMode/BrandNewGameModeBase.h"
 #include "Interfaces/Actor/InteractiveActorInterface.h"
@@ -117,11 +116,11 @@ void ABrandNewPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	OnEquippedWeaponChanged();
+	SetPlayerIdToNameWidgetComponent();
 
 	// 처음 시작할때 위치를 저장하여 맵을 이동하더라도 이동 된 월드의 초기 Location을 알 수 있게 함.
 	SafeLocation = GetActorLocation();
 	
-	SetPlayerIdToNameWidgetComponent();
 }
 
 
@@ -133,7 +132,7 @@ void ABrandNewPlayerCharacter::PossessedBy(AController* NewController)
 	InitAbilityActorInfo();
 	AddCharacterAbilities(); // TODO: 어빌리티 레벨 구현시 로드해야함
 	BindAttributeDelegates();
-	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
+	SetPlayerIdToNameWidgetComponent();
 	
 	if (IsLocallyControlled())
 	{
@@ -151,7 +150,6 @@ void ABrandNewPlayerCharacter::OnRep_PlayerState()
 	
 	UpdateMovementComponentPrams();
 	InitAbilityActorInfo(); // ASC를 초기화
-	GetWorld()->GetGameState<ABrandNewGameState>()->RegisterPlayerState(GetPlayerState());
 	SetPlayerIdToNameWidgetComponent();
 
 	if (IsLocallyControlled())
@@ -180,7 +178,7 @@ void ABrandNewPlayerCharacter::SetPlayerIdToNameWidgetComponent() const
 void ABrandNewPlayerCharacter::Server_RequestInitCharacterInfo_Implementation(const FString& PlayerId)
 {
 	const UBrandNewSaveSubsystem* SaveSubsystem = GetGameInstance()->GetSubsystem<UBrandNewSaveSubsystem>();
-	GetPlayerStateChecked<ABrandNewPlayerState>()->PlayerUniqueId = PlayerId;
+	GetPlayerStateChecked<ABrandNewPlayerState>()->SetPlayerUniqueId(PlayerId);
 	
 	if (const FSaveSlotPrams LatestPlayerData = SaveSubsystem->GetLatestPlayerData(PlayerId); LatestPlayerData.bIsValid) // 맵 이동인지 접속인지 확인
 	{
@@ -828,7 +826,7 @@ void ABrandNewPlayerCharacter::RequestSave(const FString& SlotName, const int32 
 
 	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
 	
-	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, BrandNewPlayerState->PlayerUniqueId);
+	SaveSubsystem->SaveGameToSlotWithId(SlotName, SlotIndex, SaveSlotPrams, BrandNewPlayerState->GetPlayerUniqueId());
 	
 }
 
@@ -842,7 +840,7 @@ void ABrandNewPlayerCharacter::SavePlayerDataForTravel()
 
 	const ABrandNewPlayerState* BrandNewPlayerState = CastChecked<ABrandNewPlayerState>(GetPlayerState());
 	
-	SaveSubsystem->UpdateLatestPlayerDataMap(BrandNewPlayerState->PlayerUniqueId, MakeSaveSlotPrams());
+	SaveSubsystem->UpdateLatestPlayerDataMap(BrandNewPlayerState->GetPlayerUniqueId(), MakeSaveSlotPrams());
 
 	ABrandNewGameModeBase* BrandNewGameModeBase = Cast<ABrandNewGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (!BrandNewGameModeBase) return;

@@ -31,17 +31,20 @@ public:
 	virtual FString GetPlayerUniqueId() const override;
 	virtual UActorComponent* GetQuestComponent() const override;
 	/* end IBnPlayerStateInterface */
-
+	
+	void SetPlayerUniqueId(const FString& InPlayerId);
+	
 	UFUNCTION(BlueprintPure, Category = "Brandnew|Inventory")
 	UBrandNewInventory* GetInventory() const;
-
-	UPROPERTY(ReplicatedUsing = "OnRep_PlayerUniqueId", BlueprintReadOnly)
-	FString PlayerUniqueId;
-
+	
 	UPROPERTY(BlueprintAssignable, Category = "Brandnew|Delegate")
 	FOnPlayerIdSet OnPlayerIdSetDelegate;
 	
 	void GrantQuestByLevelRequirement(const int32 PlayerLevel) const;
+	
+protected:
+	UPROPERTY(ReplicatedUsing = "OnRep_PlayerUniqueId", BlueprintReadOnly)
+	FString PlayerUniqueId;
 
 private:
 	UFUNCTION()
@@ -52,5 +55,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UBrandnewQuestComponent> QuestComponent;
+	
+
 	
 };

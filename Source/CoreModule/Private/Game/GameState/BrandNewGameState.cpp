@@ -2,19 +2,28 @@
 
 
 #include "Game/GameState/BrandNewGameState.h"
+#include "GameFramework/PlayerState.h"
 
-void ABrandNewGameState::RegisterPlayerState(APlayerState* NewPlayerState)
-{
-	PlayerStateArray.AddUnique(NewPlayerState);
-	OnSetPlayerCharacterDelegate.Broadcast();
-}
 
 void ABrandNewGameState::AddPlayerState(APlayerState* PlayerState)
 {
 	Super::AddPlayerState(PlayerState);
+
+	if (PlayerState->GetPawn())
+	{
+		PlayerJoinDelegate.Broadcast(PlayerState);
+	}
+	else
+	{
+		PlayerState->OnPawnSet.AddDynamic(this, &ThisClass::OnPlayerPawnSet);
+	}
 	
-	PlayerJoinDelegate.Broadcast(PlayerState);
 	
+}
+
+void ABrandNewGameState::OnPlayerPawnSet(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
+{
+	PlayerJoinDelegate.Broadcast(Player);
 }
 
 void ABrandNewGameState::RemovePlayerState(APlayerState* PlayerState)
@@ -24,3 +33,4 @@ void ABrandNewGameState::RemovePlayerState(APlayerState* PlayerState)
 	PlayerExitDelegate.Broadcast(PlayerState);
 	
 }
+
